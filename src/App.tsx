@@ -1,12 +1,12 @@
 import './App.css';
-import componente from './components/componente';
+import HomePage from './pages/HomePage.tsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 function App() {
   return (
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<componente />} />
+          <Route path="/" element={<HomePage />} />
         </Routes>
       </Router>
     </>
