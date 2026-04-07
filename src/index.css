@@ -1,0 +1,86 @@
+/* 1. New Tailwind v4 import (must be at the top) */
+@import 'tailwindcss';
+
+/* 2. Map your custom CSS variables to Tailwind classes */
+@theme {
+  --color-primary: rgb(var(--color--primary));
+  --color-primary-hover: rgb(var(--color--primary-hover));
+  --color-primary-active: rgb(var(--color--primary-active));
+  --color-primary-focus: rgb(var(--color--primary-focus));
+
+  --color-secondary: rgb(var(--color--secondary));
+  --color-secondary-hover: rgb(var(--color--secondary-hover));
+  --color-secondary-active: rgb(var(--color--secondary-active));
+  --color-secondary-focus: rgb(var(--color--secondary-focus));
+
+  --color-tertiary: rgb(var(--color--terciary));
+  --color-tertiary-hover: rgb(var(--color--terciary-hover));
+  --color-tertiary-active: rgb(var(--color--terciary-active));
+  --color-tertiary-focus: rgb(var(--color--terciary-focus));
+
+  --color-danger: rgb(var(--color--danger));
+  --color-danger-hover: rgb(var(--color--danger-hover));
+  --color-danger-active: rgb(var(--color--danger-active));
+  --color-danger-focus: rgb(var(--color--danger-focus));
+
+  --color-accent: rgb(var(--color--accent));
+  --color-accent-hover: rgb(var(--color--accent-hover));
+  --color-accent-active: rgb(var(--color--accent-active));
+  --color-accent-focus: rgb(var(--color--accent-focus));
+}
+
+/* 3. Define the actual RGB values */
+:root {
+  --color--primary: 34 116 165;
+  --color--primary-hover: 27 95 140;
+  --color--primary-active: 27 95 140;
+  --color--primary-focus: 27 95 140;
+
+  --color--secondary: 229 98 94;
+  --color--secondary-hover: 155 59 54;
+  --color--secondary-active: 155 59 54;
+  --color--secondary-focus: 155 59 54;
+
+  --color--terciary: 255 251 189;
+  --color--terciary-hover: 255 243 160;
+  --color--terciary-active: 255 243 160;
+  --color--terciary-focus: 255 243 160;
+
+  --color--danger: 199 62 29;
+  --color--danger-hover: 155 59 54;
+  --color--danger-active: 155 59 54;
+  --color--danger-focus: 155 59 54;
+
+  --color--accent: 99 75 102;
+  --color--accent-hover: 99 75 102;
+  --color--accent-active: 99 75 102;
+  --color--accent-focus: 99 75 102;
+}
+
+[data-theme='dark'] {
+  --color--primary: 34 116 165;
+  --color--primary-hover: 27 95 140;
+  --color--primary-active: 27 95 140;
+  --color--primary-focus: 27 95 140;
+
+  --color--secondary: 229 98 94;
+  --color--secondary-hover: 155 59 54;
+  --color--secondary-active: 155 59 54;
+  --color--secondary-focus: 155 59 54;
+
+  --color--terciary: 255 251 189;
+  --color--terciary-hover: 255 243 160;
+  --color--terciary-active: 255 243 160;
+  --color--terciary-focus: 255 243 160;
+
+  --color--danger: 199 62 29;
+  --color--danger-hover: 155 59 54;
+  --color--danger-active: 155 59 54;
+  --color--danger-focus: 155 59 54;
+
+  --color--accent: 99 75 102;
+  --color--accent-hover: 99 75 102;
+  /* Fixed: These were previously hex codes (634B66) */
+  --color--accent-active: 99 75 102;
+  --color--accent-focus: 99 75 102;
+}
