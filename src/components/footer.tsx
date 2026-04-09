@@ -1,4 +1,4 @@
-import LinkPhrase from "./linkphrase";
+import LinkPhrase from "./Linkphrase";
 
 export default function Footer() {
 
@@ -115,14 +115,7 @@ export default function Footer() {
                             <LinkPhrase text="Nosotros" url="/about" size="md" color="blackPrimary" />
                             <LinkPhrase text="Contacto" url="/contact" size="md" color="blackPrimary" />
                         </div>
-                        <div className="flex items-center space-x-4 mt-6">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-background flex items-center justify-center hover:text-primary hover:shadow-sm transition-all">
-                                {/* <Facebook className="w-4 h-4" /> */}
-                            </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-background flex items-center justify-center hover:text-primary hover:shadow-sm transition-all">
-                                {/* <Instagram className="w-4 h-4" /> */}
-                            </a>
-                        </div>
+
                     </div>
                 </div>
             </div>

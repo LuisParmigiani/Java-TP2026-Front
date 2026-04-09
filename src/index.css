@@ -97,18 +97,18 @@
   --color--secondary-active: 229 98 94 / 1;
   --color--secondary-focus: 229 98 94 / 0.95;
 
-  --color--terciary: 255 251 189;
-  --color--terciary-100: 255 251 189 / 0.1;
-  --color--terciary-200: 255 251 189 / 0.2;
-  --color--terciary-300: 255 251 189 / 0.3;
-  --color--terciary-400: 255 251 189 / 0.4;
-  --color--terciary-500: 255 251 189 / 0.5;
-  --color--terciary-600: 255 251 189 / 0.6;
-  --color--terciary-700: 255 251 189 / 0.7;
-  --color--terciary-800: 255 251 189 / 0.8;
-  --color--terciary-hover: 255 251 189 / 0.9;
-  --color--terciary-active: 255 251 189 / 1;
-  --color--terciary-focus: 255 251 189 / 0.95;
+  --color--terciary: 255 235 120;
+  --color--terciary-100: 255 235 120 / 0.1;
+  --color--terciary-200: 255 235 120 / 0.2;
+  --color--terciary-300: 255 235 120 / 0.3;
+  --color--terciary-400: 255 235 120 / 0.4;
+  --color--terciary-500: 255 235 120 / 0.5;
+  --color--terciary-600: 255 235 120 / 0.6;
+  --color--terciary-700: 255 235 120 / 0.7;
+  --color--terciary-800: 255 235 120 / 0.8;
+  --color--terciary-hover: 255 235 120 / 0.9;
+  --color--terciary-active: 255 235 120 / 1;
+  --color--terciary-focus: 255 235 120 / 0.95;
 
   --color--danger: 199 62 29;
   --color--danger-100: 199 62 29 / 0.1;

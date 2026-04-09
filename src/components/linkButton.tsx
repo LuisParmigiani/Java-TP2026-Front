@@ -9,10 +9,10 @@ interface ButtonProps {
 
 const buttontypes = {
   primary:
-    'bg-primary text-white hover:bg-white hover:text-primary border-2 border-primary focus:ring-primary/50',
+    'bg-primary text-white hover:bg-white hover:text-primary border-2 border-primary focus:ring-primary/50  ',
   secondary:
-    'bg-secondary text-white hover:bg-secondary-dark border-2 border-secondary',
-  gray: 
+    'bg-secondary text-white hover:bg-white border-2 border-secondary focus:ring-secondary/50 hover:text-secondary',
+  gray:
     ' text-gray-500 hover:bg-gray-500 border-2 border-gray-500 focus:ring-gray-300 hover:text-white',
   outline:
     'bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white',
@@ -20,6 +20,10 @@ const buttontypes = {
     'bg-white text-primary hover:bg-white/90 border-2 border-white focus:ring-white/50',
   grayTransparent:
     'bg-gray-200/60 text-gray-600 hover:bg-gray-300/70 border-2 border-gray-300/60 focus:ring-gray-300/50 hover:text-gray-900 backdrop-blur-sm',
+  tertiary:
+    'bg-tertiary text-white text-lg hover:bg-white hover:text-terciary border-2 border-tertiary focus:ring-terciary/50 font-bold',
+  green:
+    'bg-green-500 text-white hover:bg-white hover:text-green-500 border-2 border-green-500 focus:ring-green-300/50',
 };
 
 const sizetypes = {
