@@ -1,86 +1,205 @@
 /* 1. New Tailwind v4 import (must be at the top) */
-@import 'tailwindcss';
+ @import 'tailwindcss';
 
 /* 2. Map your custom CSS variables to Tailwind classes */
 @theme {
   --color-primary: rgb(var(--color--primary));
+  --color-primary-100: rgb(var(--color--primary-100));
+  --color-primary-200: rgb(var(--color--primary-200));
+  --color-primary-300: rgb(var(--color--primary-300));
+  --color-primary-400: rgb(var(--color--primary-400));
+  --color-primary-500: rgb(var(--color--primary-500));
+  --color-primary-600: rgb(var(--color--primary-600));
+  --color-primary-700: rgb(var(--color--primary-700));
+  --color-primary-800: rgb(var(--color--primary-800));
+
   --color-primary-hover: rgb(var(--color--primary-hover));
   --color-primary-active: rgb(var(--color--primary-active));
   --color-primary-focus: rgb(var(--color--primary-focus));
 
   --color-secondary: rgb(var(--color--secondary));
+  --color-secondary-100: rgb(var(--color--secondary-100));
+  --color-secondary-200: rgb(var(--color--secondary-200));
+  --color-secondary-300: rgb(var(--color--secondary-300));  
+  --color-secondary-400: rgb(var(--color--secondary-400));
+  --color-secondary-500: rgb(var(--color--secondary-500));
+  --color-secondary-600: rgb(var(--color--secondary-600));
+  --color-secondary-700: rgb(var(--color--secondary-700));
+  --color-secondary-800: rgb(var(--color--secondary-800));
   --color-secondary-hover: rgb(var(--color--secondary-hover));
   --color-secondary-active: rgb(var(--color--secondary-active));
   --color-secondary-focus: rgb(var(--color--secondary-focus));
 
   --color-tertiary: rgb(var(--color--terciary));
+  --color-tertiary-100: rgb(var(--color--terciary-100));
+  --color-tertiary-200: rgb(var(--color--terciary-200));
+  --color-tertiary-300: rgb(var(--color--terciary-300));
+  --color-tertiary-400: rgb(var(--color--terciary-400));
+  --color-tertiary-500: rgb(var(--color--terciary-500));
+  --color-tertiary-600: rgb(var(--color--terciary-600));
+  --color-tertiary-700: rgb(var(--color--terciary-700));
+  --color-tertiary-800: rgb(var(--color--terciary-800));
   --color-tertiary-hover: rgb(var(--color--terciary-hover));
   --color-tertiary-active: rgb(var(--color--terciary-active));
   --color-tertiary-focus: rgb(var(--color--terciary-focus));
 
   --color-danger: rgb(var(--color--danger));
+  --color-danger-100: rgb(var(--color--danger-100));
+  --color-danger-200: rgb(var(--color--danger-200));
+  --color-danger-300: rgb(var(--color--danger-300));
+  --color-danger-400: rgb(var(--color--danger-400));
+  --color-danger-500: rgb(var(--color--danger-500));
+  --color-danger-600: rgb(var(--color--danger-600));
+  --color-danger-700: rgb(var(--color--danger-700));
+  --color-danger-800: rgb(var(--color--danger-800));
   --color-danger-hover: rgb(var(--color--danger-hover));
   --color-danger-active: rgb(var(--color--danger-active));
   --color-danger-focus: rgb(var(--color--danger-focus));
 
   --color-accent: rgb(var(--color--accent));
+  --color-accent-100: rgb(var(--color--accent-100));
+  --color-accent-200: rgb(var(--color--accent-200));
+  --color-accent-300: rgb(var(--color--accent-300));
+  --color-accent-400: rgb(var(--color--accent-400));
+  --color-accent-500: rgb(var(--color--accent-500));
+  --color-accent-600: rgb(var(--color--accent-600));
+  --color-accent-700: rgb(var(--color--accent-700));
+  --color-accent-800: rgb(var(--color--accent-800));
   --color-accent-hover: rgb(var(--color--accent-hover));
   --color-accent-active: rgb(var(--color--accent-active));
   --color-accent-focus: rgb(var(--color--accent-focus));
 }
 
 /* 3. Define the actual RGB values */
-:root {
-  --color--primary: 34 116 165;
-  --color--primary-hover: 27 95 140;
-  --color--primary-active: 27 95 140;
-  --color--primary-focus: 27 95 140;
+:root {  --color--primary: 34 116 165;
+  --color--primary-100: 34 116 165 / 0.1;
+  --color--primary-200: 34 116 165 / 0.2;
+  --color--primary-300: 34 116 165 / 0.3;
+  --color--primary-400: 34 116 165 / 0.4;
+  --color--primary-500: 34 116 165 / 0.5;
+  --color--primary-600: 34 116 165 / 0.6;
+  --color--primary-700: 34 116 165 / 0.7;
+  --color--primary-800: 34 116 165 / 0.8;
+  --color--primary-hover: 34 116 165 / 0.9;
+  --color--primary-active: 34 116 165 / 1;
+  --color--primary-focus: 34 116 165 / 0.95;
 
   --color--secondary: 229 98 94;
-  --color--secondary-hover: 155 59 54;
-  --color--secondary-active: 155 59 54;
-  --color--secondary-focus: 155 59 54;
+  --color--secondary-100: 229 98 94 / 0.1;
+  --color--secondary-200: 229 98 94 / 0.2;
+  --color--secondary-300: 229 98 94 / 0.3;
+  --color--secondary-400: 229 98 94 / 0.4;
+  --color--secondary-500: 229 98 94 / 0.5;
+  --color--secondary-600: 229 98 94 / 0.6;
+  --color--secondary-700: 229 98 94 / 0.7;
+  --color--secondary-800: 229 98 94 / 0.8;
+  --color--secondary-hover: 229 98 94 / 0.9;
+  --color--secondary-active: 229 98 94 / 1;
+  --color--secondary-focus: 229 98 94 / 0.95;
 
   --color--terciary: 255 251 189;
-  --color--terciary-hover: 255 243 160;
-  --color--terciary-active: 255 243 160;
-  --color--terciary-focus: 255 243 160;
+  --color--terciary-100: 255 251 189 / 0.1;
+  --color--terciary-200: 255 251 189 / 0.2;
+  --color--terciary-300: 255 251 189 / 0.3;
+  --color--terciary-400: 255 251 189 / 0.4;
+  --color--terciary-500: 255 251 189 / 0.5;
+  --color--terciary-600: 255 251 189 / 0.6;
+  --color--terciary-700: 255 251 189 / 0.7;
+  --color--terciary-800: 255 251 189 / 0.8;
+  --color--terciary-hover: 255 251 189 / 0.9;
+  --color--terciary-active: 255 251 189 / 1;
+  --color--terciary-focus: 255 251 189 / 0.95;
 
   --color--danger: 199 62 29;
-  --color--danger-hover: 155 59 54;
-  --color--danger-active: 155 59 54;
-  --color--danger-focus: 155 59 54;
+  --color--danger-100: 199 62 29 / 0.1;
+  --color--danger-200: 199 62 29 / 0.2;
+  --color--danger-300: 199 62 29 / 0.3;
+  --color--danger-400: 199 62 29 / 0.4;
+  --color--danger-500: 199 62 29 / 0.5;
+  --color--danger-600: 199 62 29 / 0.6;
+  --color--danger-700: 199 62 29 / 0.7;
+  --color--danger-800: 199 62 29 / 0.8;
+  --color--danger-hover: 199 62 29 / 0.9;
+  --color--danger-active: 199 62 29 / 1;
+  --color--danger-focus: 199 62 29 / 0.95;
 
   --color--accent: 99 75 102;
-  --color--accent-hover: 99 75 102;
-  --color--accent-active: 99 75 102;
-  --color--accent-focus: 99 75 102;
+  --color--accent-100: 99 75 102 / 0.1;
+  --color--accent-200: 99 75 102 / 0.2;
+  --color--accent-300: 99 75 102 / 0.3;
+  --color--accent-400: 99 75 102 / 0.4;
+  --color--accent-500: 99 75 102 / 0.5;
+  --color--accent-600: 99 75 102 / 0.6;
+  --color--accent-700: 99 75 102 / 0.7;
+  --color--accent-800: 99 75 102 / 0.8;
+  --color--accent-hover: 99 75 102 / 0.9;
+  --color--accent-active: 99 75 102 / 1;
+  --color--accent-focus: 99 75 102 / 0.95;
 }
 
 [data-theme='dark'] {
-  --color--primary: 34 116 165;
-  --color--primary-hover: 27 95 140;
-  --color--primary-active: 27 95 140;
-  --color--primary-focus: 27 95 140;
+    --color--primary: 34 116 165;
+  --color--primary-100: 34 116 165 / 0.1;
+  --color--primary-200: 34 116 165 / 0.2;
+  --color--primary-300: 34 116 165 / 0.3;
+  --color--primary-400: 34 116 165 / 0.4;
+  --color--primary-500: 34 116 165 / 0.5;
+  --color--primary-600: 34 116 165 / 0.6;
+  --color--primary-700: 34 116 165 / 0.7;
+  --color--primary-800: 34 116 165 / 0.8;
+  --color--primary-hover: 34 116 165 / 0.9;
+  --color--primary-active: 34 116 165 / 1;
+  --color--primary-focus: 34 116 165 / 0.95;
 
   --color--secondary: 229 98 94;
-  --color--secondary-hover: 155 59 54;
-  --color--secondary-active: 155 59 54;
-  --color--secondary-focus: 155 59 54;
+  --color--secondary-100: 229 98 94 / 0.1;
+  --color--secondary-200: 229 98 94 / 0.2;
+  --color--secondary-300: 229 98 94 / 0.3;
+  --color--secondary-400: 229 98 94 / 0.4;
+  --color--secondary-500: 229 98 94 / 0.5;
+  --color--secondary-600: 229 98 94 / 0.6;
+  --color--secondary-700: 229 98 94 / 0.7;
+  --color--secondary-800: 229 98 94 / 0.8;
+  --color--secondary-hover: 229 98 94 / 0.9;
+  --color--secondary-active: 229 98 94 / 1;
+  --color--secondary-focus: 229 98 94 / 0.95;
 
   --color--terciary: 255 251 189;
-  --color--terciary-hover: 255 243 160;
-  --color--terciary-active: 255 243 160;
-  --color--terciary-focus: 255 243 160;
+  --color--terciary-100: 255 251 189 / 0.1;
+  --color--terciary-200: 255 251 189 / 0.2;
+  --color--terciary-300: 255 251 189 / 0.3;
+  --color--terciary-400: 255 251 189 / 0.4;
+  --color--terciary-500: 255 251 189 / 0.5;
+  --color--terciary-600: 255 251 189 / 0.6;
+  --color--terciary-700: 255 251 189 / 0.7;
+  --color--terciary-800: 255 251 189 / 0.8;
+  --color--terciary-hover: 255 251 189 / 0.9;
+  --color--terciary-active: 255 251 189 / 1;
+  --color--terciary-focus: 255 251 189 / 0.95;
 
   --color--danger: 199 62 29;
-  --color--danger-hover: 155 59 54;
-  --color--danger-active: 155 59 54;
-  --color--danger-focus: 155 59 54;
+  --color--danger-100: 199 62 29 / 0.1;
+  --color--danger-200: 199 62 29 / 0.2;
+  --color--danger-300: 199 62 29 / 0.3;
+  --color--danger-400: 199 62 29 / 0.4;
+  --color--danger-500: 199 62 29 / 0.5;
+  --color--danger-600: 199 62 29 / 0.6;
+  --color--danger-700: 199 62 29 / 0.7;
+  --color--danger-800: 199 62 29 / 0.8;
+  --color--danger-hover: 199 62 29 / 0.9;
+  --color--danger-active: 199 62 29 / 1;
+  --color--danger-focus: 199 62 29 / 0.95;
 
   --color--accent: 99 75 102;
-  --color--accent-hover: 99 75 102;
-  /* Fixed: These were previously hex codes (634B66) */
-  --color--accent-active: 99 75 102;
-  --color--accent-focus: 99 75 102;
+  --color--accent-100: 99 75 102 / 0.1;
+  --color--accent-200: 99 75 102 / 0.2;
+  --color--accent-300: 99 75 102 / 0.3;
+  --color--accent-400: 99 75 102 / 0.4;
+  --color--accent-500: 99 75 102 / 0.5;
+  --color--accent-600: 99 75 102 / 0.6;
+  --color--accent-700: 99 75 102 / 0.7;
+  --color--accent-800: 99 75 102 / 0.8;
+  --color--accent-hover: 99 75 102 / 0.9;
+  --color--accent-active: 99 75 102 / 1;
+  --color--accent-focus: 99 75 102 / 0.95;
 }
