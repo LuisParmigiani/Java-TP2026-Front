@@ -2,6 +2,7 @@ import { useState } from "react";
 import Filter from "../../components/Filter";
 import Footer from "../../components/Footer";
 import OrderCard from "../../components/OrderCard";
+import LinkButton from "../../components/LinkButton";
 
 const orders = [
     {
@@ -24,14 +25,21 @@ const orders = [
     }
 ];
 
+
+
 export default function Orders() {
     const [state, setState] = useState('Todos');
+    const [orderBy, setOrderBy] = useState('Mas Recientes');
     return (
         <div className="min-h-screen flex flex-col mt-4">
             <div className="flex flex-col mb-4 gap-4 mx-4">
-                <h1 className="text-4xl">Mis Pedidos</h1>
-
-                <p className="text-gray-600">Revisa el estado de tus pedidos y su historial.</p>
+                <div className="flex flex-row align-items-center justify-between">
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-4xl">Mis Pedidos</h1>
+                        <p className="text-gray-600">Revisa el estado de tus pedidos y su historial.</p>
+                    </div>
+                    <LinkButton name="Nuevo Pedido" url="/customer/newOrder" variant="secondary" size="lg" />
+                </div>
                 <div className="flex flex-row">
                     <Filter
                         name={state}
@@ -41,16 +49,9 @@ export default function Orders() {
                         size="md"
                     />
                     <Filter
-                        name={state}
-                        options={['Todos', 'Pendientes', 'Enviados', 'Entregados']}
-                        onSave={setState}
-                        color="primary"
-                        size="md"
-                    />
-                    <Filter
-                        name={state}
-                        options={['Todos', 'Pendientes', 'Enviados', 'Entregados']}
-                        onSave={setState}
+                        name={orderBy}
+                        options={['Mas Recientes', 'Mas antiguos', 'Menor precio', 'Mayor precio']}
+                        onSave={setOrderBy}
                         color="primary"
                         size="md"
                     />

@@ -17,12 +17,12 @@ const recentOrders = [
     { id: '12347', date: '2024-08-20', status: 'Cancelado', total: '12.34' },
 ];
 const recentDirections = [
-    { id: '1', address: 'Calle Falsa', number: '123', house: 'A34', piso: '2', dias: ['true', 'false', 'true', 'true', 'false', 'false', 'true'] },
-    { id: '2', address: 'Avenida Siempre Viva', number: '742', house: 'B12', piso: '1', dias: ['true', 'true', 'true', 'true', 'true', 'false', 'false'] },
-    { id: '3', address: 'Boulevard de los Sueños Rotos', number: '456', house: 'C56', piso: '3', dias: ['false', 'false', 'true', 'false', 'true', 'true', 'false'] },
+    { id: '1', address: 'Calle Falsa', number: '123', house: 'A34', floor: '2', dias: ['true', 'false', 'true', 'true', 'false', 'false', 'true'], actived: true },
+    { id: '2', address: 'Avenida Siempre Viva', number: '742', house: 'B12', floor: '1', dias: ['true', 'true', 'true', 'true', 'true', 'false', 'false'], actived: false },
+    { id: '3', address: 'Boulevard de los Sueños Rotos', number: '456', house: 'C56', floor: '3', dias: ['false', 'false', 'true', 'false', 'true', 'true', 'false'], actived: true },
 ];
 
-const Dashboard = () => {
+export default function Dashboard() {
     const [directions, setDirections] = useState(recentDirections);
     const handleSaveDirection = (updatedDirection: typeof recentDirections[number]) => {
         setDirections((current) => current.map((direction) => (direction.id === updatedDirection.id ? updatedDirection : direction)));
@@ -60,7 +60,7 @@ const Dashboard = () => {
                     <div className="mb-12">
                         <h2 className="text-xl font-semibold text-foreground mb-6">Acciones Rápidas</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <LinkButton name="+ Hacer Nuevo pedido" url="/customer/new-order" variant="primary" size="lg" />
+                            <LinkButton name="+ Hacer Nuevo pedido" url="/customer/newOrder" variant="primary" size="lg" />
                             <LinkButton name="Ver Productos" url="/customer/products" variant="secondary" size="lg" />
                             <LinkButton name="Pagar Deuda" url="/customer/Pay" variant="green" size="lg" />
 
@@ -122,5 +122,3 @@ const Dashboard = () => {
         </div >
     );
 };
-
-export default Dashboard;

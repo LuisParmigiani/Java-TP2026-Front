@@ -5,7 +5,8 @@ export type Direction = {
     address: string;
     number: string;
     house: string;
-    piso: string;
+    floor: string;
+    actived: boolean;
     dias: string[];
 };
 
@@ -45,7 +46,7 @@ export default function DireccionCard({ direction, onSave }: Props) {
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-start justify-between gap-4 bg-linear-to-r from-white to-gray-50 px-5 py-4 text-left transition-colors hover:from-gray-50 hover:to-gray-100"
+                className={`flex w-full items-start justify-between gap-4 ${direction.actived ? 'bg-green-100' : 'bg-red-100'} px-5 py-4 text-left transition-colors hover:from-gray-50 hover:to-gray-100`}
             >
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -54,11 +55,12 @@ export default function DireccionCard({ direction, onSave }: Props) {
                             <h3 className="text-lg font-semibold text-gray-900">
                                 {direction.address} {direction.number}
                             </h3>
-                            <p className="text-sm text-gray-500">Piso {direction.piso} · Hose {direction.house}</p>
+                            <p className="text-sm text-gray-500"> {direction.floor && `Piso ${direction.floor} · `} {direction.house && `Casa ${direction.house}`}</p>
+                            <p className='text-md my-2 '>Estado: {direction.actived ? 'Activa' : 'Inactiva'}</p>
                         </div>
                     </div>
                 </div>
-                <span className="mt-1 rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
+                <span className="mt-1 rounded-full border bg-gray-50 border-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
                     {open ? 'Cerrar edición' : 'Editar'}
                 </span>
             </button>
@@ -111,8 +113,8 @@ export default function DireccionCard({ direction, onSave }: Props) {
                                 <span className="text-sm font-medium text-gray-700">Piso</span>
                                 <input
                                     type="text"
-                                    value={formData.piso}
-                                    onChange={(event) => setFormData((current) => ({ ...current, piso: event.target.value }))}
+                                    value={formData.floor}
+                                    onChange={(event) => setFormData((current) => ({ ...current, floor: event.target.value }))}
                                     className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                                 />
                             </label>
@@ -127,6 +129,14 @@ export default function DireccionCard({ direction, onSave }: Props) {
                                 />
                             </label>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setFormData((current) => ({ ...current, actived: !current.actived }))}
+                            className={`${formData.actived ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} mt-5 w-full rounded-2xl py-1`}
+                        >
+                            {formData.actived ? 'Desactivar dirección' : 'Activar dirección'}
+                        </button>
 
                         <div className="mt-4">
                             <span className="text-sm font-medium text-gray-700">Editar días</span>
