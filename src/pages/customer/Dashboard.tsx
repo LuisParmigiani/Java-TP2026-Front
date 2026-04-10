@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
 import DireccionCard from '../../components/DirectionCard';
-import Footer from '../../components/Footer';
+import Footer from '../../components/footer';
 import InformationCard from '../../components/InformationCard';
-import LinkButton from '../../components/LinkButton';
-import LinkPhrase from '../../components/Linkphrase';
+import LinkButton from '../../components/linkButton';
+import LinkPhrase from '../../components/linkphrase';
 import OrderCard from '../../components/OrderCard';
 const user = {
     name: 'Luis Parmigiani',
