@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Filter from "../../components/Filter";
-import Footer from "../../components/Footer";
+import Footer from "../../components/footer";
 import OrderCard from "../../components/OrderCard";
 import LinkButton from "../../components/LinkButton";
 
