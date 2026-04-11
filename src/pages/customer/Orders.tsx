@@ -40,7 +40,7 @@ export default function Orders() {
                     </div>
                     <LinkButton name="Nuevo Pedido" url="/customer/newOrder" variant="secondary" size="lg" />
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-col sm:flex-row gap-1">
                     <Filter
                         name={state}
                         options={['Todos', 'Pendientes', 'Enviados', 'Entregados']}
