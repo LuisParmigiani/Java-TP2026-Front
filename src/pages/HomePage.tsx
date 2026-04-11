@@ -2,6 +2,7 @@ import LinkButton from "../components/LinkButton";
 import MiniCard from "../components/MiniCard";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
+import Navbar from "../components/NavBar.tsx";
 const productos = [
   {
     id: 1,
@@ -59,6 +60,7 @@ const productos = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <Navbar/>
       <main className="flex-1 flex flex-col">
         {/* Hero Section */}
         <section className="relative w-full min-h-[600px] flex items-center justify-center bg-muted overflow-hidden">

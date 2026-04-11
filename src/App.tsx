@@ -1,16 +1,18 @@
-import "./App.css";
-import HomePage from "./pages/HomePage.tsx";
-import Dashboard from "./pages/customer/Dashboard.tsx";
-import Directions from "./pages/customer/Directions.tsx";
-import NewOrder from "./pages/customer/NewOrder.tsx";
-import Orders from "./pages/customer/Orders.tsx";
-import { Toaster } from "sonner";
-import LoginPage from "./pages/Login.tsx";
-import Pay from './pages/customer/Pay.tsx';
+import './App.css';
+import HomePage from './pages/HomePage.tsx';
+import Dashboard from './pages/customer/Dashboard.tsx';
+import Directions from './pages/customer/Directions.tsx';
+import NewOrder from './pages/customer/NewOrder.tsx';
+import Orders from './pages/customer/Orders.tsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import LoginPage from './pages/Login.tsx';
+import { AuthProvider } from './contexts/AuthContext.tsx';
+import DailyRoute from './pages/driver/DailyRoute.tsx';
+
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Toaster richColors position="top-center" />
       <Router>
         <Routes>
@@ -20,10 +22,10 @@ function App() {
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
-          <Route path='/customer/pay' element={<Pay />} />
+          <Route path="/driver/route" element={<DailyRoute />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 }
 
