@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "../components/Button.tsx";
-import { AuthCard } from "../components/AuthCard.tsx";
-import { FormField } from "../components/FormField.tsx";
+import { Button } from "../components/Button";
+import { AuthCard } from "../components/AuthCard";
+import { FormField } from "../components/FormField";
 import { toast } from "sonner";
 import Footer from "../components/Footer.tsx";
 import { login } from "../services/authService.ts";
