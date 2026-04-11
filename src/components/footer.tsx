@@ -1,4 +1,4 @@
-import LinkPhrase from "./linkphrase";
+import LinkPhrase from "./Linkphrase";
 
 export default function Footer() {
 

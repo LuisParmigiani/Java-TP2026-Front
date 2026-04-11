@@ -1,7 +1,7 @@
-import LinkButton from "../components/linkButton";
-import MiniCard from "../components/miniCard";
-import ProductCard from "../components/productCard";
-import Footer from "../components/footer";
+import LinkButton from "../components/LinkButton";
+import MiniCard from "../components/MiniCard";
+import ProductCard from "../components/ProductCard";
+import Footer from "../components/Footer";
 const productos = [
   {
     id: 1,

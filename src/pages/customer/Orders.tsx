@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Filter from "../../components/Filter";
-import Footer from "../../components/footer";
+import Footer from "../../components/Footer";
 import OrderCard from "../../components/OrderCard";
 import LinkButton from "../../components/LinkButton";
 
@@ -40,7 +40,7 @@ export default function Orders() {
                     </div>
                     <LinkButton name="Nuevo Pedido" url="/customer/newOrder" variant="secondary" size="lg" />
                 </div>
-                <div className="flex flex-row">
+                <div className="flex flex-col sm:flex-row gap-1">
                     <Filter
                         name={state}
                         options={['Todos', 'Pendientes', 'Enviados', 'Entregados']}

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "../components/button.tsx";
-import { AuthCard } from "../components/authCard.tsx";
-import { FormField } from "../components/formField.tsx";
+import { Button } from "../components/Button.tsx";
+import { AuthCard } from "../components/AuthCard.tsx";
+import { FormField } from "../components/FormField.tsx";
 import { toast } from "sonner";
-import Footer from "../components/footer.tsx";
+import Footer from "../components/Footer.tsx";
 import { login } from "../services/authService.ts";
 
 const LoginPage = () => {
