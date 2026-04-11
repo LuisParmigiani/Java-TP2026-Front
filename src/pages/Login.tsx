@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/button.tsx";
 import { AuthCard } from "../components/authCard.tsx";
 import { FormField } from "../components/formField.tsx";
 import { toast } from "sonner";
 import Footer from "../components/footer.tsx";
-import { login } from "../services/authService.ts";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth(); 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,7 +19,6 @@ const LoginPage = () => {
     {},
   );
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,28 +42,13 @@ const LoginPage = () => {
 
     setLoading(true);
     try {
-      const result = await login(formData.email, formData.password);
-      setLoading(false);
-
-      if (result.success) {
-        if (rememberMe) {
-          localStorage.setItem("token", result.token);
-          localStorage.setItem("userId", result.userId.toString());
-          localStorage.setItem("role", result.role || "Usuario");
-        } else {
-          sessionStorage.setItem("token", result.token);
-          sessionStorage.setItem("userId", result.userId.toString());
-          sessionStorage.setItem("role", result.role || "Usuario");
-        }
-        toast.success("Inicio de sesión exitoso", { duration: 1000 });
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } else {
-        toast.error(result.error || "Error al iniciar sesión", {
-          duration: 1000,
-        });
-      }
+      // ✅ Usar authLogin del contexto
+      await authLogin(formData.email, formData.password);
+      
+      toast.success("Inicio de sesión exitoso", { duration: 1000 });
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       setLoading(false);
       const status = (error as any).status;
@@ -76,7 +61,7 @@ const LoginPage = () => {
       ) {
         toast.error("No se pudo conectar con el servidor", { duration: 1000 });
       } else {
-        toast.error("Error al iniciar sesión", { duration: 1000 });
+        toast.error(error instanceof Error ? error.message : "Error al iniciar sesión", { duration: 1000 });
       }
     }
   };
@@ -174,17 +159,15 @@ const LoginPage = () => {
             </div>
             <div className="flex items-center gap-2 pl-1">
               <input
-                id="rememberMe"
+                id="savePassword"
                 type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
                 className="accent-primary w-4 h-4 rounded"
               />
               <label
-                htmlFor="rememberMe"
+                htmlFor="savePassword"
                 className="text-sm select-none cursor-pointer"
               >
-                Mantener sesión iniciada
+                Recordar mi contraseña
               </label>
             </div>
             <Button
