@@ -5,7 +5,7 @@ import { AuthContext } from './authContext';
 interface User {
   userId: number;
   email: string;
-  role: 'admin' | 'driver' | 'customer';
+  role: 'Administrador' | 'Empleado' | 'Usuario';
   name?: string;
 }
 
@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const user: User = {
           userId: response.userId,
           email: email,
-          role: (response.role as 'admin' | 'driver' | 'customer') || 'customer',
+          role: (response.role as 'Administrador' | 'Empleado' | 'Usuario') || 'Usuario',
           name: email.split('@')[0], // Fallback: usar parte del email
         };
 

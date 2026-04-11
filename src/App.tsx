@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import LoginPage from './pages/Login.tsx';
 import { AuthProvider } from './contexts/AuthContext.tsx';
-import DailyRoute from './pages/driver/DailyRoute.tsx';
+import DailyRoutePage from './pages/driver/DailyRoute';
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
-          <Route path="/driver/route" element={<DailyRoute />} />
+          <Route path="/driver/route" element={<DailyRoutePage/>} />
         </Routes>
       </Router>
     </AuthProvider>
