@@ -1,0 +1,291 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { Button } from "../components/Button.tsx";
+import { AuthCard } from "../components/AuthCard.tsx";
+import { FormField } from "../components/FormField.tsx";
+import { toast } from "sonner";
+import Footer from "../components/Footer.tsx";
+
+const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { register, authRegister } = useAuth();
+  const [formData, setFormData] = useState({
+    persona_tipoDoc: "",
+    persona_nroDoc: "",
+    persona_nombre: "",
+    persona_apellido: "",
+    persona_telefono: "",
+    email: "",
+    password: "",
+    usuario_nombre: "",
+    usuario_nivelAcceso: "Usuario",
+  });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    persona_tipoDoc?: string;
+    persona_nroDoc?: string;
+    persona_nombre?: string;
+    persona_apellido?: string;
+    persona_telefono?: string;
+    usuario_nombre?: string;
+  }>({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.persona_tipoDoc)
+      newErrors.persona_tipoDoc = "El tipo de documento es requerido";
+    if (!formData.persona_nroDoc)
+      newErrors.persona_nroDoc = "El número de documento es requerido";
+    else if (!/^\d{7,10}$/.test(formData.persona_nroDoc)) {
+      newErrors.persona_nroDoc =
+        "El número de documento debe tener entre 7 y 10 dígitos";
+    }
+    if (!formData.persona_nombre)
+      newErrors.persona_nombre = "El nombre es requerido";
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,50}$/.test(formData.persona_nombre)) {
+      newErrors.persona_nombre = "El nombre debe tener entre 3 y 50 letras";
+    }
+    if (!formData.persona_apellido)
+      newErrors.persona_apellido = "El apellido es requerido";
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,50}$/.test(formData.persona_apellido)) {
+      newErrors.persona_apellido = "El apellido debe tener entre 3 y 50 letras";
+    }
+    if (!formData.persona_telefono)
+      newErrors.persona_telefono = "El teléfono es requerido";
+    if (!formData.email) newErrors.email = "El correo es requerido";
+    if (!formData.password) newErrors.password = "La contraseña es requerida";
+    if (!formData.usuario_nombre)
+      newErrors.usuario_nombre = "El nombre de usuario es requerido";
+    // usuario_nivelAcceso no se valida
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // ✅ Usar authRegister del contexto
+      await authRegister(formData);
+
+      toast.success(
+        "Registro exitoso. Ahora inicie sesión para acceder a su cuenta nueva",
+        { duration: 1500 },
+      );
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (error) {
+      setLoading(false);
+      const status = (error as any).status;
+      if (status === 500) {
+        toast.error("Error interno del servidor", { duration: 1000 });
+      } else if (
+        error instanceof Error &&
+        error.message &&
+        error.message.toLowerCase().includes("network")
+      ) {
+        toast.error("No se pudo conectar con el servidor", { duration: 1000 });
+      } else {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Error al registrar la cuenta",
+          { duration: 1000 },
+        );
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <main className="flex-1 flex items-center justify-center py-16 px-4 bg-muted/30">
+        <AuthCard
+          title="Bienvenido"
+          description="Ingresa tus datos para crear tu cuenta y formar parte de nuestra comunidad"
+          bottomText={
+            <p className="text-center text-sm text-gray-600">
+              ¿Ya tienes una cuenta?{" "}
+              <Link
+                to="/login"
+                className="text-primary font-medium hover:underline"
+              >
+                Inicia sesión aquí
+              </Link>
+            </p>
+          }
+        >
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <FormField
+              label="Tipo de Documento"
+              name="persona_tipoDoc"
+              type="select"
+              value={formData.persona_tipoDoc}
+              onChange={handleChange}
+              error={errors.persona_tipoDoc}
+              options={[
+                { value: "DNI", label: "DNI" },
+                { value: "Cédula", label: "Cédula" },
+                { value: "Pasaporte", label: "Pasaporte" },
+              ]}
+              required
+            />
+            <FormField
+              label="Número de Documento"
+              name="persona_nroDoc"
+              type="text"
+              value={formData.persona_nroDoc}
+              onChange={handleChange}
+              error={errors.persona_nroDoc}
+              placeholder="12345678"
+              required
+            />
+            <FormField
+              label="Nombre"
+              name="persona_nombre"
+              type="text"
+              value={formData.persona_nombre}
+              onChange={handleChange}
+              error={errors.persona_nombre}
+              placeholder="Juan"
+              required
+            />
+            <FormField
+              label="Apellido"
+              name="persona_apellido"
+              type="text"
+              value={formData.persona_apellido}
+              onChange={handleChange}
+              error={errors.persona_apellido}
+              placeholder="Pérez"
+              required
+            />
+            <FormField
+              label="Teléfono"
+              name="persona_telefono"
+              type="text"
+              value={formData.persona_telefono}
+              onChange={handleChange}
+              error={errors.persona_telefono}
+              placeholder="1123456789"
+              required
+            />
+            <FormField
+              label="Correo Electrónico"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={errors.email}
+              placeholder="tu@email.com"
+              required
+            />
+            <div className="relative">
+              <FormField
+                label="Contraseña"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-11 text-gray-400 hover:text-gray-700"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  // Ojo abierto
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                ) : (
+                  // Ojo tachado
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95M6.423 6.423A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.956 9.956 0 01-4.293 5.95M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3l18 18"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+            <div className="flex items-center gap-2 pl-1">
+              <input
+                id="savePassword"
+                type="checkbox"
+                className="accent-primary w-4 h-4 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label
+                htmlFor="savePassword"
+                className="text-sm select-none cursor-pointer"
+              >
+                Recordar mi contraseña
+              </label>
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-base mt-2"
+              disabled={loading}
+            >
+              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+            </Button>
+          </form>
+        </AuthCard>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default RegisterPage;
