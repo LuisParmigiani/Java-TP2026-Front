@@ -1,12 +1,6 @@
 import { apiPost } from "./baseClient";
+import type { LoginResponse } from "./Interfaces";
 
-interface LoginResponse {
-  success: boolean;
-  token?: string;
-  userId?: number;
-  role?: string;
-  error?: string;
-}
 
 export async function login(
   email: string,
@@ -17,3 +11,7 @@ export async function login(
     contrasena: password,
   });
 }
+
+
+
+
