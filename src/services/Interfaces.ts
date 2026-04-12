@@ -84,6 +84,8 @@ export interface ProductoResponse {
     detalle: string;
     precio: number;
     stock: number;
+    imagenUrl: string;
+    activo: boolean;
 }
 export interface ZonaResponse {
     id: number;

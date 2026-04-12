@@ -23,16 +23,14 @@ const DailyRoutePage = () => {
 
       try {
         setLoading(true);
-        const response = await fetch('/api/deliveries', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
+        //fetcheo la data de que clientes tocan ese día para ese camión
+        //!Este endpoint va a ser bastante heavy, o no. Creo que con traer el camion del que esta encargado ese empleado ese dia
+        //! Y hacer un endpoint que traiga los domicilios de ese camion para ese dia, con toda la info necesaria para mostrar en la ruta diaria, 
+        //! va a ser suficiente. Sino habría que hacer un endpoint que traiga toda esa info pero filtrada por empleado y dia, pero creo que es mas trabajo y no aporta nada nuevo
+        const response = await fetch('domicilio/entregasHoy'); // Reemplaza con tu endpoint real
 
         if (!response.ok) {
-          throw new Error('Failed to fetch deliveries');
+          throw new Error('Error al cargar los clientes');
         }
 
         const data = await response.json();
@@ -49,10 +47,12 @@ const DailyRoutePage = () => {
     fetchDeliveries();
   }, [isAuthenticated, currentUser]);
 
-  // Verificar si el usuario es admin
+  // Verificar si el usuario es empleado
+  //! Falta verificar que esté asignado a un camión hoy
+
   if (!isAuthenticated || currentUser?.role !== 'Empleado') {
     console.log(currentUser);
-    return <div>Acceso denegado. Solo empleados.</div>;
+    return <div>Acceso denegado. Solo empleados habilitados a un reparto.</div>;
   }
 
   if (loading) {
@@ -82,6 +82,7 @@ const DailyRoutePage = () => {
         <Footer />
       </div>
     );
+  }
   const getStatusBadge = (status) => {
     switch (status) {
       case 'completed':
@@ -172,6 +173,6 @@ const DailyRoutePage = () => {
       <Footer />
     </div>
   );
-}}
+}
 
 export default DailyRoutePage;
