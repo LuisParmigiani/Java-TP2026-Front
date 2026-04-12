@@ -3,7 +3,7 @@ import { createContext } from 'react';
 interface User {
   userId: number;
   email: string;
-  role: 'admin' | 'driver' | 'customer';
+  role: 'Administrador' | 'Empleado' | 'Usuario';
   name?: string;
 }
 
