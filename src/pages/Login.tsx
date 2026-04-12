@@ -1,34 +1,35 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { Button } from '../components/Button.tsx';
-import { AuthCard } from '../components/AuthCard.tsx';
-import { FormField } from '../components/FormField.tsx';
-import { toast } from 'sonner';
-import Footer from '../components/Footer.tsx';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { Button } from "../components/Button.tsx";
+import { AuthCard } from "../components/AuthCard.tsx";
+import { FormField } from "../components/FormField.tsx";
+import { toast } from "sonner";
+import Footer from "../components/Footer.tsx";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
-    if (!formData.email) newErrors.email = 'El correo es requerido';
-    if (!formData.password) newErrors.password = 'La contraseña es requerida';
+    if (!formData.email) newErrors.email = "El correo es requerido";
+    if (!formData.password) newErrors.password = "La contraseña es requerida";
     return newErrors;
   };
 
@@ -43,26 +44,26 @@ const LoginPage = () => {
     setLoading(true);
     try {
       // ✅ Usar authLogin del contexto
-      await authLogin(formData.email, formData.password);
+      await authLogin(formData.email, formData.password, rememberMe);
 
-      toast.success('Inicio de sesión exitoso', { duration: 1000 });
+      toast.success("Inicio de sesión exitoso", { duration: 1000 });
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1000);
     } catch (error) {
       setLoading(false);
       const status = (error as any).status;
       if (status === 401) {
-        toast.error('Credenciales inválidas', { duration: 1000 });
+        toast.error("Credenciales inválidas", { duration: 1000 });
       } else if (
         error instanceof Error &&
         error.message &&
-        error.message.toLowerCase().includes('network')
+        error.message.toLowerCase().includes("network")
       ) {
-        toast.error('No se pudo conectar con el servidor', { duration: 1000 });
+        toast.error("No se pudo conectar con el servidor", { duration: 1000 });
       } else {
         toast.error(
-          error instanceof Error ? error.message : 'Error al iniciar sesión',
+          error instanceof Error ? error.message : "Error al iniciar sesión",
           { duration: 1000 },
         );
       }
@@ -77,7 +78,7 @@ const LoginPage = () => {
           description="Ingresa tus credenciales para acceder a tu cuenta"
           bottomText={
             <p className="text-center text-sm text-gray-600">
-              ¿No tienes cuenta?{' '}
+              ¿No tienes cuenta?{" "}
               <Link
                 to="/signup"
                 className="text-primary font-medium hover:underline"
@@ -101,7 +102,7 @@ const LoginPage = () => {
               <FormField
                 label="Contraseña"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
                 error={errors.password}
@@ -165,6 +166,8 @@ const LoginPage = () => {
                 id="savePassword"
                 type="checkbox"
                 className="accent-primary w-4 h-4 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
               <label
                 htmlFor="savePassword"
@@ -178,7 +181,7 @@ const LoginPage = () => {
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-base mt-2"
               disabled={loading}
             >
-              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </form>
         </AuthCard>
