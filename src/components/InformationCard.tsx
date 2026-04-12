@@ -26,6 +26,7 @@ const titleColors = {
     red: "text-red-800",
     primary: "text-primary",
     secondary: "text-secondary",
+    green: "text-green-600",
 }
 
 const descriptionColors = {

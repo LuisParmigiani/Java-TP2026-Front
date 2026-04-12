@@ -1,28 +1,18 @@
 import { useEffect, useState } from 'react';
+import type { VentaResponse } from '../services/Interfaces';
 
 
-interface Props {
-    orderNumber: string;
-    status: string;
-    date: string;
-    total: string;
-}
 
 
-const LineaPedidos = [
-    { producto: 'Producto 1', cantidad: 2, precioUnitario: 1200, subtotal: 2400 },
-    { producto: 'Producto 2', cantidad: 1, precioUnitario: 950, subtotal: 950 },
-    { producto: 'Producto 3', cantidad: 3, precioUnitario: 450, subtotal: 1350 },
 
-]
-
-const statusColors= {
+const statusColors = {
     'Pendiente': 'bg-yellow-100 text-yellow-800',
     'Enviado': 'bg-blue-100 text-blue-800',
-    'Entregado': 'bg-green-100 text-green-800',
-    'Cancelado': 'bg-red-100 text-red-800',
+    'Completada': 'bg-green-100 text-green-800',
+    'Cancelada': 'bg-red-100 text-red-800',
+    'En proceso': 'bg-purple-100 text-purple-800',
 }
-export default function OrderCard(prop: Props) {
+export default function OrderCard({ prop }: { prop: VentaResponse }) {
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -50,8 +40,8 @@ export default function OrderCard(prop: Props) {
                     >
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
-                                <h2 className="text-2xl font-semibold text-gray-900">Detalle del pedido #{prop.orderNumber}</h2>
-                                <p className="mt-1 text-sm text-gray-500">Realizado el {prop.date}</p>
+                                <h2 className="text-2xl font-semibold text-gray-900">Detalle del pedido #{prop.id}</h2>
+                                <p className="mt-1 text-sm text-gray-500">Realizado el {prop.fecha}</p>
                             </div>
                             <button
                                 onClick={() => setOpen(false)}
@@ -64,7 +54,7 @@ export default function OrderCard(prop: Props) {
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="rounded-lg border border-gray-200 p-4">
                                 <p className="text-sm text-gray-500">Estado</p>
-                                <p className="mt-1 font-medium text-gray-900">{prop.status}</p>
+                                <p className="mt-1 font-medium text-gray-900">{prop.estado}</p>
                             </div>
                             <div className="rounded-lg border border-gray-200 p-4">
                                 <p className="text-sm text-gray-500">Total</p>
@@ -83,11 +73,11 @@ export default function OrderCard(prop: Props) {
                                     <p className="text-right">Subtotal</p>
                                 </div>
                                 {
-                                    LineaPedidos.map((linea, index) => (
+                                    prop.lineasPedido.map((linea, index) => (
                                         <div key={index} className={`grid grid-cols-4 gap-2 border-t border-gray-100 px-3 py-2 text-sm text-gray-700 ${index === 0 ? 'border-t-0' : ''}`}>
-                                            <p>{linea.producto}</p>
+                                            <p>{linea.productoZona.producto.nombre}</p>
                                             <p className="text-center">x{linea.cantidad}</p>
-                                            <p className="text-right">$ {linea.precioUnitario}</p>
+                                            <p className="text-right">$ {linea.productoZona.producto.precio}</p>
                                             <p className="text-right font-medium">$ {linea.subtotal}</p>
                                         </div>
                                     ))
@@ -100,7 +90,7 @@ export default function OrderCard(prop: Props) {
                             </div>
 
                         </div>
-                        {prop.status === 'Pendiente' && (
+                        {prop.estado === 'Pendiente' && (
                             <div className="mt-6 flex justify-end">
                                 <button className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
                                     Cancelar Pedido
@@ -113,16 +103,16 @@ export default function OrderCard(prop: Props) {
 
             <button onClick={() => setOpen(true)} className="hover:bg-gray-100 w-full h-full justify-center bg-white  flex flex-col gap-3 rounded-lg p-4 size-sm border border-gray-300 shadow-sm text-left">
                 <div className="flex flex-row  items-center justify-between mb-4">
-                    <p className={`text-lg text-gray-800`}>Pedido #{prop.orderNumber}</p>
-                    <div className={`px-2 py-1 rounded-full text-sm ${statusColors[prop.status]}`}>
-                        {prop.status}
+                    <p className={`text-lg text-gray-800`}>Pedido #{prop.id}</p>
+                    <div className={`px-2 py-1 rounded-full text-sm ${statusColors[prop.estado]}`}>
+                        {prop.estado}
                     </div>
                 </div>
 
                 <div className="flex felx-row items-center gap-2">
                     <svg viewBox="0 0 24 24" className='w-7 h-7' fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                     <h3 className={`text-md  text-gray-600`}>
-                        Realizado el {prop.date}
+                        Realizado el {prop.fecha}
                     </h3>
                 </div>
                 <div className="flex felx-row items-center gap-2">
