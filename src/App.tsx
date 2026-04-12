@@ -9,6 +9,8 @@ import { Toaster } from 'sonner';
 import LoginPage from './pages/Login.tsx';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import DailyRoutePage from './pages/driver/DailyRoute';
+import AdminDashboard from './pages/admin/AdminDashboard.tsx';
+import ProductsManagement from './pages/admin/ProductsManagement.tsx';
 
 function App() {
   return (
@@ -22,7 +24,13 @@ function App() {
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
+          {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage/>} />
+          {/*Rutas para el Admin*/}
+
+          <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+          <Route path="/admin/products" element={<ProductsManagement/>} />
+
         </Routes>
       </Router>
     </AuthProvider>

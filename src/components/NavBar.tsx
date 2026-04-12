@@ -48,16 +48,16 @@ const Header = () => {
 
   const getNavLinks = () => {
     if (!isAuthenticated) return publicLinks;
-    if (currentUser?.role === 'admin') return adminLinks;
-    if (currentUser?.role === 'driver') return driverLinks;
-    if (currentUser?.role === 'customer') return customerLinks;
+    if (currentUser?.role === 'Administrador') return adminLinks;
+    if (currentUser?.role === 'Empleado') return driverLinks;
+    if (currentUser?.role === 'Usuario') return customerLinks;
     return publicLinks;
   };
 
   const navLinks = getNavLinks();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background text-foreground border-b border-border glass-effect">
+    <header className="sticky top-0 z-50 w-full bg-white text-foreground border-b border-border glass-effect">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
