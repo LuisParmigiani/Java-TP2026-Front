@@ -6,6 +6,7 @@ import { AuthCard } from "../components/AuthCard.tsx";
 import { FormField } from "../components/FormField.tsx";
 import { toast } from "sonner";
 import Footer from "../components/Footer.tsx";
+import Navbar from "../components/NavBar.tsx";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -72,6 +73,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <Navbar />
       <main className="flex-1 flex items-center justify-center py-16 px-4 bg-muted/30">
         <AuthCard
           title="Bienvenido de nuevo"

@@ -108,10 +108,7 @@ const Header = () => {
                 >
                   <Link to="/login">Iniciar Sesión</Link>
                 </Button>
-                <Button
-                  asChild
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                >
+                <Button asChild variant="primary">
                   <Link to="/register">Registrarse</Link>
                 </Button>
               </>
@@ -184,10 +181,7 @@ const Header = () => {
                           Iniciar Sesión
                         </Link>
                       </Button>
-                      <Button
-                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                        asChild
-                      >
+                      <Button className="w-full" variant="primary" asChild>
                         <Link
                           to="/signup"
                           onClick={() => setMobileMenuOpen(false)}
