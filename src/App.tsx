@@ -1,14 +1,15 @@
-import './App.css';
-import HomePage from './pages/HomePage.tsx';
-import Dashboard from './pages/customer/Dashboard.tsx';
-import Directions from './pages/customer/Directions.tsx';
-import NewOrder from './pages/customer/NewOrder.tsx';
-import Orders from './pages/customer/Orders.tsx';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import LoginPage from './pages/Login.tsx';
-import { AuthProvider } from './contexts/AuthContext.tsx';
-import DailyRoutePage from './pages/driver/DailyRoute';
+import "./App.css";
+import HomePage from "./pages/HomePage.tsx";
+import Dashboard from "./pages/customer/Dashboard.tsx";
+import Directions from "./pages/customer/Directions.tsx";
+import NewOrder from "./pages/customer/NewOrder.tsx";
+import Orders from "./pages/customer/Orders.tsx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import LoginPage from "./pages/Login.tsx";
+import { AuthProvider } from "./contexts/AuthContext.tsx";
+import DailyRoutePage from "./pages/driver/DailyRoute";
+import RegisterPage from "./pages/Register.tsx";
 
 function App() {
   return (
@@ -18,11 +19,12 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/customer/dashboard" element={<Dashboard />} />
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
-          <Route path="/driver/route" element={<DailyRoutePage/>} />
+          <Route path="/driver/route" element={<DailyRoutePage />} />
         </Routes>
       </Router>
     </AuthProvider>

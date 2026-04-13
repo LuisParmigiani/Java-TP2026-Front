@@ -1,5 +1,8 @@
 import React, { useState, useEffect, type ReactNode } from "react";
-import { login as loginAPI } from "../services/authService";
+import {
+  login as loginAPI,
+  register as registerAPI,
+} from "../services/authService";
 import { AuthContext } from "./authContext";
 
 interface User {
@@ -77,9 +80,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     sessionStorage.removeItem("currentUser");
   };
 
+  const register = async (
+    email: string,
+    password: string,
+    persona_tipoDoc: string,
+    persona_nroDoc: string,
+    persona_nombre: string,
+    persona_apellido: string,
+    persona_telefono: string,
+    usuario_nombre: string,
+    usuario_nivelAcceso: string,
+  ) => {
+    try {
+      const response = await registerAPI(
+        email,
+        password,
+        persona_tipoDoc,
+        persona_nroDoc,
+        persona_nombre,
+        persona_apellido,
+        persona_telefono,
+        usuario_nombre,
+        usuario_nivelAcceso,
+      );
+
+      if (response.success) {
+        // Registro exitoso, puedes manejarlo como desees
+        // Nada, solo me importan los errores porque el componente redirige en caso de no haber errores
+      } else {
+        throw new Error(response.error || "Registro fallido");
+      }
+    } catch (error) {
+      console.error("Register error:", error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ currentUser, isAuthenticated, token, login, logout }}
+      value={{ currentUser, isAuthenticated, token, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>

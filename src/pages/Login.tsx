@@ -80,7 +80,7 @@ const LoginPage = () => {
             <p className="text-center text-sm text-gray-600">
               ¿No tienes cuenta?{" "}
               <Link
-                to="/signup"
+                to="/register"
                 className="text-primary font-medium hover:underline"
               >
                 Regístrate aquí
