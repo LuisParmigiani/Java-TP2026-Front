@@ -177,8 +177,9 @@ const LoginPage = () => {
               </label>
             </div>
             <Button
+              variant="primary"
               type="submit"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-base mt-2"
+              className="w-full h-11 text-base mt-2"
               disabled={loading}
             >
               {loading ? "Iniciando sesión..." : "Iniciar Sesión"}

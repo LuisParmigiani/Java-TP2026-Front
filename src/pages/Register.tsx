@@ -142,11 +142,11 @@ const RegisterPage = () => {
 
       toast.success(
         "Registro exitoso. Ahora inicie sesión para acceder a su cuenta nueva",
-        { duration: 1500 },
+        { duration: 2000 },
       );
       setTimeout(() => {
         navigate("/");
-      }, 1500);
+      }, 2000);
     } catch (error) {
       setLoading(false);
       const status = (error as any).status;
@@ -394,16 +394,12 @@ const RegisterPage = () => {
                 <>
                   <Button
                     type="button"
-                    className="bg-gray-300 text-gray-700 border-gray-300"
+                    variant="grayTransparent"
                     onClick={() => navigate("/login")}
                   >
                     Cancelar
                   </Button>
-                  <Button
-                    type="button"
-                    className="bg-primary text-primary-foreground"
-                    onClick={handleNext}
-                  >
+                  <Button variant="primary" type="button" onClick={handleNext}>
                     Siguiente
                   </Button>
                 </>
@@ -411,16 +407,12 @@ const RegisterPage = () => {
                 <>
                   <Button
                     type="button"
-                    className="bg-gray-300 text-gray-700"
+                    variant="grayTransparent"
                     onClick={handleBack}
                   >
                     Volver
                   </Button>
-                  <Button
-                    type="submit"
-                    className="bg-primary text-primary-foreground"
-                    disabled={loading}
-                  >
+                  <Button type="submit" variant="primary" disabled={loading}>
                     {loading ? "Registrando usuario ..." : "Registrarse"}
                   </Button>
                 </>
