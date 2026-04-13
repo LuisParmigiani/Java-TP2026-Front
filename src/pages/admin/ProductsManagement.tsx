@@ -30,13 +30,14 @@ import {
 import { Badge } from './../../components/Badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchProducts } from '../../services/ProductService.ts';
+import { addProduct, fetchProducts, updateProduct } from '../../services/ProductService.ts';
 import type { ProductoResponse } from '../../services/Interfaces';
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState<ProductoResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductoResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchProducts()
@@ -45,9 +46,11 @@ const ProductsManagement = () => {
   }, []);
   const [formData, setFormData] = useState({
     nombre: '',
+    detalle:'',
     precio: '',
     stock: '',
     activo: 'true',
+    imagenUrl: '',
   });
 
   const handleOpenDialog = (product: ProductoResponse | null = null) => {
@@ -55,18 +58,20 @@ const ProductsManagement = () => {
       setEditingProduct(product);
       setFormData({
         nombre: product.nombre,
+        detalle: product.detalle,
         precio: product.precio.toString(),
         stock: product.stock.toString(),
         activo: (product.activo ?? true) ? 'true' : 'false',
+        imagenUrl: product.imagenUrl || '',
       });
     } else {
       setEditingProduct(null);
-      setFormData({ nombre: '', precio: '', stock: '', activo: 'true' });
+      setFormData({ nombre: '', detalle: '', precio: '', stock: '', activo: 'true', imagenUrl: '' });
     }
     setIsDialogOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.nombre || !formData.precio || !formData.stock) {
       toast.error('Por favor completa todos los campos requeridos.');
@@ -76,28 +81,36 @@ const ProductsManagement = () => {
       toast.error('El precio y stock deben ser valores válidos.');
       return;
     }
+    setIsLoading(true);
+    try{
+      const productData = {
+        nombre: formData.nombre,
+        precio: Number(formData.precio),
+        stock: Number(formData.stock),
+        activo: formData.activo === 'true',
+        detalle: formData.detalle,
+        imagenUrl: formData.imagenUrl};
 
-    const newProduct: ProductoResponse = {
-      id: editingProduct ? editingProduct.id : Math.floor(Math.random() * 10000),
-      nombre: formData.nombre,
-      precio: Number(formData.precio),
-      stock: Number(formData.stock),
-      activo: formData.activo === 'true',
-      detalle: editingProduct?.detalle || 'Nuevo producto',
-      imagenUrl: editingProduct?.imagenUrl || '',
-    };
+        if (editingProduct) {
+          await updateProduct(editingProduct.id, productData);
+          toast.success('Producto actualizado correctamente.');
+        } else {
+          await addProduct(productData);
+          toast.success('Producto agregado correctamente.');
+        }
+        const updatedProducts = await fetchProducts();
+        setProducts(updatedProducts);
+        setIsDialogOpen(false);
+    }catch(error){
+      console.error('Error saving product:', error);
+      toast.error('Ocurrió un error al guardar el producto. Por favor intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
 
-    if (editingProduct) {
-      setProducts(
-        products.map((p) => (p.id === editingProduct.id ? newProduct : p)),
-      );
-      toast.success('Producto actualizado correctamente.');
-    } else {
-      setProducts([...products, newProduct]);
-      toast.success('Producto agregado correctamente.');
+      }
+      
     }
-    setIsDialogOpen(false);
-  };
+
 
   const handleDelete = (id: number) => {
     if (window.confirm('¿Estás seguro de eliminar este producto?')) {
@@ -135,7 +148,7 @@ const ProductsManagement = () => {
                     <TableHead>Precio</TableHead>
                     <TableHead>Stock</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-right pr-5">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -170,14 +183,15 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
-                          variant="ghost"
+                          className='mr-1'
+                          variant="accent"
                           size="icon"
                           onClick={() => handleOpenDialog(product)}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="danger"
                           size="icon"
                           className="text-destructive"
                           onClick={() => handleDelete(product.id)}
@@ -205,21 +219,47 @@ const ProductsManagement = () => {
       </main>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="border-3 border-primary">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className='border-secondary border-b-3 w-fit rounded-xs'>
               {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
+            <div className='space-y-2'>
+              <Label htmlFor="id">Imagen</Label>
+              <Input
+                name="imagen"
+                type="image"
+                placeholder="URL de la imagen"
+                value={formData.imagenUrl}
+                onChange={(value) =>
+                  setFormData({ ...formData, imagenUrl: value })
+                }
+              />
+
+            </div>
             <div className="space-y-2">
               <Label htmlFor="nombre">Nombre</Label>
               <Input
+                color = 'primary'
                 name="nombre"
                 type="text"
                 value={formData.nombre}
                 onChange={(value) =>
                   setFormData({ ...formData, nombre: value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="detalle">Detalle</Label>
+              <Input
+                color = 'primary'
+                name="detalle"
+                type="text"
+                value={formData.detalle}
+                onChange={(value) =>
+                  setFormData({ ...formData, detalle: value })
                 }
               />
             </div>
@@ -259,20 +299,22 @@ const ProductsManagement = () => {
                   <SelectValue placeholder="Selecciona estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Activo</SelectItem>
-                  <SelectItem value="false">Inactivo</SelectItem>
+                  <SelectItem  value="true">Activo</SelectItem>
+                  <SelectItem  value="false">Inactivo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"
-                variant="outline"
+                variant="danger"
                 onClick={() => setIsDialogOpen(false)}
               >
                 Cancelar
               </Button>
-              <Button type="submit">Guardar</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Guardando...' : 'Guardar'}
+              </Button>
             </div>
           </form>
         </DialogContent>
