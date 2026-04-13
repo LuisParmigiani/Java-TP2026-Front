@@ -59,7 +59,8 @@ export default function Orders() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     {orders.map(order => (
-                        <OrderCard key={order.id} orderNumber={order.id.toString()} status={order.status} date={order.date} total={order.total.toFixed(2)} />
+                        // <OrderCard key={order.id} orderNumber={order.id.toString()} status={order.status} date={order.date} total={order.total.toFixed(2)} />
+                        <h1>hola</h1>
                     ))}
                 </div>
             </div>
