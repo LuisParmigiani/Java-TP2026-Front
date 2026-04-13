@@ -61,10 +61,30 @@ const RegisterPage = () => {
     }
     if (!formData.persona_telefono)
       newErrors.persona_telefono = "El teléfono es requerido";
+    else if (!/^\d{10}$/.test(formData.persona_telefono)) {
+      newErrors.persona_telefono = "El teléfono debe tener 10 dígitos";
+    }
     if (!formData.email) newErrors.email = "El correo es requerido";
+    else if (
+      !/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formData.email)
+    ) {
+      newErrors.email = "El email debe ser válido";
+    }
     if (!formData.password) newErrors.password = "La contraseña es requerida";
+    else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+        formData.password,
+      )
+    ) {
+      newErrors.password =
+        "La contraseña debe tener al menos 8 caracteres, incluir al menos una letra mayúscula, una letra minúscula, un número y un carácter especial";
+    }
     if (!formData.usuario_nombre)
       newErrors.usuario_nombre = "El nombre de usuario es requerido";
+    else if (!/^[a-zA-Z0-9_]{3,}$/.test(formData.usuario_nombre)) {
+      newErrors.usuario_nombre =
+        "El nombre de usuario debe tener al menos 3 caracteres y solo puede contener letras, números y guiones bajos.";
+    }
     // usuario_nivelAcceso no se valida
     return newErrors;
   };
@@ -258,27 +278,12 @@ const RegisterPage = () => {
                 )}
               </button>
             </div>
-            <div className="flex items-center gap-2 pl-1">
-              <input
-                id="savePassword"
-                type="checkbox"
-                className="accent-primary w-4 h-4 rounded"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <label
-                htmlFor="savePassword"
-                className="text-sm select-none cursor-pointer"
-              >
-                Recordar mi contraseña
-              </label>
-            </div>
             <Button
               type="submit"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-base mt-2"
               disabled={loading}
             >
-              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+              {loading ? "Registrando usuario ..." : "Registrarse"}
             </Button>
           </form>
         </AuthCard>
