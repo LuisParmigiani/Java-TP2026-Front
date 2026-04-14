@@ -21,8 +21,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // Cargar token del localStorage al montar
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("currentUser");
+    let storedToken = localStorage.getItem("authToken");
+    let storedUser = localStorage.getItem("currentUser");
+
+    // Si no hay en localStorage, intenta sessionStorage
+    if (!storedToken || !storedUser) {
+      storedToken = sessionStorage.getItem("authToken");
+      storedUser = sessionStorage.getItem("currentUser");
+    }
 
     if (storedToken && storedUser) {
       setToken(storedToken);
