@@ -30,14 +30,16 @@ import {
 import { Badge } from './../../components/Badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { addProduct, fetchProducts, updateProduct } from '../../services/ProductService.ts';
+import { addProduct, fetchProducts, updateProduct, uploadImage } from '../../services/ProductService.ts';
 import type { ProductoResponse } from '../../services/Interfaces';
+import ProductPictureInput from '../../components/ProductPictureInput.tsx';
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState<ProductoResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductoResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchProducts()
@@ -46,13 +48,26 @@ const ProductsManagement = () => {
   }, []);
   const [formData, setFormData] = useState({
     nombre: '',
-    detalle:'',
+    detalle: '',
     precio: '',
     stock: '',
-    activo: 'true',
+    activo: '1',  // Por defecto activo
     imagenUrl: '',
   });
+  const handleImageChange = async (file: File) => {
+    if (!file) return;
 
+    // Store the file for later upload
+    setPendingImageFile(file);
+
+    // Create a temporary URL for preview
+    const tempUrl = URL.createObjectURL(file);
+
+    // Update form state with temp URL
+    setFormData((prev) => ({ ...prev, imagenUrl: tempUrl }));
+
+    console.log('Imagen seleccionada✅');
+  };
   const handleOpenDialog = (product: ProductoResponse | null = null) => {
     if (product) {
       setEditingProduct(product);
@@ -61,12 +76,12 @@ const ProductsManagement = () => {
         detalle: product.detalle,
         precio: product.precio.toString(),
         stock: product.stock.toString(),
-        activo: (product.activo ?? true) ? 'true' : 'false',
+        activo: product.activo ? '1' : '0',
         imagenUrl: product.imagenUrl || '',
       });
     } else {
       setEditingProduct(null);
-      setFormData({ nombre: '', detalle: '', precio: '', stock: '', activo: 'true', imagenUrl: '' });
+      setFormData({ nombre: '', detalle: '', precio: '', stock: '', activo: '1', imagenUrl: '' });
     }
     setIsDialogOpen(true);
   };
@@ -81,36 +96,69 @@ const ProductsManagement = () => {
       toast.error('El precio y stock deben ser valores válidos.');
       return;
     }
+    
     setIsLoading(true);
-    try{
+    try {
+      // Crear/actualizar producto
       const productData = {
         nombre: formData.nombre,
         precio: Number(formData.precio),
         stock: Number(formData.stock),
-        activo: formData.activo === 'true',
+        activo: formData.activo === '1',
         detalle: formData.detalle,
-        imagenUrl: formData.imagenUrl};
-
-        if (editingProduct) {
-          await updateProduct(editingProduct.id, productData);
-          toast.success('Producto actualizado correctamente.');
-        } else {
-          await addProduct(productData);
-          toast.success('Producto agregado correctamente.');
+        imagenUrl: './../../assets/producto.jpeg', // Valor temporal, se actualizará después de subir la imagen
+      };
+      let savedProduct: ProductoResponse;
+      if (editingProduct) {
+        console.log("updeteando producto")
+        savedProduct = await updateProduct(editingProduct.id, productData);
+        toast.success('Producto actualizado correctamente.');
+      } else {
+        console.log("guardando producto")
+        savedProduct = await addProduct(productData);
+        toast.success('Producto agregado correctamente.');
+      } 
+      if (pendingImageFile && savedProduct.id) {
+        console.log('📤 Uploading profile image for new user...');
+        try {
+          const imageResponse = await uploadImage(
+            pendingImageFile,
+            savedProduct.id
+          );
+          console.log(
+            '✅ Profile image uploaded successfully:',
+            imageResponse,
+          );
+          // Actualiza solo el campo imagenUrl sin pasar el id
+          await updateProduct(savedProduct.id, {
+            imagenUrl: imageResponse,
+            nombre: productData.nombre,
+            precio: productData.precio,
+            stock: productData.stock,
+            activo: productData.activo,
+            detalle: productData.detalle,
+          });
+          console.log('Producto actualizado con URL de imagen');
+        } catch (imageError) {
+          console.error(
+            'No se pudo subir la imagen, pero se creo el usuario',
+            imageError,
+          );
         }
-        const updatedProducts = await fetchProducts();
-        setProducts(updatedProducts);
-        setIsDialogOpen(false);
-    }catch(error){
+      }
+
+
+
+      const updatedProducts = await fetchProducts();
+      setProducts(updatedProducts);
+      setIsDialogOpen(false);
+    } catch (error) {
       console.error('Error saving product:', error);
-      toast.error('Ocurrió un error al guardar el producto. Por favor intenta nuevamente.');
+      toast.error('Ocurrió un error al guardar el producto.');
     } finally {
       setIsLoading(false);
-
-      }
-      
     }
-
+  };
 
   const handleDelete = (id: number) => {
     if (window.confirm('¿Estás seguro de eliminar este producto?')) {
@@ -158,16 +206,18 @@ const ProductsManagement = () => {
                         {product.id}
                       </TableCell>
                       <TableCell>
-                        {product.imagenUrl ? (
+                        {product.imagenUrl == "./../../assets/producto.jpeg" ? (
                           <img
                             src={product.imagenUrl}
                             alt={product.nombre}
                             className="h-12 w-12 object-cover rounded-md"
                           />
                         ) : (
-                          <div className="h-12 w-12 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
-                            Sin foto
-                          </div>
+                          <img
+                            src={`http://localhost:8080${product.imagenUrl}?t=${new Date().getTime()}`}
+                            alt={product.nombre}
+                            className="h-12 w-12 object-cover rounded-md"
+                          />
                         )}
                       </TableCell>
                       <TableCell>{product.nombre}</TableCell>
@@ -183,7 +233,7 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
-                          className='mr-1'
+                          className="mr-1"
                           variant="accent"
                           size="icon"
                           onClick={() => handleOpenDialog(product)}
@@ -221,45 +271,41 @@ const ProductsManagement = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
-            <DialogTitle className='border-secondary border-b-3 w-fit rounded-xs'>
+            <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
               {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
-            <div className='space-y-2'>
-              <Label htmlFor="id">Imagen</Label>
-              <Input
-                name="imagen"
-                type="image"
-                placeholder="URL de la imagen"
-                value={formData.imagenUrl}
-                onChange={(value) =>
-                  setFormData({ ...formData, imagenUrl: value })
-                }
+            <div className="space-y-2">
+              <Label htmlFor="imagenUrl">Imagen</Label>
+              <ProductPictureInput
+                src={formData.imagenUrl || './../../assets/producto.jpeg'}
+                onImageChange={handleImageChange}
+                uploading={isLoading}
               />
-
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="nombre">Nombre</Label>
               <Input
-                color = 'primary'
+                color="primary"
                 name="nombre"
                 type="text"
                 value={formData.nombre}
                 onChange={(value) =>
-                  setFormData({ ...formData, nombre: value })
+                  setFormData({ ...formData, nombre: value as string })
                 }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="detalle">Detalle</Label>
               <Input
-                color = 'primary'
+                color="primary"
                 name="detalle"
                 type="text"
                 value={formData.detalle}
                 onChange={(value) =>
-                  setFormData({ ...formData, detalle: value })
+                  setFormData({ ...formData, detalle: value as string })
                 }
               />
             </div>
@@ -271,7 +317,7 @@ const ProductsManagement = () => {
                   type="number"
                   value={formData.precio}
                   onChange={(value) =>
-                    setFormData({ ...formData, precio: value })
+                    setFormData({ ...formData, precio: value as string })
                   }
                 />
               </div>
@@ -282,7 +328,7 @@ const ProductsManagement = () => {
                   type="number"
                   value={formData.stock}
                   onChange={(value) =>
-                    setFormData({ ...formData, stock: value })
+                    setFormData({ ...formData, stock: value as string })
                   }
                 />
               </div>
@@ -299,8 +345,8 @@ const ProductsManagement = () => {
                   <SelectValue placeholder="Selecciona estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem  value="true">Activo</SelectItem>
-                  <SelectItem  value="false">Inactivo</SelectItem>
+                  <SelectItem value="1">Activo</SelectItem>
+                  <SelectItem value="0">Inactivo</SelectItem>
                 </SelectContent>
               </Select>
             </div>

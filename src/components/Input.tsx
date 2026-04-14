@@ -1,15 +1,14 @@
 import { cn } from './../lib/utils';
-import { Upload } from 'lucide-react';
-import { useState } from 'react';
 
 interface Props {
-    name: string;
-    type: string;
-    placeholder?: string;
-    value?: string;
-    onChange?: (value: string) => void;
-    color?: keyof typeof colors;
-    size?: keyof typeof sizes;
+  name: string;
+  type: string;
+  placeholder?: string;
+  value?: string;
+  color?: keyof typeof colors;
+  size?: keyof typeof sizes;
+  disabled?: boolean;
+  onChange?: (value: string | FileList) => void;
 }
 
 const colors = {
@@ -33,108 +32,25 @@ const sizes = {
 export default function Input(props: Props) {
     const color = props.color ?? 'primary';
     const size = props.size ?? 'md';
-    const [preview, setPreview] = useState<string | null>(props.value || null);
-    const [isDragOver, setIsDragOver] = useState(false);
-
-    if (props.type === 'image') {
-        const handleImageChange = (file: File) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const result = e.target?.result as string;
-                setPreview(result);
-                props.onChange?.(result);
-            };
-            reader.readAsDataURL(file);
-        };
-
-        const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.files?.[0]) {
-                handleImageChange(e.target.files[0]);
-            }
-        };
-
-        const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-            e.preventDefault();
-            setIsDragOver(true);
-        };
-
-        const handleDragLeave = () => {
-            setIsDragOver(false);
-        };
-
-        const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-            e.preventDefault();
-            setIsDragOver(false);
-            if (e.dataTransfer.files?.[0]) {
-                handleImageChange(e.dataTransfer.files[0]);
-            }
-        };
-
-        return (
-            <div className="w-full">
-                <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={cn(
-                        'relative flex flex-col items-center justify-center w-full rounded-lg border-2 border-dashed',
-                        'py-8 px-4 cursor-pointer transition-all duration-300',
-                        isDragOver
-                            ? 'border-primary/80 bg-primary/10'
-                            : 'border-primary/40 bg-primary/5 hover:border-primary/60 hover:bg-primary/10'
-                    )}
-                >
-                    <input
-                        type="file"
-                        name={props.name}
-                        id={props.name}
-                        accept="image/*"
-                        onChange={handleFileInput}
-                        className="hidden"
-                    />
-                    <label
-                        htmlFor={props.name}
-                        className="flex flex-col items-center justify-center w-full cursor-pointer"
-                    >
-                        {preview ? (
-                            <div className="relative w-full">
-                                <img
-                                    src={preview}
-                                    alt="Preview"
-                                    className="max-h-48 object-contain mx-auto rounded-md"
-                                />
-                                <div className="mt-3 text-center">
-                                    <p className="text-sm text-primary font-medium">Cambiar imagen</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <Upload className="w-10 h-10 text-primary/60 mb-2" />
-                                <p className="text-sm font-medium text-gray-700">
-                                    Arrastra una imagen aquí
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    o haz clic para seleccionar
-                                </p>
-                            </>
-                        )}
-                    </label>
-                </div>
-            </div>
-        );
-    }
 
     return (
-        <div className="w-full">
-            <input
-                type={props.type}
-                name={props.name}
-                id={props.name}
-                placeholder={props.placeholder}
-                value={props.value}
-                onChange={(e) => props.onChange && props.onChange(e.target.value)}
-                className={`block w-full rounded-md border-2 py-1 px-3 focus:ring-2 focus:ring-offset-1 transition-colors duration-300 ${colors[color]} ${sizes[size]}`}
-            />
-        </div>
+      <div className="w-full">
+        <input
+          type={props.type}
+          name={props.name}
+          id={props.name}
+          placeholder={props.placeholder}
+          value={props.type === 'file' ? '' : props.value}
+          onChange={(e) => {
+            if (props.type === 'file') {
+              props.onChange?.(e.target.files as FileList); // Pasa FileList
+            } else {
+              props.onChange?.(e.target.value); // Pasa string
+            }
+          }}
+          disabled={props.disabled}
+          className={`block w-full rounded-md border-2 py-1 px-3 focus:ring-2 focus:ring-offset-1 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${colors[color]} ${sizes[size]}`}
+        />
+      </div>
     );
 }
