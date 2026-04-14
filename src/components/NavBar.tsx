@@ -88,7 +88,7 @@ const Header = () => {
                 to={link.path}
                 className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${
                   isActive(link.path)
-                    ? "bg-primary  shadow-s hover:border-2 hover:border-black transition-all duration-100"
+                    ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
                     : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
                 }`}
               >
@@ -101,11 +101,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-2">
             {!isAuthenticated ? (
               <>
-                <Button
-                  variant="ghost"
-                  asChild
-                  className="text-foreground hover:bg-muted"
-                >
+                <Button variant="outline" asChild>
                   <Link to="/login">Iniciar Sesión</Link>
                 </Button>
                 <Button asChild variant="primary">
