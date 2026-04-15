@@ -14,7 +14,9 @@ import ProductsManagement from "./pages/admin/ProductsManagement.tsx";
 import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
-import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";
+{
+  /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
+}
 
 function App() {
   return (
