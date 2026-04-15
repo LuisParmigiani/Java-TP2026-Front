@@ -92,3 +92,124 @@ export interface ZonaResponse {
     nombre: string;
     detalle: string;
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------- REQUESTS --------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+export interface DomicilioRequest {
+    calle?: string;
+    numero?: string;
+    casa?: string;
+    dia?: boolean[];
+    zonaId?: number;
+}
+
+export interface LoginRequest {
+    success?: boolean;
+    token?: string;
+    userId?: number;
+    role?: string;
+    error?: string;
+}
+export interface UserRequest {
+    nombreUsuario?: string;
+    email?: string;
+    nivelAcceso?: string;
+    personaId?: number;
+}
+
+export interface PersonaRequest {
+
+    tipoDoc?: string;
+    nroDocumento?: string;
+    nombre?: string;
+    apellido?: string;
+    email?: string;
+    telefono?: string;
+    saldo?: number;
+}
+
+export interface PagoRequest {
+    monto?: number;
+    fecha?: string;
+    metodoPago?: string;
+    personaId?: number;
+}
+export interface domicilioRequest {
+    calle?: string;
+    numero?: string;
+    personaId?: number;
+    casa?: string;
+    dia?: boolean[];
+    zonaId?: number;
+    camionId?: number;
+    ventas?: VentaRequest[];
+    activo?: boolean;
+}
+
+export interface productosDomicilioRequest {
+    productoId?: number;
+    domicilioId?: number;
+    cantVaciosActuales?: number;
+    aproxSemana?: number;
+}
+export interface VentaRequest {
+    fecha?: string;
+    total?: number;
+    estado?: string;
+    pagado?: boolean;
+    idDomicilio?: number;
+    lineasPedidoIds?: number[];
+}
+export interface LineaPedidoRequest {
+    cantidad?: number;
+    subtotal?: number;
+    productoZonaId?: number;
+}
+
+export interface ProductoZonaRequest {
+    id?: number;
+    zona?: ZonaRequest;
+    productoId?: number;
+}
+
+export interface ProductoRequest {
+    nombre?: string;
+    detalle?: string;
+    precio?: number;
+    stock?: number;
+    imagenUrl?: string;
+    activo?: boolean;
+}
+export interface ZonaRequest {
+    nombre?: string;
+    detalle?: string;
+}
+
+
+export interface GastoRequest {
+    detalle?: string;
+    monto?: number;
+    fecha?: string;
+    camion_id?: number;
+}
+
+export interface Camion {
+    patente: string;
+    modelo: string;
+    marca: string;
+    kilometros: number;
+}
+export interface CargaProductoRequest {
+    cantLleno?: number;
+    cantVacio?: number;
+    idCarga?: number;
+    idProducto?: number;
+}
+export interface CargaRequest {
+    tipo?: string;
+    fechaHora?: Date;
+    idUsuario?: number;
+    idCamion?: number;
+}

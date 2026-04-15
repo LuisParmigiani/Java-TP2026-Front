@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Filter from "../../components/Filter";
 import Footer from "../../components/Footer";
 import OrderCard from "../../components/OrderCard";
 import LinkButton from "../../components/LinkButton";
+import { getByUserId } from "../../services/SalesService";
 
 const orders = [
     {
@@ -30,6 +31,16 @@ const orders = [
 export default function Orders() {
     const [state, setState] = useState('Todos');
     const [orderBy, setOrderBy] = useState('Mas Recientes');
+    const [orders, setOrders] = useState([] as any[]);
+
+    useEffect(() => {
+        const result = async () => {
+            const response = await getByUserId();
+            setOrders(response);
+        }
+        result();
+    }, []);
+
     return (
         <div className="min-h-screen flex flex-col mt-4">
             <div className="flex flex-col mb-4 gap-4 mx-4">
@@ -59,8 +70,7 @@ export default function Orders() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     {orders.map(order => (
-                        // <OrderCard key={order.id} orderNumber={order.id.toString()} status={order.status} date={order.date} total={order.total.toFixed(2)} />
-                        <h1>hola</h1>
+                        <OrderCard prop={order} />
                     ))}
                 </div>
             </div>

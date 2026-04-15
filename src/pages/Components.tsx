@@ -45,7 +45,7 @@ export default function ComponentsPage() {
             </div>
 
             <div className="mb-8 p-6 bg-white rounded-xl shadow gap-3 flex flex-col">
-                <h1 className="text-3xl font-bold text-blue-700 mb-4 border-b-2 border-blue-400 pb-2">Button</h1>
+                <h1 className="text-3xl font-bold text-blue-700 mb-4 border-b-2 border-blue-400 pb-2">Button (Para ? ) </h1>
                 <div className="flex gap-4">
                     <Button variant="primary" size="md">Botón Primario</Button>
                     <Button variant="gray" size="md">Botón gray</Button>

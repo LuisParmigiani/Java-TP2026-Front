@@ -43,7 +43,7 @@ export default function Filter(props: Props) {
 
 
     return (
-        <div className="relative w-40 ml-4">
+        <div className="relative w-40 ml-4 " >
             <button
                 className={`w-full min-h-10 px-4 py-2 ${color[props.color].selected} ${size[props.size]} rounded-2xl my-2 flex flex-row items-center justify-between`}
                 onClick={() => setOpen(!open)}
@@ -65,7 +65,7 @@ export default function Filter(props: Props) {
                 </svg>
             </button >
             {open && (
-                <div className="absolute top-full left-0 z-50 mt-1 w-full flex flex-col gap-1">
+                <div className="absolute top-full left-0 z-50 mt-1 w-full flex flex-col gap-1 bg-white rounded-lg border border-gray-200  p-2 border-t-0  ">
                     {props.options.map((option) => (
                         <button
                             key={option}

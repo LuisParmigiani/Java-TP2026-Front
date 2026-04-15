@@ -12,6 +12,7 @@ import DailyRoutePage from './pages/driver/DailyRoute';
 import AdminDashboard from './pages/admin/AdminDashboard.tsx';
 import ProductsManagement from './pages/admin/ProductsManagement.tsx';
 import Components from './pages/Components.tsx';
+import Products from './pages/Products.tsx';
 function App() {
   return (
     <AuthProvider>
@@ -25,6 +26,7 @@ function App() {
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
           <Route path="/components" element={<Components />} />
+          <Route path="/products" element={<Products />} />
           {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage />} />
           {/*Rutas para el Admin*/}

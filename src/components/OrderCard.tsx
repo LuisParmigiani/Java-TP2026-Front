@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { VentaResponse } from '../services/Interfaces';
+import { updateSale } from '../services/SalesService';
 
 
 
@@ -12,7 +13,10 @@ const statusColors = {
     'Cancelada': 'bg-red-100 text-red-800',
     'En proceso': 'bg-purple-100 text-purple-800',
 }
-export default function OrderCard({ prop }: { prop: VentaResponse }) {
+interface OrderCardProps {
+    prop: VentaResponse;
+}
+export default function OrderCard({ prop }: OrderCardProps) {
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -26,6 +30,11 @@ export default function OrderCard({ prop }: { prop: VentaResponse }) {
             document.body.style.overflow = 'auto';
         };
     }, [open]);
+
+    const cancelOrder = async () => {
+        const response = await updateSale(prop.id, { estado: 'Cancelada' });
+        console.log(`Pedido ${prop.id} cancelado`, response);
+    }
 
     return (
         <>
@@ -92,7 +101,7 @@ export default function OrderCard({ prop }: { prop: VentaResponse }) {
                         </div>
                         {prop.estado === 'Pendiente' && (
                             <div className="mt-6 flex justify-end">
-                                <button className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                                <button onClick={cancelOrder} className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
                                     Cancelar Pedido
                                 </button>
                             </div>

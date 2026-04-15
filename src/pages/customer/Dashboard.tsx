@@ -31,9 +31,7 @@ export default function Dashboard() {
     useEffect(() => {
         const chargeInformation = async () => {
             try {
-
-                const result = await getUser(2);
-
+                const result = await getUser();
                 setDirections(result.persona.domicilios);
                 setUser(result);
                 setContainers(0);
@@ -42,9 +40,8 @@ export default function Dashboard() {
                         setContainers((current) => current + producto.cantVaciosActuales);
                     });
                 });
-                const ordersResult = await getByUserId(2);
+                const ordersResult = await getByUserId();
                 setRecentOrders(ordersResult);
-                console.log('Pedidos:', ordersResult);
             } catch (error) {
                 console.error('Error al traer usuario:', error);
             }

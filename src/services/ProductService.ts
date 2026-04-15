@@ -1,4 +1,4 @@
-import {apiGet} from  './baseClient.ts';
+import { apiGet } from './baseClient.ts';
 import type { ProductoResponse } from './Interfaces.ts';
 
 export async function fetchProducts(): Promise<ProductoResponse[]> {
@@ -8,6 +8,17 @@ export async function fetchProducts(): Promise<ProductoResponse[]> {
         return response;
     } catch (error) {
         console.error('Error fetching products:', error);
+        throw error;
+    }
+}
+
+export async function getActiveProducts(): Promise<ProductoResponse[]> {
+    try {
+        const response = await apiGet<ProductoResponse[]>('/producto/active');
+        console.log('Fetched active products:', response);
+        return response;
+    } catch (error) {
+        console.error('Error fetching active products:', error);
         throw error;
     }
 }
