@@ -12,13 +12,27 @@ export const buildApiUrl = (path: string): string => {
   return `${API_BASE_URL}${normalizedPath}`;
 };
 
-// Función genérica para hacer requests con fetch y manejo de errores
+const getAuthToken = (): string | null =>
+  localStorage.getItem("authToken") ?? sessionStorage.getItem("authToken");
+
+const buildHeaders = (extra?: HeadersInit): HeadersInit => {
+  const token = getAuthToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...extra,
+  };
+};
+
 export async function apiFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
   const url = buildApiUrl(path);
-  const response = await fetch(url, options);
+  const response = await fetch(url, {
+    ...options,
+    headers: buildHeaders(options?.headers),
+  });
 
   let result: any;
   try {
@@ -34,6 +48,7 @@ export async function apiFetch<T>(
     error.status = response.status;
     throw error;
   }
+
   return result;
 }
 
@@ -46,7 +61,6 @@ export async function apiGet<T>(path: string): Promise<T> {
 export async function apiPost<T>(path: string, data: any): Promise<T> {
   return apiFetch<T>(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 }
@@ -55,7 +69,6 @@ export async function apiPost<T>(path: string, data: any): Promise<T> {
 export async function apiPut<T>(path: string, data?: any): Promise<T> {
   return apiFetch<T>(path, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: data ? JSON.stringify(data) : undefined,
   });
 }

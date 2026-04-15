@@ -1,19 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DireccionCard from '../../components/DirectionCard';
 import Footer from '../../components/Footer';
 import Filter from '../../components/Filter';
+import type { domicilioResponse } from '../../services/Interfaces';
+import { getAllByUserId } from '../../services/DirectionService';
 
-const recentDirections = [
-    { id: '1', address: 'Calle Falsa', number: '123', house: 'A34', floor: '2', dias: ['true', 'false', 'true', 'true', 'false', 'false', 'true'], actived: true },
-    { id: '2', address: 'Avenida Siempre Viva', number: '742', house: 'B12', floor: '1', dias: ['true', 'true', 'true', 'true', 'true', 'false', 'false'], actived: false },
-    { id: '3', address: 'Boulevard de los Sueños Rotos', number: '456', house: 'C56', floor: '3', dias: ['false', 'false', 'true', 'false', 'true', 'true', 'false'], actived: true },
-];
 
 
 export default function Directions() {
+    const [directions, setDirections] = useState<domicilioResponse[]>([]);
+    const [filter, setFilter] = useState({ status: '', deliveryDay: '' });
+    useEffect(() => {
+        const fetchDirections = async () => {
+            try {
+                const result = await getAllByUserId(filter.status);
+                setDirections(result);
+            }
+            catch (error) {
+                console.error('Error fetching directions:', error);
+            }
+        };
+        fetchDirections();
+    }, [filter]);
 
-    const [directions, setDirections] = useState(recentDirections);
-    const handleSaveDirection = (updatedDirection: typeof recentDirections[number]) => {
+    const handleSaveDirection = (updatedDirection: domicilioResponse) => {
         setDirections((current) => current.map((direction) => (direction.id === updatedDirection.id ? updatedDirection : direction)));
     };
 
@@ -22,8 +32,7 @@ export default function Directions() {
             <h1 className="text-2xl font-semibold text-gray-900">Direcciones</h1>
             <p className="mt-2 text-sm text-gray-700">Aquí puedes gestionar tus direcciones de entrega.</p>
             <div className='flex flex-row mt-5'>
-                <Filter name="Estado" options={['activas', 'inactivas']} onSave={(value) => console.log('Filtro guardado:', value)} color="primary" size="md" />
-                <Filter name="Día de entrega" options={['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']} onSave={(value) => console.log('Filtro guardado:', value)} color="primary" size="md" />
+                <Filter name={filter.status || 'Estado'} options={['Mostrar Todas', 'Activas', 'Inactivas']} onSave={(value) => setFilter({ ...filter, status: value })} color="primary" size="md" />
             </div>
             <div className="mt-6 space-y-4 mb-10">
                 <div className="flex flex-col gap-6">
@@ -34,10 +43,10 @@ export default function Directions() {
                     ) : (
                         directions.map((direction) => (
                             <DireccionCard
-                                key={direction.id}
                                 direction={direction}
                                 onSave={handleSaveDirection}
                             />
+
                         ))
                     )}
                 </div>
