@@ -28,6 +28,7 @@ export interface AuthContextType {
     usuario_nombre: string,
     usuario_nivelAcceso: string,
   ) => Promise<void>;
+  loading: boolean; // NUEVO
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

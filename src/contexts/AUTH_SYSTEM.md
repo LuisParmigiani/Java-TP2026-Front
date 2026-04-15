@@ -21,10 +21,13 @@ export interface AuthContextType {
   logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 ```
 
 **Responsabilidades:**
+
 - Define la interfaz `AuthContextType` con toda la información de autenticación
 - Define el `AuthContext` que será consumido por otros componentes
 - Define el tipo `User` con el campo `role` para control de permisos
@@ -36,6 +39,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // ← IMPORTANTE
+
+   useEffect(() => {
+    const storedToken = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
+    const storedUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setCurrentUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+    setLoading(false); // ← IMPORTANTE: Solo después de cargar el usuario. Para que funcionen las rutas protegidas
+  }, []);
 
   const login = async (email: string, password: string) => {
     // Llama a authService.login()
@@ -48,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAuthenticated, token, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, isAuthenticated, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -56,6 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 ```
 
 **Responsabilidades:**
+
 - Maneja el estado de autenticación
 - Implementa `login()` y `logout()`
 - Persiste datos en `localStorage`
@@ -66,15 +83,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 El sistema soporta **4 roles**:
 
 ```typescript
-type Role = 'admin' | 'driver' | 'customer' | 'employee';
+type Role = "Administrador" | "Empleado" | "Usuario" | "Driver";
 ```
 
-| Rol | Descripción | Permisos |
-|-----|-------------|----------|
-| `admin` | Administrador | Acceso total al sistema |
-| `driver` | Conductor/Repartidor | Gestión de rutas y entregas |
-| `customer` | Cliente | Compra de productos, ver pedidos |
-| `employee` | Empleado | Similar a driver |
+| Rol             | Descripción          | Permisos                         |
+| --------------- | -------------------- | -------------------------------- |
+| `Administrador` | Administrador        | Acceso total al sistema          |
+| `Usuario`       | Cliente              | Compra de productos, ver pedidos |
+| `Empleado`      | Empleado             | Similar a driver                 |
+| `Driver`        | Conductor/Repartidor | Gestión de rutas y entregas      |
 
 ## 🔐 Validación de Roles y Permisos
 
@@ -83,13 +100,13 @@ type Role = 'admin' | 'driver' | 'customer' | 'employee';
 Ubicado en `src/hooks/useAuth.ts`:
 
 ```typescript
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from "../hooks/useAuth";
 
 const MyComponent = () => {
   const { currentUser, isAuthenticated } = useAuth();
-  
+
   // Acceder a información del usuario
-  console.log(currentUser?.role); // 'admin' | 'driver' | 'customer'
+  console.log(currentUser?.role); // 'Administrador' | 'Driver' | 'Usuario'
 };
 ```
 
@@ -102,7 +119,7 @@ const AdminPanel = () => {
   const { currentUser, isAuthenticated } = useAuth();
 
   // Verificar si el usuario es admin
-  if (!isAuthenticated || currentUser?.role !== 'admin') {
+  if (!isAuthenticated || currentUser?.role !== 'Administrador') {
     return <div>Acceso denegado. Solo administradores.</div>;
   }
 
@@ -120,33 +137,32 @@ const AdminPanel = () => {
 Crea un componente reutilizable para proteger rutas:
 
 ```typescript
-// src/components/ProtectedRoute.tsx
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+// src/contexts/ProtectedRoute.tsx
+import { Outlet, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
   allowedRoles: string[];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
   allowedRoles,
 }) => {
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, loading } = useAuth();
 
-  // Si no está autenticado, redirigir a login
+  // Espera a que el contexto termine de cargar antes de validar
+  //El uso de loading en el contexto de autenticación es fundamental para evitar que las rutas protegidas se validen o rendericen antes de que el usuario esté correctamente cargado desde el storage. Así se previenen flashes de contenido no autorizado y validaciones incorrectas.
+  if (loading) return null; // O un loader/spinner si prefieres
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si el rol no está permitido, redirigir a home
   if (!allowedRoles.includes(currentUser?.role!)) {
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
-};
+  return <Outlet />;
 ```
 
 **Uso en App.tsx:**
@@ -155,36 +171,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 <Routes>
   <Route path="/" element={<HomePage />} />
   <Route path="/login" element={<LoginPage />} />
-  
+
   {/* Rutas protegidas para clientes */}
-  <Route
-    path="/customer/dashboard"
-    element={
-      <ProtectedRoute allowedRoles={['customer']}>
-        <Dashboard />
-      </ProtectedRoute>
-    }
-  />
-  
-  {/* Rutas protegidas para drivers/empleados */}
-  <Route
-    path="/driver/dashboard"
-    element={
-      <ProtectedRoute allowedRoles={['driver', 'employee']}>
-        <DriverDashboard />
-      </ProtectedRoute>
-    }
-  />
-  
-  {/* Rutas solo para admins */}
-  <Route
-    path="/admin/dashboard"
-    element={
-      <ProtectedRoute allowedRoles={['admin']}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    }
-  />
+  <Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>
+    <Route path="/customer/dashboard" element={<Dashboard />} />
+    <Route path="/customer/orders" element={<Orders />} />
+    <Route path="/customer/newOrder" element={<NewOrder />} />
+    <Route path="/customer/directions" element={<Directions />} />
+  </Route>
+
+  {/* Rutas protegidas para admins */}
+  <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
+    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+    <Route path="/admin/products" element={<ProductsManagement />} />
+  </Route>
 </Routes>
 ```
 
@@ -204,9 +204,9 @@ const Header = () => {
 
   const getNavLinks = () => {
     if (!isAuthenticated) return publicLinks;
-    if (currentUser?.role === 'admin') return adminLinks;
-    if (currentUser?.role === 'driver') return driverLinks;
-    if (currentUser?.role === 'customer') return customerLinks;
+    if (currentUser?.role === 'Administrador') return adminLinks;
+    if (currentUser?.role === 'Driver') return driverLinks;
+    if (currentUser?.role === 'Usuario') return customerLinks;
     return publicLinks;
   };
 
@@ -229,22 +229,22 @@ Crea un hook reutilizable para verificar permisos:
 
 ```typescript
 // src/hooks/usePermission.ts
-import { useAuth } from './useAuth';
+import { useAuth } from "./useAuth";
 
 export const usePermission = () => {
   const { currentUser, isAuthenticated } = useAuth();
 
   const hasRole = (role: string | string[]) => {
     if (!isAuthenticated) return false;
-    
+
     const allowedRoles = Array.isArray(role) ? role : [role];
     return allowedRoles.includes(currentUser?.role!);
   };
 
-  const isAdmin = () => currentUser?.role === 'admin';
-  const isDriver = () => 
-    currentUser?.role === 'driver' || currentUser?.role === 'employee';
-  const isCustomer = () => currentUser?.role === 'customer';
+  const isAdmin = () => currentUser?.role === "Administrador";
+  const isDriver = () =>
+    currentUser?.role === "Driver" || currentUser?.role === "employee";
+  const isCustomer = () => currentUser?.role === "Usuario";
 
   return {
     hasRole,
@@ -267,7 +267,7 @@ const MyComponent = () => {
   return (
     <div>
       {isAdmin() && <button>Eliminar Usuario</button>}
-      
+
       {hasRole(['customer', 'driver']) && (
         <button>Ver Mi Perfil</button>
       )}
@@ -311,17 +311,17 @@ Cuando el usuario se autentica, dos datos se guardan en `localStorage`:
 
 ```typescript
 // Guardado en AuthContext.tsx
-localStorage.setItem('authToken', token);           // Token JWT
-localStorage.setItem('currentUser', JSON.stringify(user)); // Datos del usuario
+localStorage.setItem("authToken", token); // Token JWT
+localStorage.setItem("currentUser", JSON.stringify(user)); // Datos del usuario
 ```
 
 Al recargar la página, `AuthProvider` restaura automáticamente la sesión:
 
 ```typescript
 useEffect(() => {
-  const storedToken = localStorage.getItem('authToken');
-  const storedUser = localStorage.getItem('currentUser');
-  
+  const storedToken = localStorage.getItem("authToken");
+  const storedUser = localStorage.getItem("currentUser");
+
   if (storedToken && storedUser) {
     setToken(storedToken);
     setCurrentUser(JSON.parse(storedUser));
@@ -344,13 +344,16 @@ useEffect(() => {
 ## 🐛 Troubleshooting
 
 **Error: "useAuth debe usarse dentro de AuthProvider"**
+
 - Verifica que `<AuthProvider>` envuelve tu app en `App.tsx`
 
 **Fast Refresh no funciona**
+
 - Asegúrate que `AuthContext.tsx` solo exporta el componente
 - Los tipos deben estar en `authContext.ts`
 
 **Usuario no persiste al recargar**
+
 - Verifica que `localStorage` está habilitado
 - Comprueba que el `useEffect` en `AuthProvider` se ejecuta
 - Abre DevTools → Application → Local Storage

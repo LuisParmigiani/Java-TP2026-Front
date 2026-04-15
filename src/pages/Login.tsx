@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/Button.tsx";
@@ -10,7 +10,8 @@ import Navbar from "../components/NavBar.tsx";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login: authLogin } = useAuth();
+  const authLogin = useAuth().login;
+  const authLogout = useAuth().logout;
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,6 +22,11 @@ const LoginPage = () => {
   );
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    //importante, que cuando entra a login limpie credenciales para mantener consistencia
+    authLogout();
+  }, [authLogout]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,7 +52,6 @@ const LoginPage = () => {
     try {
       // ✅ Usar authLogin del contexto
       await authLogin(formData.email, formData.password, rememberMe);
-
       toast.success("Inicio de sesión exitoso", { duration: 1000 });
       setTimeout(() => {
         navigate("/");

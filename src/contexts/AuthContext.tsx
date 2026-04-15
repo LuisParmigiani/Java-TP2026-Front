@@ -18,6 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // NUEVO
 
   // Cargar token del localStorage al montar
   useEffect(() => {
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setCurrentUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }
+    setLoading(false);
   }, []);
 
   const login = async (
@@ -124,7 +126,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, isAuthenticated, token, login, logout, register }}
+      value={{
+        currentUser,
+        isAuthenticated,
+        token,
+        login,
+        logout,
+        register,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>
