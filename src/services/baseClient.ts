@@ -12,11 +12,7 @@ export const buildApiUrl = (path: string): string => {
   return `${API_BASE_URL}${normalizedPath}`;
 };
 
-const getAuthToken = (): string | null =>
-  localStorage.getItem("authToken") ?? sessionStorage.getItem("authToken");
-
-const buildHeaders = (extra?: HeadersInit): HeadersInit => {
-  const token = getAuthToken();
+const buildHeaders = (token?: string, extra?: HeadersInit): HeadersInit => {
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -26,12 +22,13 @@ const buildHeaders = (extra?: HeadersInit): HeadersInit => {
 
 export async function apiFetch<T>(
   path: string,
+  token?: string,
   options?: RequestInit,
 ): Promise<T> {
   const url = buildApiUrl(path);
   const response = await fetch(url, {
     ...options,
-    headers: buildHeaders(options?.headers),
+    headers: buildHeaders(token, options?.headers),
   });
 
   let result: any;
@@ -53,29 +50,37 @@ export async function apiFetch<T>(
 }
 
 // GET
-export async function apiGet<T>(path: string): Promise<T> {
-  return apiFetch<T>(path);
+export async function apiGet<T>(path: string, token?: string): Promise<T> {
+  return apiFetch<T>(path, token);
 }
 
 // POST
-export async function apiPost<T>(path: string, data: any): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiPost<T>(
+  path: string,
+  data: any,
+  token?: string,
+): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 // PUT
-export async function apiPut<T>(path: string, data?: any): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiPut<T>(
+  path: string,
+  data?: any,
+  token?: string,
+): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "PUT",
     body: data ? JSON.stringify(data) : undefined,
   });
 }
 
 // DELETE
-export async function apiDelete<T>(path: string): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiDelete<T>(path: string, token?: string): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "DELETE",
   });
 }

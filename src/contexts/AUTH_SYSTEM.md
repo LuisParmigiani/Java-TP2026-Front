@@ -188,6 +188,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 </Routes>
 ```
 
+---
+
+## Información nueva:
+
+Ahora para que la información no se pueda adulterar solo nos regimos por el token, es decir, authContext tiene un useEffect que utiliza servicios de authService para validar y decodear el token cada vez que este cambia y con esa data seteamos los estados del contexto que usamos en toda la página.
+
+Antes, se apiBaseClient tomaba el token de uno de los 2 storage (session/local) y lo agregaba al header si es que había. Ahora este token ya no nos sirve del todo porque no se valida su firma (puede estar modificado), entonces lo que hacemos es tomar del contexto la variable token (ya validada como mencionamos anteriormente) y pasarla como parámetro a cada servicio que haga una petición en el back para poder incluirlo en el Header; ya sea para usar el idUsuario dentro o validar autenticación/roles en el back.
+
+## Por qué esto de enviarlo siempre?
+
+Porque el baseApiClient no puede tomar esta variable token validada del contexto porque se encuentra fuera del componente AuthProvider. Además no modifica en nada poner a todos los servicios y componentes esta nueva variable como parámetro ya que los endpoints se siguen comportando igual (no cambian las rutas) y si es NULO este token y no es necesario (porque tal vez sea un endpoint público, que hasta ahora no tenemos) al llamar a la variable del estado token, esta retorna null y cuando se envía como parámetro al servicio llega null y no se agrega el token al header.
+
+---
+
 ### 4. Ejemplo: Ocultar/Mostrar Contenido por Rol
 
 En la **NavBar**, el sistema ya implementa esto:
@@ -336,7 +350,8 @@ useEffect(() => {
 - [x] `AuthContext.tsx` implementa provider
 - [x] `useAuth()` hook en `src/hooks/useAuth.ts`
 - [x] `AuthProvider` envuelve la app en `App.tsx`
-- [ ] Crear `ProtectedRoute` componente (ver ejemplo arriba)
+- [x] Crear `ProtectedRoute` componente (ver ejemplo arriba)
+- [ ] Del 4 para abajo en el documento, modificar para implementar el uso de solamente el token
 - [ ] Crear `usePermission` hook (ver ejemplo arriba)
 - [ ] Validar que el backend retorna `role` en login
 - [ ] Testar logout y redirección a login

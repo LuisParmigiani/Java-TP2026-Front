@@ -1,14 +1,8 @@
 import { createContext } from "react";
-
-interface User {
-  userId: number;
-  email: string;
-  role: "Administrador" | "Empleado" | "Usuario";
-  name?: string;
-}
+import type { jwtDecoded } from "../services/Interfaces";
 
 export interface AuthContextType {
-  currentUser: User | null;
+  currentUser: jwtDecoded | null;
   isAuthenticated: boolean;
   token: string | null;
   login: (

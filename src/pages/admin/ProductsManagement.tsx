@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Helmet } from './../../components/Helmet';
-import NavBar from './../../components/NavBar';
-import Footer from './../../components/Footer';
-import { Card, CardContent  } from './../../components/Card';
-import { Button } from './../../components/Button';
-import Input from './../../components/Input';
-import { Label } from './../../components/Label';
+import { useState, useEffect } from "react";
+import { Helmet } from "./../../components/Helmet";
+import NavBar from "./../../components/NavBar";
+import Footer from "./../../components/Footer";
+import { Card, CardContent } from "./../../components/Card";
+import { Button } from "./../../components/Button";
+import Input from "./../../components/Input";
+import { Label } from "./../../components/Label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './../../components/Select';
+} from "./../../components/Select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from './../../components/Dialog';
+} from "./../../components/Dialog";
 import {
   Table,
   TableBody,
@@ -26,33 +26,42 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './../../components/Table';
-import { Badge } from './../../components/Badge';
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { addProduct, fetchProducts, updateProduct, uploadImage } from '../../services/ProductService.ts';
-import type { ProductoResponse } from '../../services/Interfaces';
-import ProductPictureInput from '../../components/ProductPictureInput.tsx';
+} from "./../../components/Table";
+import { Badge } from "./../../components/Badge";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  addProduct,
+  fetchProducts,
+  updateProduct,
+  uploadImage,
+} from "../../services/ProductService.ts";
+import type { ProductoResponse } from "../../services/Interfaces";
+import ProductPictureInput from "../../components/ProductPictureInput.tsx";
+import { useAuth } from "../../hooks/useAuth.ts";
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState<ProductoResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductoResponse | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductoResponse | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
-    fetchProducts()
-      .then(data => setProducts(data))
-      .catch(error => console.error('Failed to fetch products:', error));
-  }, []);
+    fetchProducts(token)
+      .then((data) => setProducts(data))
+      .catch((error) => console.error("Failed to fetch products:", error));
+  }, [token]);
   const [formData, setFormData] = useState({
-    nombre: '',
-    detalle: '',
-    precio: '',
-    stock: '',
-    activo: '1',  // Por defecto activo
-    imagenUrl: '',
+    nombre: "",
+    detalle: "",
+    precio: "",
+    stock: "",
+    activo: "1", // Por defecto activo
+    imagenUrl: "",
   });
   const handleImageChange = async (file: File) => {
     if (!file) return;
@@ -66,7 +75,7 @@ const ProductsManagement = () => {
     // Update form state with temp URL
     setFormData((prev) => ({ ...prev, imagenUrl: tempUrl }));
 
-    console.log('Imagen seleccionada✅');
+    console.log("Imagen seleccionada✅");
   };
   const handleOpenDialog = (product: ProductoResponse | null = null) => {
     if (product) {
@@ -76,12 +85,19 @@ const ProductsManagement = () => {
         detalle: product.detalle,
         precio: product.precio.toString(),
         stock: product.stock.toString(),
-        activo: product.activo ? '1' : '0',
-        imagenUrl: product.imagenUrl || '',
+        activo: product.activo ? "1" : "0",
+        imagenUrl: product.imagenUrl || "",
       });
     } else {
       setEditingProduct(null);
-      setFormData({ nombre: '', detalle: '', precio: '', stock: '', activo: '1', imagenUrl: '' });
+      setFormData({
+        nombre: "",
+        detalle: "",
+        precio: "",
+        stock: "",
+        activo: "1",
+        imagenUrl: "",
+      });
     }
     setIsDialogOpen(true);
   };
@@ -89,14 +105,14 @@ const ProductsManagement = () => {
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.nombre || !formData.precio || !formData.stock) {
-      toast.error('Por favor completa todos los campos requeridos.');
+      toast.error("Por favor completa todos los campos requeridos.");
       return;
     }
     if (Number(formData.precio) <= 0 || Number(formData.stock) < 0) {
-      toast.error('El precio y stock deben ser valores válidos.');
+      toast.error("El precio y stock deben ser valores válidos.");
       return;
     }
-    
+
     setIsLoading(true);
     try {
       // Crear/actualizar producto
@@ -104,66 +120,69 @@ const ProductsManagement = () => {
         nombre: formData.nombre,
         precio: Number(formData.precio),
         stock: Number(formData.stock),
-        activo: formData.activo === '1',
+        activo: formData.activo === "1",
         detalle: formData.detalle,
-        imagenUrl: './../../assets/producto.jpeg', // Valor temporal, se actualizará después de subir la imagen
+        imagenUrl: "./../../assets/producto.jpeg", // Valor temporal, se actualizará después de subir la imagen
       };
       let savedProduct: ProductoResponse;
       if (editingProduct) {
-        console.log("updeteando producto")
-        savedProduct = await updateProduct(editingProduct.id, productData);
-        toast.success('Producto actualizado correctamente.');
+        console.log("updeteando producto");
+        savedProduct = await updateProduct(
+          editingProduct.id,
+          productData,
+          token,
+        );
+        toast.success("Producto actualizado correctamente.");
       } else {
-        console.log("guardando producto")
-        savedProduct = await addProduct(productData);
-        toast.success('Producto agregado correctamente.');
-      } 
+        console.log("guardando producto");
+        savedProduct = await addProduct(productData, token);
+        toast.success("Producto agregado correctamente.");
+      }
       if (pendingImageFile && savedProduct.id) {
-        console.log('📤 Uploading profile image for new user...');
+        console.log("📤 Uploading profile image for new user...");
         try {
           const imageResponse = await uploadImage(
             pendingImageFile,
-            savedProduct.id
+            savedProduct.id,
           );
-          console.log(
-            '✅ Profile image uploaded successfully:',
-            imageResponse,
-          );
+          console.log("✅ Profile image uploaded successfully:", imageResponse);
           // Actualiza solo el campo imagenUrl sin pasar el id
-          await updateProduct(savedProduct.id, {
-            imagenUrl: imageResponse,
-            nombre: productData.nombre,
-            precio: productData.precio,
-            stock: productData.stock,
-            activo: productData.activo,
-            detalle: productData.detalle,
-          });
-          console.log('Producto actualizado con URL de imagen');
+          await updateProduct(
+            savedProduct.id,
+            {
+              imagenUrl: imageResponse,
+              nombre: productData.nombre,
+              precio: productData.precio,
+              stock: productData.stock,
+              activo: productData.activo,
+              detalle: productData.detalle,
+            },
+            token,
+          );
+          console.log("Producto actualizado con URL de imagen");
         } catch (imageError) {
           console.error(
-            'No se pudo subir la imagen, pero se creo el usuario',
+            "No se pudo subir la imagen, pero se creo el usuario",
             imageError,
           );
         }
       }
 
-
-
-      const updatedProducts = await fetchProducts();
+      const updatedProducts = await fetchProducts(token);
       setProducts(updatedProducts);
       setIsDialogOpen(false);
     } catch (error) {
-      console.error('Error saving product:', error);
-      toast.error('Ocurrió un error al guardar el producto.');
+      console.error("Error saving product:", error);
+      toast.error("Ocurrió un error al guardar el producto.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
+    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
       setProducts(products.filter((p) => p.id !== id));
-      toast.success('Producto eliminado.');
+      toast.success("Producto eliminado.");
     }
   };
 
@@ -226,9 +245,9 @@ const ProductsManagement = () => {
                       <TableCell>{product.stock}</TableCell>
                       <TableCell>
                         <Badge
-                          variant={product.activo ? 'default' : 'secondary'}
+                          variant={product.activo ? "default" : "secondary"}
                         >
-                          {product.activo ? 'Activo' : 'Inactivo'}
+                          {product.activo ? "Activo" : "Inactivo"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -272,14 +291,14 @@ const ProductsManagement = () => {
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
             <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
-              {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
+              {editingProduct ? "Editar Producto" : "Agregar Producto"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="imagenUrl">Imagen</Label>
               <ProductPictureInput
-                src={formData.imagenUrl || './../../assets/producto.jpeg'}
+                src={formData.imagenUrl || "./../../assets/producto.jpeg"}
                 onImageChange={handleImageChange}
                 uploading={isLoading}
               />
@@ -359,7 +378,7 @@ const ProductsManagement = () => {
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Guardando...' : 'Guardar'}
+                {isLoading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </form>
