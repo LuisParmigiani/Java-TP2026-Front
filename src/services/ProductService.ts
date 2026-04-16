@@ -63,11 +63,13 @@ export async function uploadImage(
 export async function updateProduct(
   productId: number,
   updatedData: Partial<Omit<ProductoRequest, "id">>,
+  token: string,
 ): Promise<ProductoResponse> {
   try {
     const response = await apiPut<ProductoResponse>(
       `/producto/${productId}`,
       updatedData,
+      token,
     );
     console.log("Updated product:", response);
     return response;

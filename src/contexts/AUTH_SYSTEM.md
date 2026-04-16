@@ -210,7 +210,8 @@ En la **NavBar**, el sistema ya implementa esto:
 
 ```typescript
 const Header = () => {
-  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { isAdmin, isCustomer, isDriver } = usePermission();
 
   // Arrays de rutas por rol
   const publicLinks = [...];     // Visible para todos
@@ -220,9 +221,9 @@ const Header = () => {
 
   const getNavLinks = () => {
     if (!isAuthenticated) return publicLinks;
-    if (currentUser?.role === 'Administrador') return adminLinks;
-    if (currentUser?.role === 'Driver') return driverLinks;
-    if (currentUser?.role === 'Usuario') return customerLinks;
+    if (isAdmin()) return adminLinks;
+    if (isDriver()) return driverLinks;
+    if (isCustomer()) return customerLinks;
     return publicLinks;
   };
 
@@ -239,7 +240,7 @@ const Header = () => {
 };
 ```
 
-### 5. Ejemplo: Hook Personalizado para Permisos
+### 5. Ejemplo: Hook Personalizado para Permisos (lo hice más simplificado para evitar redundancia. Solo que devuelva roles).
 
 Crea un hook reutilizable para verificar permisos:
 
@@ -248,26 +249,18 @@ Crea un hook reutilizable para verificar permisos:
 import { useAuth } from "./useAuth";
 
 export const usePermission = () => {
-  const { currentUser, isAuthenticated } = useAuth();
-
-  const hasRole = (role: string | string[]) => {
-    if (!isAuthenticated) return false;
-
-    const allowedRoles = Array.isArray(role) ? role : [role];
-    return allowedRoles.includes(currentUser?.role!);
-  };
+  const { currentUser } = useAuth();
 
   const isAdmin = () => currentUser?.role === "Administrador";
-  const isDriver = () =>
-    currentUser?.role === "Driver" || currentUser?.role === "employee";
+  const isDriver = () => currentUser?.role === "Conductor";
   const isCustomer = () => currentUser?.role === "Usuario";
+  const isEmployee = () => currentUser?.role === "Empleado";
 
   return {
-    hasRole,
     isAdmin,
     isDriver,
     isCustomer,
-    currentRole: currentUser?.role,
+    isEmployee,
   };
 };
 ```
@@ -278,13 +271,13 @@ export const usePermission = () => {
 import { usePermission } from '../hooks/usePermission';
 
 const MyComponent = () => {
-  const { hasRole, isAdmin } = usePermission();
+  const { isAdmin, isEmployee } = usePermission();
 
   return (
     <div>
       {isAdmin() && <button>Eliminar Usuario</button>}
 
-      {hasRole(['customer', 'driver']) && (
+      {isEmployee()) && (
         <button>Ver Mi Perfil</button>
       )}
     </div>
@@ -361,8 +354,8 @@ useEffect(() => {
 - [x] `useAuth()` hook en `src/hooks/useAuth.ts`
 - [x] `AuthProvider` envuelve la app en `App.tsx`
 - [x] Crear `ProtectedRoute` componente (ver ejemplo arriba)
-- [ ] Del 4 para abajo en el documento, modificar para implementar el uso de solamente el token
-- [ ] Crear `usePermission` hook (ver ejemplo arriba)
+- [x] Del 4 para abajo en el documento, modificar para implementar el uso de solamente el token
+- [ ] Crear `usePermission` hook (ver ejemplo arriba) **PARA MI NO HACE FALTA**
 - [x] Validar que el backend retorna `role` en login
 - [x] Testar logout y redirección a login
 
