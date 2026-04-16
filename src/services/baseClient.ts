@@ -1,5 +1,5 @@
 const DEFAULT_API_BASE_URL = "http://localhost:8080/api"; //después se borra y se usa el .env
-import type { ErrorResponse } from './Interfaces.ts';
+import type { ErrorResponse } from "./Interfaces.ts";
 
 export const API_BASE_URL =
   (import.meta.env?.VITE_API_BASE_URL as string | undefined) ??
@@ -13,11 +13,7 @@ export const buildApiUrl = (path: string): string => {
   return `${API_BASE_URL}${normalizedPath}`;
 };
 
-const getAuthToken = (): string | null =>
-  localStorage.getItem("authToken") ?? sessionStorage.getItem("authToken");
-
-const buildHeaders = (extra?: HeadersInit): HeadersInit => {
-  const token = getAuthToken();
+const buildHeaders = (token?: string, extra?: HeadersInit): HeadersInit => {
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -27,12 +23,13 @@ const buildHeaders = (extra?: HeadersInit): HeadersInit => {
 
 export async function apiFetch<T>(
   path: string,
+  token?: string,
   options?: RequestInit,
 ): Promise<T> {
   const url = buildApiUrl(path);
   const response = await fetch(url, {
     ...options,
-    headers: buildHeaders(options?.headers),
+    headers: buildHeaders(token, options?.headers),
   });
 
   let result: any;
@@ -56,7 +53,7 @@ export async function apiFetch<T>(
       error.codigo = errorResponse.codigo;
       throw error;
     }
-    
+
     // Fallback si no tiene estructura ErrorResponse
     const error: any = new Error(
       result.error || `Error: ${response.status} ${response.statusText}`,
@@ -70,36 +67,48 @@ export async function apiFetch<T>(
 }
 
 // GET
-export async function apiGet<T>(path: string): Promise<T> {
-  return apiFetch<T>(path);
+export async function apiGet<T>(path: string, token?: string): Promise<T> {
+  return apiFetch<T>(path, token);
 }
 
 // POST
-export async function apiPost<T>(path: string, data: any): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiPost<T>(
+  path: string,
+  data: any,
+  token?: string,
+): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 // PUT
-export async function apiPut<T>(path: string, data?: any): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiPut<T>(
+  path: string,
+  data?: any,
+  token?: string,
+): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "PUT",
     body: data ? JSON.stringify(data) : undefined,
   });
 }
 //PATCH
-export async function apiPatch<T>(path: string, data?: any): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiPatch<T>(
+  path: string,
+  data?: any,
+  token?: string,
+): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "PATCH",
     body: data ? JSON.stringify(data) : undefined,
   });
 }
 
 // DELETE
-export async function apiDelete<T>(path: string): Promise<T> {
-  return apiFetch<T>(path, {
+export async function apiDelete<T>(path: string, token?: string): Promise<T> {
+  return apiFetch<T>(path, token, {
     method: "DELETE",
   });
 }

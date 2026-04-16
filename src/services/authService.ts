@@ -1,5 +1,6 @@
 import { apiPost } from "./baseClient";
-import type { LoginResponse, RegisterResponse } from "./Interfaces";
+import type { LoginResponse, RegisterResponse, jwtDecoded } from "./Interfaces";
+import { jwtDecode } from "jwt-decode";
 
 export async function login(
   email: string,
@@ -33,4 +34,17 @@ export async function register(
     usuario_nombre,
     usuario_nivelAcceso,
   });
+}
+
+export async function verifyToken(token: string) {
+  // Llama al backend para validar el token y obtener datos confiables
+  return await apiPost("/auth/verify-token", {}, token); // El backend debe leer el token del header Authorization
+}
+
+export function decodeToken(token: string): jwtDecoded | null {
+  try {
+    return jwtDecode(token);
+  } catch {
+    return null;
+  }
 }

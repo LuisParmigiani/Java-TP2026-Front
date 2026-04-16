@@ -1,11 +1,16 @@
-import Navbar from './../../components/NavBar';
-import Footer from './../../components/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from './../../components/Card';
+import Navbar from "./../../components/NavBar";
+import Footer from "./../../components/Footer";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "./../../components/Card";
 
-import { Badge } from './../../components/Badge';
-import { Button } from './../../components/Button';
-import { MapPin, Package } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth.ts';
+import { Badge } from "./../../components/Badge";
+import { Button } from "./../../components/Button";
+import { MapPin, Package } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth.ts";
 import { useEffect, useState } from "react";
 
 const DailyRoutePage = () => {
@@ -25,20 +30,20 @@ const DailyRoutePage = () => {
         setLoading(true);
         //fetcheo la data de que clientes tocan ese día para ese camión
         //!Este endpoint va a ser bastante heavy, o no. Creo que con traer el camion del que esta encargado ese empleado ese dia
-        //! Y hacer un endpoint que traiga los domicilios de ese camion para ese dia, con toda la info necesaria para mostrar en la ruta diaria, 
+        //! Y hacer un endpoint que traiga los domicilios de ese camion para ese dia, con toda la info necesaria para mostrar en la ruta diaria,
         //! va a ser suficiente. Sino habría que hacer un endpoint que traiga toda esa info pero filtrada por empleado y dia, pero creo que es mas trabajo y no aporta nada nuevo
-        const response = await fetch('domicilio/entregasHoy'); // Reemplaza con tu endpoint real
+        const response = await fetch("domicilio/entregasHoy"); // Reemplaza con tu endpoint real
 
         if (!response.ok) {
-          throw new Error('Error al cargar los clientes');
+          throw new Error("Error al cargar los clientes");
         }
 
         const data = await response.json();
         setDeliveries(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        console.error('Error fetching deliveries:', err);
+        setError(err instanceof Error ? err.message : "An error occurred");
+        console.error("Error fetching deliveries:", err);
       } finally {
         setLoading(false);
       }
@@ -50,7 +55,7 @@ const DailyRoutePage = () => {
   // Verificar si el usuario es empleado
   //! Falta verificar que esté asignado a un camión hoy
 
-  if (!isAuthenticated || currentUser?.role !== 'Empleado') {
+  if (!isAuthenticated || currentUser?.role !== "Empleado") {
     console.log(currentUser);
     return <div>Acceso denegado. Solo empleados habilitados a un reparto.</div>;
   }
@@ -85,11 +90,13 @@ const DailyRoutePage = () => {
   }
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600">Completado</Badge>
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+            Completado
+          </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge
             variant="secondary"
@@ -99,7 +106,11 @@ const DailyRoutePage = () => {
           </Badge>
         );
       default:
-        return <Badge  className="" variant="outline">{status}</Badge>;
+        return (
+          <Badge className="" variant="outline">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -111,12 +122,12 @@ const DailyRoutePage = () => {
           <div className="flex items-center justify-between mb-8">
             <h1
               className="text-3xl font-bold"
-              style={{ letterSpacing: '-0.02em' }}
+              style={{ letterSpacing: "-0.02em" }}
             >
               Ruta Diaria
             </h1>
             <div className="text-sm text-muted-foreground font-medium">
-              {deliveries.filter((d) => d.status === 'completed').length} de{' '}
+              {deliveries.filter((d) => d.status === "completed").length} de{" "}
               {deliveries.length} entregas completadas
             </div>
           </div>
@@ -125,13 +136,13 @@ const DailyRoutePage = () => {
             {deliveries.map((delivery, index) => (
               <Card
                 key={delivery.id}
-                className={`border-border shadow-sm ${delivery.status === 'completed' ? 'bg-muted/30' : 'bg-card'}`}
+                className={`border-border shadow-sm ${delivery.status === "completed" ? "bg-muted/30" : "bg-card"}`}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${delivery.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-primary/10 text-primary'}`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${delivery.status === "completed" ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}
                       >
                         {index + 1}
                       </div>
@@ -155,7 +166,7 @@ const DailyRoutePage = () => {
                     <span className="font-semibold text-foreground">
                       Total: ${delivery.total.toFixed(2)}
                     </span>
-                    {delivery.status === 'pending' && (
+                    {delivery.status === "pending" && (
                       <Button
                         size="sm"
                         className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -173,6 +184,6 @@ const DailyRoutePage = () => {
       <Footer />
     </div>
   );
-}
+};
 
 export default DailyRoutePage;

@@ -2,42 +2,63 @@ import React, { useState, useEffect, type ReactNode } from "react";
 import {
   login as loginAPI,
   register as registerAPI,
+  verifyToken, // función de authService que valida token
+  decodeToken, // función de authService que decodifica token para extraer datos confiables del usuario
 } from "../services/authService";
 import { AuthContext } from "./authContext";
-
-interface User {
-  userId: number;
-  email: string;
-  role: "Administrador" | "Empleado" | "Usuario";
-  name?: string;
-}
+import type { jwtDecoded } from "../services/Interfaces";
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<jwtDecoded | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // NUEVO
+  const [loading, setLoading] = useState(true);
 
-  // Cargar token del localStorage al montar
+  // 1. Cargar token del storage al montar
   useEffect(() => {
-    let storedToken = localStorage.getItem("authToken");
-    let storedUser = localStorage.getItem("currentUser");
+    let storedToken =
+      localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
+    setToken(storedToken || null);
 
-    // Si no hay en localStorage, intenta sessionStorage
-    if (!storedToken || !storedUser) {
-      storedToken = sessionStorage.getItem("authToken");
-      storedUser = sessionStorage.getItem("currentUser");
+    // Solo ponemos loading en false si NO hay token.
+    // Si hay token, dejamos que el segundo useEffect lo valide y él quite el loading.
+    if (!storedToken) {
+      setLoading(false);
     }
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setCurrentUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
   }, []);
+
+  // 2. Validar token y extraer datos confiables
+  useEffect(() => {
+    if (!token) {
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+      return;
+    }
+
+    setLoading(true);
+    verifyToken(token)
+      .then(() => {
+        // Decodifica localmente después de validar con el backend
+        const decoded = decodeToken(token);
+        setCurrentUser({
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+          username: decoded.username,
+        });
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        setToken(null);
+        localStorage.removeItem("authToken");
+        sessionStorage.removeItem("authToken");
+      })
+      .finally(() => setLoading(false));
+  }, [token]);
 
   const login = async (
     email: string,
@@ -47,27 +68,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await loginAPI(email, password);
 
-      if (response.success && response.token && response.userId) {
-        const user: User = {
-          userId: response.userId,
-          email: email,
-          role:
-            (response.role as "Administrador" | "Empleado" | "Usuario") ||
-            "Usuario",
-          name: email.split("@")[0], // Fallback: usar parte del email
-        };
-
+      if (response.success && response.token) {
         setToken(response.token);
-        setCurrentUser(user);
-        setIsAuthenticated(true);
         if (rememberMe) {
-          //Guardar en localStorage
           localStorage.setItem("authToken", response.token);
-          localStorage.setItem("currentUser", JSON.stringify(user));
         } else {
-          // Guardar en sessionStorage
           sessionStorage.setItem("authToken", response.token);
-          sessionStorage.setItem("currentUser", JSON.stringify(user));
         }
       } else {
         throw new Error(response.error || "Login failed");
@@ -83,9 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsAuthenticated(false);
     setToken(null);
     localStorage.removeItem("authToken");
-    localStorage.removeItem("currentUser");
     sessionStorage.removeItem("authToken");
-    sessionStorage.removeItem("currentUser");
   };
 
   const register = async (
