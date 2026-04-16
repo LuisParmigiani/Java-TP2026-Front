@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./Button";
@@ -111,7 +111,7 @@ const Header = () => {
             ) : (
               <>
                 <span className="text-sm font-medium text-muted-foreground mr-2 inline-block">
-                  {currentUser?.name || currentUser?.email}
+                  {currentUser?.username || currentUser?.email}
                 </span>
                 <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8" />
                 <Button
@@ -190,7 +190,7 @@ const Header = () => {
                     <>
                       <div className="px-4 py-2 text-sm font-medium text-muted-foreground mb-2 flex items-center space-x-2 gap-2">
                         <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8" />
-                        {currentUser?.name || currentUser?.email}
+                        {currentUser?.username || currentUser?.email}
                       </div>
                       <Button
                         variant="danger"

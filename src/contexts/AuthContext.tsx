@@ -21,7 +21,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     let storedToken =
       localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
     setToken(storedToken || null);
-    setLoading(false);
+
+    // Solo ponemos loading en false si NO hay token.
+    // Si hay token, dejamos que el segundo useEffect lo valide y él quite el loading.
+    if (!storedToken) {
+      setLoading(false);
+    }
   }, []);
 
   // 2. Validar token y extraer datos confiables

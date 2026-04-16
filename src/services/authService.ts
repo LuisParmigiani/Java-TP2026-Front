@@ -38,7 +38,7 @@ export async function register(
 
 export async function verifyToken(token: string) {
   // Llama al backend para validar el token y obtener datos confiables
-  return await apiGet("/auth/verify-token", token); // El backend debe leer el token del header Authorization
+  return await apiPost("/auth/verify-token", {}, token); // El backend debe leer el token del header Authorization
 }
 
 export function decodeToken(token: string): jwtDecoded | null {

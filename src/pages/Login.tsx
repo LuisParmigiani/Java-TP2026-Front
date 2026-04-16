@@ -23,11 +23,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  useEffect(() => {
-    //importante, que cuando entra a login limpie credenciales para mantener consistencia
-    authLogout();
-  }, [authLogout]);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
@@ -39,6 +34,10 @@ const LoginPage = () => {
     if (!formData.password) newErrors.password = "La contraseña es requerida";
     return newErrors;
   };
+
+  useEffect(() => {
+    authLogout();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
