@@ -14,6 +14,7 @@ import ProductsManagement from "./pages/admin/ProductsManagement.tsx";
 import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
+import TrucksManagement from "./pages/admin/TruckManagement.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -46,6 +47,7 @@ function App() {
           {/*<Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>*/}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ProductsManagement />} />
+          <Route path="/admin/trucks" element={<TrucksManagement />} />
           {/*</Route>*/}
         </Routes>
       </Router>

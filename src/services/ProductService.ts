@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from './baseClient.ts';
-import type { ProductoResponse } from './Interfaces.ts';
+import type { ProductoRequest, ProductoResponse } from './Interfaces.ts';
 
 export async function fetchProducts(): Promise<ProductoResponse[]> {
     try {
@@ -52,7 +52,7 @@ export async function uploadImage(file: File, productoId: number): Promise<strin
 }
 
 //! Método para actualizar un producto existente
-export async function updateProduct(productId: number, updatedData: Partial<Omit<ProductoResponse, 'id'>>): Promise<ProductoResponse> {
+export async function updateProduct(productId: number, updatedData: Partial<Omit<ProductoRequest, 'id'>>): Promise<ProductoResponse> {
     try {
         const response = await apiPut<ProductoResponse>(`/producto/${productId}`, updatedData);
         console.log('Updated product:', response);

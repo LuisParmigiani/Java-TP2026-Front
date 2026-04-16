@@ -21,6 +21,7 @@ import * as Select from "../components/Select";
 import * as Sheet from "../components/Sheet";
 import * as Table from "../components/Table";
 import InformationCard from "../components/InformationCard";
+import { Alert, AlertTitle, AlertDescription } from "../components/Alert.tsx";
 
 export default function ComponentsPage() {
   return (
@@ -875,6 +876,28 @@ export default function ComponentsPage() {
           ]}
           required
         />
+      </div>
+      <div className="mb-8 p-6 bg-white rounded-xl shadow">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-gray-600 pb-2">
+          ALERT (Mirar el componente porque tiene varias props)
+        </h1>
+        <Alert variant="default">
+          <AlertTitle>¡Titulo de la variante default!</AlertTitle>
+          <AlertDescription>Esto es la descripcion de la alerta default</AlertDescription>
+        </Alert>
+
+        <Alert variant="danger">
+          <AlertTitle>¡Titulo de la variante danger!</AlertTitle>
+          <AlertDescription>Esto es la descripción de la alerta Danger</AlertDescription>
+        </Alert>
+        <Alert variant="info">
+          <AlertTitle>¡Titulo de la variante info!</AlertTitle>
+          <AlertDescription>Esto es la descripción de la alerta info</AlertDescription>
+        </Alert>
+        <Alert variant="success">
+          <AlertTitle>¡Titulo de la variante success!</AlertTitle>
+          <AlertDescription>Esto es la descripción de la alerta success</AlertDescription>
+        </Alert>
       </div>
     </div >
   );

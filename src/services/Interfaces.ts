@@ -52,6 +52,15 @@ export interface domicilioResponse {
   productosDomicilio: productosDomicilio[];
 }
 
+export interface CamionResponse {
+  id: number;
+  patente: string;
+  modelo: string;
+  marca: string;
+  kilometraje: number;
+  estado: string;
+}
+
 export interface productosDomicilio {
   id: number;
   productoId: number;
@@ -192,6 +201,7 @@ export interface ZonaRequest {
 }
 
 
+
 export interface GastoRequest {
     detalle?: string;
     monto?: number;
@@ -199,11 +209,12 @@ export interface GastoRequest {
     camion_id?: number;
 }
 
-export interface Camion {
+export interface CamionRequest {
     patente: string;
     modelo: string;
     marca: string;
-    kilometros: number;
+    estado?: boolean;
+    kilometraje: number;
 }
 export interface CargaProductoRequest {
     cantLleno?: number;
@@ -216,4 +227,10 @@ export interface CargaRequest {
     fechaHora?: Date;
     idUsuario?: number;
     idCamion?: number;
+}
+
+export interface ErrorResponse {
+  mensaje: string;
+  errores?: Record<string, string>;
+  codigo: number;
 }
