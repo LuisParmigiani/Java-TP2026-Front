@@ -200,6 +200,8 @@ Antes, se apiBaseClient tomaba el token de uno de los 2 storage (session/local) 
 
 Porque el baseApiClient no puede tomar esta variable token validada del contexto porque se encuentra fuera del componente AuthProvider. Además no modifica en nada poner a todos los servicios y componentes esta nueva variable como parámetro ya que los endpoints se siguen comportando igual (no cambian las rutas) y si es NULO este token y no es necesario (porque tal vez sea un endpoint público, que hasta ahora no tenemos) al llamar a la variable del estado token, esta retorna null y cuando se envía como parámetro al servicio llega null y no se agrega el token al header.
 
+**Resumen de cambios que van a notar:** Llamadas a servicios desde los componentes (que a su vez llaman a los servicios básicos derivados del ApiFetch) va el token como parámetro, no se asusten, no llega como parámetro al back pq se agrega en el header. Que ahora en context hay un useEffect que cada vez que el token se adultera, se llama al back para validar su firma y traer nuevamente los datos a los estados de React.
+
 ---
 
 ### 4. Ejemplo: Ocultar/Mostrar Contenido por Rol
@@ -306,15 +308,15 @@ const MyComponent = () => {
                    ▼
 ┌─────────────────────────────────────────┐
 │ AuthContext.login()                     │
-│ - Guarda token en localStorage          │
-│ - Guarda usuario en localStorage        │
-│ - Actualiza estado                      │
+│ - Guarda token en local/sessionStorage
+│ - Guarda currentUser con la info del token validado     (api/verify-token) y decodificado en estado                    │
+│ - Actualiza estado isAuthenticated
 └──────────────────┬──────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────┐
 │ Componentes acceden vía useAuth()       │
-│ - Leen token y usuario del contexto     │
+│ - Leen token y currentUser de estados del contexto
 │ - Validan rol en rutas/componentes      │
 └─────────────────────────────────────────┘
 ```
@@ -334,12 +336,20 @@ Al recargar la página, `AuthProvider` restaura automáticamente la sesión:
 ```typescript
 useEffect(() => {
   const storedToken = localStorage.getItem("authToken");
-  const storedUser = localStorage.getItem("currentUser");
 
-  if (storedToken && storedUser) {
-    setToken(storedToken);
-    setCurrentUser(JSON.parse(storedUser));
-    setIsAuthenticated(true);
+  //Algo así
+  if (storedToken) {
+    verifyToken(token)
+      .then(() => {
+        // Decodifica localmente después de validar con el backend
+        const decoded = decodeToken(token);
+        setCurrentUser({
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+          username: decoded.username,
+        });
+        setIsAuthenticated(true);
   }
 }, []);
 ```
@@ -353,8 +363,8 @@ useEffect(() => {
 - [x] Crear `ProtectedRoute` componente (ver ejemplo arriba)
 - [ ] Del 4 para abajo en el documento, modificar para implementar el uso de solamente el token
 - [ ] Crear `usePermission` hook (ver ejemplo arriba)
-- [ ] Validar que el backend retorna `role` en login
-- [ ] Testar logout y redirección a login
+- [x] Validar que el backend retorna `role` en login
+- [x] Testar logout y redirección a login
 
 ## 🐛 Troubleshooting
 

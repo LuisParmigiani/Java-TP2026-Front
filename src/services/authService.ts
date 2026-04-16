@@ -1,4 +1,4 @@
-import { apiPost, apiGet } from "./baseClient";
+import { apiPost } from "./baseClient";
 import type { LoginResponse, RegisterResponse, jwtDecoded } from "./Interfaces";
 import { jwtDecode } from "jwt-decode";
 
