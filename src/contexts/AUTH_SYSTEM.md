@@ -355,7 +355,7 @@ useEffect(() => {
 - [x] `AuthProvider` envuelve la app en `App.tsx`
 - [x] Crear `ProtectedRoute` componente (ver ejemplo arriba)
 - [x] Del 4 para abajo en el documento, modificar para implementar el uso de solamente el token
-- [ ] Crear `usePermission` hook (ver ejemplo arriba) **PARA MI NO HACE FALTA**
+- [x] Crear `usePermission` hook (ver ejemplo arriba)
 - [x] Validar que el backend retorna `role` en login
 - [x] Testar logout y redirección a login
 
