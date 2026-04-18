@@ -18,6 +18,8 @@ import TrucksManagement from "./pages/admin/TruckManagement.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
+import SemanalOrder from "./pages/customer/SemanalOrder.tsx";
+import Profile from "./pages/customer/Profile.tsx";
 
 function App() {
   return (
@@ -40,6 +42,10 @@ function App() {
           <Route path="/customer/directions" element={<Directions />} />
           {/*</Route>*/}
 
+          <Route path="/components" element={<Components />} />
+          <Route path="/customer/profile" element={<Profile />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/customer/semanalOrder" element={<SemanalOrder />} />
           {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage />} />
           {/*Rutas para el Admin*/}

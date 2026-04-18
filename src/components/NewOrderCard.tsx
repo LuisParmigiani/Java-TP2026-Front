@@ -1,18 +1,16 @@
 import { useEffect } from 'react';
+import type { domicilioResponse, ProductoResponse } from '../services/Interfaces';
 
 
 interface Props {
     orderNumber: string;
     cant: number[];
-    products: {
-        name: string;
-        description: string;
-        image: string;
-        price: number;
-    }[];
+    products: ProductoResponse[];
     total: number;
+    direction: domicilioResponse;
     open: boolean;
     setOpen: (value: boolean) => void;
+    complete: () => void;
 }
 
 
@@ -57,15 +55,19 @@ export default function NewOrderCard(prop: Props) {
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="rounded-lg border border-gray-200 p-4">
-                                <p className="text-sm text-gray-500">Llegada estimada:</p>
-                                <p className="mt-1 font-medium text-gray-900">30 de septiembre, 2024</p>
+                                <p className="text-sm text-gray-500">Direccion:</p>
+                                <p className="mt-1 font-medium text-gray-900">{prop.direction.calle} {prop.direction.casa}</p>
                             </div>
                             <div className="rounded-lg border border-gray-200 p-4">
                                 <p className="text-sm text-gray-500">Total</p>
                                 <p className="mt-1 font-medium text-gray-900">$ {prop.total}</p>
                             </div>
                         </div>
+                        <div>
 
+
+
+                        </div>
                         <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50/60 p-4">
                             <p className="mb-4 text-sm font-semibold text-gray-700">Resumen del pedido</p>
 
@@ -81,10 +83,10 @@ export default function NewOrderCard(prop: Props) {
                                     .filter((item) => item.quantity > 0)
                                     .map((item, rowIndex) => (
                                         <div key={item.index} className={`grid grid-cols-4 gap-2 border-t border-gray-100 px-3 py-2 text-sm text-gray-700 ${rowIndex === 0 ? 'border-t-0' : ''}`}>
-                                            <p>{prop.products[item.index].name}</p>
+                                            <p>{prop.products[item.index].nombre}</p>
                                             <p className="text-center">x{item.quantity}</p>
-                                            <p className="text-right">$ {prop.products[item.index].price.toFixed(2)}</p>
-                                            <p className="text-right font-medium">$ {(prop.products[item.index].price * item.quantity).toFixed(2)}</p>
+                                            <p className="text-right">$ {prop.products[item.index].precio.toFixed(2)}</p>
+                                            <p className="text-right font-medium">$ {(prop.products[item.index].precio * item.quantity).toFixed(2)}</p>
                                         </div>
                                     ))}
                             </div>
@@ -97,8 +99,12 @@ export default function NewOrderCard(prop: Props) {
                         </div>
 
                         <div className="mt-6 flex justify-end">
-                            <button className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
-                                Realizar Pedido.
+                            <button
+                                className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-primary hover:bg-primary-hover`}
+
+                                onClick={prop.complete}
+                            >
+                                Realizar Pedido
                             </button>
                         </div>
 

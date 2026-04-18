@@ -6,10 +6,12 @@ export async function login(
   email: string,
   password: string,
 ): Promise<LoginResponse> {
-  return await apiPost<LoginResponse>("/auth/login", {
+  const response = await apiPost<LoginResponse>("/auth/login", {
     email,
     contrasena: password,
   });
+  console.log("Login response:", response);
+  return response;
 }
 
 export async function register(

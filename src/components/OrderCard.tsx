@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { VentaResponse } from '../services/Interfaces';
 import { updateSale } from '../services/SalesService';
+import ProductTable from './ProductTable';
 
 
 
@@ -73,30 +74,11 @@ export default function OrderCard({ prop }: OrderCardProps) {
 
                         <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50/60 p-4">
                             <p className="mb-4 text-sm font-semibold text-gray-700">Resumen del pedido</p>
+                            <ProductTable lineasPedido={prop.lineasPedido} total={prop.total} />
 
-                            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                                <div className="grid grid-cols-4 gap-2 border-b border-gray-200 bg-gray-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                    <p>Producto</p>
-                                    <p className="text-center">Cant.</p>
-                                    <p className="text-right">Unitario</p>
-                                    <p className="text-right">Subtotal</p>
-                                </div>
-                                {
-                                    prop.lineasPedido.map((linea, index) => (
-                                        <div key={index} className={`grid grid-cols-4 gap-2 border-t border-gray-100 px-3 py-2 text-sm text-gray-700 ${index === 0 ? 'border-t-0' : ''}`}>
-                                            <p>{linea.productoZona.producto.nombre}</p>
-                                            <p className="text-center">x{linea.cantidad}</p>
-                                            <p className="text-right">$ {linea.productoZona.producto.precio}</p>
-                                            <p className="text-right font-medium">$ {linea.subtotal}</p>
-                                        </div>
-                                    ))
-                                }
-                            </div>
 
-                            <div className="mt-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">
-                                <p className="text-sm text-gray-500">Total final</p>
-                                <p className="text-base font-semibold text-gray-900">$ {prop.total}</p>
-                            </div>
+
+
 
                         </div>
                         {prop.estado === 'Pendiente' && (

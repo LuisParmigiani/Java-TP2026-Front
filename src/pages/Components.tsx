@@ -328,12 +328,28 @@ export default function ComponentsPage() {
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
           <h1 className="text-3xl font-bold text-rose-900 mb-4 border-b-2 border-rose-600 pb-2">ProductCard</h1>
-          <ProductCard id={1} name="Producto" price={100} description="Descripción" image="" />
+          <ProductCard product={{
+            id: 1,
+            nombre: "Producto",
+            detalle: "Descripción",
+            precio: 100,
+            stock: 10,
+            imagenUrl: "",
+            activo: true
+          }} />
         </div>
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow w-auto">
           <h1 className="text-3xl font-bold text-rose-700 mb-4 border-b-2 border-rose-400 pb-2">Producto card para ordenes</h1>
-          <ProductCard id={1} name="Producto" price={100} description="Descripción" image="" Cant={2} setCant={() => { }} />
+          <ProductCard product={{
+            id: 1,
+            nombre: "Producto",
+            detalle: "Descripción",
+            precio: 100,
+            stock: 10,
+            imagenUrl: "",
+            activo: true
+          }} Cant={2} setCant={() => { }} />
         </div>
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
@@ -785,11 +801,35 @@ export default function ComponentsPage() {
           ProductCard
         </h1>
         <ProductCard
-          id={1}
-          name="Producto"
-          price={100}
-          description="Descripción"
-          image=""
+          product={{
+            id: 1,
+            nombre: "juan",
+            detalle: "detalle",
+            precio: 100,
+            stock: 10,
+            imagenUrl: "",
+            activo: true
+          }}
+        />
+      </div>
+
+      <div className="mb-8 p-6 bg-white rounded-xl shadow w-auto">
+        <h1 className="text-3xl font-bold text-rose-700 mb-4 border-b-2 border-rose-400 pb-2">
+          Producto card para ordenes
+        </h1>
+        <ProductCard product={
+          {
+            id: 1,
+            nombre: "Producto",
+            detalle: "Descripción",
+            precio: 100,
+            stock: 10,
+            imagenUrl: "",
+            activo: true
+          }
+        }
+
+
         />
       </div>
 
@@ -798,13 +838,18 @@ export default function ComponentsPage() {
           Producto card para ordenes
         </h1>
         <ProductCard
-          id={1}
-          name="Producto"
-          price={100}
-          description="Descripción"
-          image=""
+          product={{
+            id: 1,
+            nombre: "Producto",
+            detalle: "Descripción",
+            precio: 100,
+            stock: 10,
+            imagenUrl: "",
+            activo: true,
+          }}
           Cant={2}
           setCant={() => { }}
+
         />
       </div>
 

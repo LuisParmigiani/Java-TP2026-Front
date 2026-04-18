@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import DireccionCard from "../../components/DirectionCard";
-import Footer from "../../components/Footer";
-import Filter from "../../components/Filter";
-import type { domicilioResponse } from "../../services/Interfaces";
-import { getAllByUserId } from "../../services/DirectionService";
+import { useEffect, useState } from 'react';
+import DireccionCard from '../../components/DirectionCard';
+import Footer from '../../components/Footer';
+import Filter from '../../components/Filter';
+import type { domicilioResponse } from '../../services/Interfaces';
+import { getAllByUserId } from '../../services/DirectionService';
+import NavBar from '../../components/NavBar';
 import { useAuth } from "../../hooks/useAuth";
+
 
 export default function Directions() {
   const [directions, setDirections] = useState<domicilioResponse[]>([]);
