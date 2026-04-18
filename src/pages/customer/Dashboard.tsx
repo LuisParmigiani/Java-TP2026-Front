@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { getUser } from '../../services/ClientService';
 import type { UserResponse } from '../../services/Interfaces';
 import { getByUserId } from '../../services/SalesService';
+import NavBar from '../../components/NavBar';
 
 
 
@@ -22,6 +23,7 @@ export default function Dashboard() {
     const [recentOrders, setRecentOrders] = useState([]);
     const [user, setUser] = useState<UserResponse | null>(null);
     const [containers, setContainers] = useState(0);
+
     const handleSaveDirection = (updatedDirection: typeof directions[0]) => {
         setDirections((current) =>
             current.map((dir) => (dir.id === updatedDirection.id ? updatedDirection : dir))
@@ -52,6 +54,7 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <NavBar />
             <main className="flex-1 py-12">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-10">
@@ -66,11 +69,7 @@ export default function Dashboard() {
 
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                        <Link to="/customer/orders" className='w-full'>
-                            <InformationCard
-                                svg={<svg viewBox="0 0 24 24" className='w-full h-full' fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>}
-                                miniTitle="Proximo Perdido" title="16 Sep" description="Domingo" cardColor="white" titleColor='black' descriptionColor='gray' size="sm" />
-                        </Link>
+
                         <Link to="/customer/pay" className='w-full'>
                             <InformationCard
                                 svg={<svg fill="#000000" className='w-full h-full' version="1.2" baseProfile="tiny" id="MO0ney_sign_by_Adioma" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" ><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M198.2,169.8c0-39.4-42.1-50.6-60.3-55.8c-34.4-9.6-37.3-22-36.8-28.3c1.2-15.5,18.2-19.3,34-15.9 c12.4,2.7,25.2,10,32.3,15.6L189.9,59c-11.1-7.6-25.3-17.4-46.1-21.4V12h-32.9v24.7C79,39.1,57.8,59.1,57.8,86.6 c0,26.8,19.4,39.4,38.8,48.8c16.2,7.7,61.4,15.8,58.8,36.2c-1.4,11.1-13.2,19.3-32.7,16.8c-17-2.1-35.2-16.4-35.2-16.4l-24.9,24.7 c15,12.1,30.9,19.7,48.2,23.2v24.1h32.9v-22.9C175.1,217.7,198.2,196.3,198.2,169.8z"></path> </g></svg>}
@@ -92,8 +91,9 @@ export default function Dashboard() {
                     <div className="mb-12">
                         <h2 className="text-xl font-semibold text-foreground mb-6">Acciones Rápidas</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <LinkButton name="+ Hacer Nuevo pedido" url="/customer/newOrder" variant="primary" size="lg" />
-                            <LinkButton name="Ver Productos" url="/customer/products" variant="secondary" size="lg" />
+                            <LinkButton name="+ Agregar productos al pedido de esta semana" url="/customer/newOrder" variant="primary" size="lg" />
+                            <LinkButton name="Ver Productos" url="/products" variant="secondary" size="lg" />
+                            <LinkButton name="Pedido Semanal" url="/customer/semanalOrder" variant="tertiary" size="lg" />
                             <LinkButton name="Pagar Deuda" url="/customer/Pay" variant="green" size="lg" />
 
                         </div>
@@ -110,7 +110,6 @@ export default function Dashboard() {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {recentOrders.map((order) => (
                                     <OrderCard
-
                                         prop={order}
                                     />
                                 ))}

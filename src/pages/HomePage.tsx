@@ -3,61 +3,26 @@ import MiniCard from "../components/MiniCard";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
 import Navbar from "../components/NavBar.tsx";
-const productos = [
-  {
-    id: 1,
-    name: "Coca-Cola",
-    description:
-      "Refresco clásico de cola, disponible en varias presentaciones.",
-    image:
-      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?q=80&w=2070&auto=format&fit=crop",
-    price: 1.99,
-  },
-  {
-    id: 2,
-    name: "Pepsi",
-    description: "Refresco de cola con un sabor único y refrescante.",
-    image:
-      "https://images.unsplash.com/photo-1589923188900-9c3a1eaa1b8c?q=80&w=2070&auto=format&fit=crop",
-    price: 1.99,
-  },
-  {
-    id: 3,
-    name: "Agua Purificada",
-    description: "Agua de la mejor calidad, ideal para mantenerte hidratado.",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop",
-    price: 0.99,
-  },
-  {
-    id: 4,
-    name: "Fanta",
-    description: "Refresco de frutas con un sabor dulce y refrescante.",
-    image:
-      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?q=80&w=2070&auto=format&fit=crop",
-    price: 1.99,
-  },
-  {
-    id: 5,
-    name: "Sprite",
-    description:
-      "Refresco de limón y lima, perfecto para refrescarte en cualquier momento.",
-    image:
-      "https://images.unsplash.com/photo-1589923188900-9c3a1eaa1b8c?q=80&w=2070&auto=format&fit=crop",
-    price: 1.99,
-  },
-  {
-    id: 6,
-    name: "Jarritos",
-    description:
-      "Refrescos mexicanos de sabores frutales, ideales para cualquier ocasión.",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop",
-    price: 1.49,
-  },
-];
+import type { ProductoResponse } from "../services/Interfaces.ts";
+import { useEffect, useState } from "react";
+import { getActiveProducts } from "../services/ProductService.ts";
 
 export default function HomePage() {
+  const [productos, setProductos] = useState<ProductoResponse[]>([]);
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const response = await getActiveProducts();
+        setProductos(response);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
@@ -244,8 +209,8 @@ export default function HomePage() {
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {productos.map((producto) => (
-                  <ProductCard key={producto.id} {...producto} />
+                {productos.slice(0, 6).map((producto) => (
+                  <ProductCard product={producto} />
                 ))}
               </div>
             </div>

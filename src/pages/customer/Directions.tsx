@@ -4,6 +4,7 @@ import Footer from '../../components/Footer';
 import Filter from '../../components/Filter';
 import type { domicilioResponse } from '../../services/Interfaces';
 import { getAllByUserId } from '../../services/DirectionService';
+import NavBar from '../../components/NavBar';
 
 
 
@@ -29,7 +30,8 @@ export default function Directions() {
 
     return (
         <div className="p-4 sm:p-6 lg:p-8 gap-4 felx flex-col">
-            <h1 className="text-2xl font-semibold text-gray-900">Direcciones</h1>
+            <NavBar />
+            <h1 className="text-2xl font-semibold text-gray-900 mt-8">Direcciones</h1>
             <p className="mt-2 text-sm text-gray-700">Aquí puedes gestionar tus direcciones de entrega.</p>
             <div className='flex flex-row mt-5'>
                 <Filter name={filter.status || 'Estado'} options={['Mostrar Todas', 'Activas', 'Inactivas']} onSave={(value) => setFilter({ ...filter, status: value })} color="primary" size="md" />

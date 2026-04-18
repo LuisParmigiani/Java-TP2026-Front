@@ -65,10 +65,36 @@ export async function updateProduct(productId: number, updatedData: Partial<Omit
 
 
 
-export async function getActiveProducts(): Promise<ProductoResponse[]> {
+export async function getActiveProducts(userType?: string, sortOption?: string, searchTerm?: string, minPrice?: number | '', maxPrice?: number | '', direction?: string): Promise<ProductoResponse[]> {
     try {
-        const response = await apiGet<ProductoResponse[]>('/producto/active');
-        console.log('Fetched active products:', response);
+        let url = '';
+        if (userType == 'Usuario') {
+            url = '/producto/customer/active';
+        } else {
+            url = '/producto/active';
+        }
+        const params = new URLSearchParams();
+
+        if (sortOption && sortOption !== 'Ordenar por:') {
+            params.append('sort', sortOption);
+        }
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        if (direction) {
+            params.append('direction', direction);
+        }
+        if (minPrice !== '' && !isNaN(Number(minPrice))) {
+            params.append('minPrice', Number(minPrice).toString());
+        }
+        if (maxPrice !== '' && !isNaN(Number(maxPrice))) {
+            params.append('maxPrice', Number(maxPrice).toString());
+        }
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
+        console.log('Fetching products with URL:', url);
+        const response = await apiGet<ProductoResponse[]>(url);
         return response;
     } catch (error) {
         console.error('Error fetching active products:', error);

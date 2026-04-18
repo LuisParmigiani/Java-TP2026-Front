@@ -14,6 +14,8 @@ import ProductsManagement from "./pages/admin/ProductsManagement.tsx";
 import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
+import SemanalOrder from "./pages/customer/SemanalOrder.tsx";
+import Profile from "./pages/customer/Profile.tsx";
 
 function App() {
   return (
@@ -29,7 +31,9 @@ function App() {
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
           <Route path="/components" element={<Components />} />
+          <Route path="/customer/profile" element={<Profile />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/customer/semanalOrder" element={<SemanalOrder />} />
           {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage />} />
           {/*Rutas para el Admin*/}

@@ -21,13 +21,13 @@ const buttonVariants = cva(
           'bg-gray-200/60 text-gray-600 hover:bg-gray-300/70 border-2 border-gray-300/60 focus:ring-gray-300/50 hover:text-gray-900 backdrop-blur-sm',
         tertiary:
           'bg-tertiary text-white text-lg hover:bg-white hover:text-tertiary border-2 border-tertiary focus:ring-tertiary/50 font-bold',
-        danger: 
-        'border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:ring-red-300/50',
+        danger:
+          'border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:ring-red-300/50',
         green:
           'bg-green-500 text-white hover:bg-white hover:text-green-500 border-2 border-green-500 focus:ring-green-300/50',
         destructive: 'bg-red-500 text-white hover:bg-red-600',
         ghost: 'hover:bg-accent/40  hover:text-accent-foreground',
-        accent:'border-2 border-accent-500 text-accent hover:bg-accent hover:text-white focus:ring-accent/50',
+        accent: 'border-2 border-accent-500 text-accent hover:bg-accent hover:text-white focus:ring-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
@@ -35,6 +35,7 @@ const buttonVariants = cva(
         md: 'px-4 py-2 text-base',
         lg: 'px-5 py-3 text-lg',
         icon: 'h-10 w-10 p-0',
+        full: 'w-full px-4 py-2',
       },
     },
     defaultVariants: {
@@ -46,7 +47,7 @@ const buttonVariants = cva(
 
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
@@ -65,4 +66,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button };
-    
+

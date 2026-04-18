@@ -46,7 +46,6 @@ const LoginPage = () => {
     try {
       // ✅ Usar authLogin del contexto
       await authLogin(formData.email, formData.password, rememberMe);
-
       toast.success("Inicio de sesión exitoso", { duration: 1000 });
       setTimeout(() => {
         navigate("/");
