@@ -28,16 +28,18 @@ export default function Dashboard() {
   useEffect(() => {
     const chargeInformation = async () => {
       try {
-        const result = await getUser(token);
+        const result = await getUser(token, ['domicilio', 'zona', 'persona', 'productosDomicilio']);
         setDirections(result.persona.domicilios);
         setUser(result);
+
         setContainers(0);
         result.persona.domicilios.forEach((domicilio) => {
           domicilio.productosDomicilio.forEach((producto) => {
             setContainers((current) => current + producto.cantVaciosActuales);
           });
         });
-        const ordersResult = await getByUserId(token);
+
+        const ordersResult = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto']);
         setRecentOrders(ordersResult);
       } catch (error) {
         console.error('Error al traer usuario:', error);
@@ -125,6 +127,36 @@ export default function Dashboard() {
               <InformationCard miniTitle="Direcciones" title="No tenés direcciones cargadas" description="Agregá una dirección para verla aquí." cardColor="white" titleColor='black' descriptionColor='gray' size="sm" />
             ) : (
               <div className="flex flex-col gap-6">
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex'>
+                  <button
+                    key={1}
+                    type="button"
+                    disabled={true}
+                    title={'NoDisponible'}
+                    className={
+                      'bg-gray-300 text-gray-500 cursor-not-allowed rounded-full px-3 py-2 text-sm font-medium transition '
+                    }
+                  >
+                    Dia no disponible para entregar en este domicilio
+                  </button>
+                  <button
+                    type="button"
+                    title={'Activo'}
+                    className={
+                      'bg-emerald-500 text-white shadow-sm rounded-full px-3 py-2 text-sm font-medium transition '
+                    }
+                  >
+                    Dia que se le peuden entragar productos a este domicilio
+                  </button><button
+                    type="button"
+                    title={'Inactivo'}
+                    className={'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 rounded-full px-3 py-2 text-sm font-medium transition '
+
+                    }
+                  >
+                    Dia que no pueden entragar productos a este domicilio
+                  </button>
+                </div>
                 {directions.map((direction) => (
                   <DireccionCard
                     key={direction.id}

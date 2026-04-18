@@ -58,7 +58,7 @@ export interface DomicilioResponse {
   calle: string;
   numero: string;
   casa: string;
-  dia?: boolean[];
+  dia?: number[];
   activo: boolean;
   zona?: ZonaResponse;
   zonaId?: number;
@@ -138,7 +138,7 @@ export interface ZonaResponse {
   id: number;
   nombre: string;
   detalle: string;
-  dia?: boolean[];
+  dia?: number[];
   productoZonas?: ProductoZonaResponse[];
   productoZonaIds?: number[];
   domicilios?: DomicilioResponse[];
@@ -208,7 +208,7 @@ export interface DomicilioRequest {
   calle?: string;
   numero?: string;
   casa?: string;
-  dia?: boolean[];
+  dia?: number[];
   zonaId?: number;
 }
 
@@ -249,7 +249,7 @@ export interface domicilioRequest {
   numero?: string;
   personaId?: number;
   casa?: string;
-  dia?: boolean[];
+  dia?: number[];
   zonaId?: number;
   camionId?: number;
   ventas?: VentaRequest[];

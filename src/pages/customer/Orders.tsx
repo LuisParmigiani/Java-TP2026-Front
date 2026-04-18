@@ -16,7 +16,7 @@ export default function Orders() {
 
   useEffect(() => {
     const result = async () => {
-      const response = await getByUserId(token);
+      const response = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto']);
       setOrders(response);
     };
     result();

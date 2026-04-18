@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiPatch} from './baseClient.ts';
+import { apiGet, apiPost, apiPut, apiPatch } from './baseClient.ts';
 import type { CamionRequest, CamionResponse, ErrorResponse } from './Interfaces.ts';
 
 export async function fetchTrucks(): Promise<CamionResponse[]> {
@@ -53,7 +53,7 @@ export async function disableTruck(
   try {
     const response = await apiPatch<CamionResponse>(
       `/camion/${truckId}/disable`
-         );
+    );
     console.log('Disabled truck:', response);
     return response;
   } catch (error) {

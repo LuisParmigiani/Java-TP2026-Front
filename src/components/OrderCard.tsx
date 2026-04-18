@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { VentaResponse } from '../services/Interfaces';
 import { updateSale } from '../services/SalesService';
 import ProductTable from './ProductTable';
-
+import { useAuth } from '../hooks/useAuth';
 
 
 
@@ -19,6 +19,7 @@ interface OrderCardProps {
 }
 export default function OrderCard({ prop }: OrderCardProps) {
     const [open, setOpen] = useState(false);
+    const { token } = useAuth();
 
     useEffect(() => {
         if (open) {
@@ -33,7 +34,7 @@ export default function OrderCard({ prop }: OrderCardProps) {
     }, [open]);
 
     const cancelOrder = async () => {
-        const response = await updateSale(prop.id, { estado: 'Cancelada' });
+        const response = await updateSale(token, { estado: 'Cancelada' }, []);
         console.log(`Pedido ${prop.id} cancelado`, response);
     }
 
@@ -52,6 +53,8 @@ export default function OrderCard({ prop }: OrderCardProps) {
                             <div>
                                 <h2 className="text-2xl font-semibold text-gray-900">Detalle del pedido #{prop.id}</h2>
                                 <p className="mt-1 text-sm text-gray-500">Realizado el {prop.fecha}</p>
+
+
                             </div>
                             <button
                                 onClick={() => setOpen(false)}

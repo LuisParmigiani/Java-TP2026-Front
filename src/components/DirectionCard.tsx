@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { domicilioResponse } from '../services/Interfaces';
+import type { DomicilioResponse } from '../services/Interfaces';
 import { updateDirection } from '../services/DirectionService';
+import { useAuth } from "../hooks/useAuth";
 interface Props {
-    direction: domicilioResponse;
-    onSave: (direction: domicilioResponse) => void;
+    direction: DomicilioResponse;
+    onSave: (direction: DomicilioResponse) => void;
 }
 
 const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -11,28 +12,39 @@ const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 function DirectionCard(props: Props) {
     const { direction, onSave } = props;
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState<domicilioResponse>(direction);
-    const activeDays = direction.dia.filter((dia) => dia === true).length;
+    const { token } = useAuth();
+
+    const [formData, setFormData] = useState<DomicilioResponse>(direction);
+    // Contar días activos (valor 1)
+    const activeDays = direction.dia.filter((dia) => dia === 1).length;
+
+
+
+
+
     useEffect(() => {
         setFormData(direction);
         console.log('Direction updated:', direction);
-
     }, [direction]);
 
-    // Cambiar el valor booleano del día
+    // Cambiar el valor del día: 0 -> 1, 1 -> 0, 2 (no disponible) no cambia
     const handleDayToggle = (index: number) => {
         setFormData((current) => ({
             ...current,
-            dia: current.dia.map((dia, dayIndex) => (dayIndex === index ? !dia : dia)),
+            dia: current.dia.map((dia, dayIndex) => {
+                if (dayIndex !== index) return dia;
+                if (dia === 2) return 2; // No disponible, no cambia
+                return dia === 1 ? 0 : 1; // Alterna entre 0 y 1
+            }),
         }));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        const result = await updateDirection(formData);
+        const result = await updateDirection(formData, token);
         console.log('Direction updated:', result);
 
-        onSave(formData);
+        onSave(result);
         setOpen(false);
     };
 
@@ -70,7 +82,12 @@ function DirectionCard(props: Props) {
                         {direction.dia.map((dia, index) => (
                             <div
                                 key={index}
-                                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${dia ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'}`}
+                                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${dia === 1
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : dia === 0
+                                        ? 'bg-gray-100 text-gray-500'
+                                        : 'bg-gray-300 text-gray-500'
+                                    }`}
                             >
                                 {dayLabels[index]}
                             </div>
@@ -81,7 +98,25 @@ function DirectionCard(props: Props) {
                 {open && (
                     <form onSubmit={handleSubmit} className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-inner">
                         <h2 className="text-lg font-semibold text-gray-900">Editar Dirección</h2>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div className='w-full gap-8 display flex flex-row items-center my-4'>
+                            <label >Modificar estado de dirección:</label>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData((current) => ({
+                                        ...current,
+                                        activo: !current.activo,
+                                    }));
+                                }}
+                                className={`rounded-full px-3 py-2 text-sm w-xl font-medium transition ${formData.activo
+                                    ? 'bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700'
+                                    : 'bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white'
+                                    }`}
+                            >
+                                {formData.activo ? 'Desactivar dirección' : 'Activar dirección'}
+                            </button>
+                        </div>
+                        {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <label className="flex flex-col gap-1">
                                 <span className="text-sm font-medium text-gray-700">Calle</span>
                                 <input
@@ -110,20 +145,34 @@ function DirectionCard(props: Props) {
                                     onChange={(event) => setFormData((current) => ({ ...current, casa: event.target.value }))}
                                     className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                                 />
-                            </label>
+                            </label> 
                         </div>
-
+                            */}
                         <div className="mt-4">
-                            <span className="text-sm font-medium text-gray-700">Editar días</span>
+                            <span className="text-sm font-medium text-gray-700">Editar días de envio:</span>
                             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
                                 {formData.dia.map((dia, index) => {
-                                    const active = dia;
+                                    let estado;
+                                    if (dia === 0) {
+                                        estado = 'Inactivo';
+                                    } else if (dia === 1) {
+                                        estado = 'Activo';
+                                    } else if (dia === 2) {
+                                        estado = 'NoDisponible';
+                                    }
                                     return (
                                         <button
                                             key={index}
                                             type="button"
+                                            disabled={estado === 'NoDisponible'}
+                                            title={estado === 'NoDisponible' ? 'Día no disponible para este domicilio' : estado === 'Activo' ? 'Desactivar día' : 'Activar día'}
                                             onClick={() => handleDayToggle(index)}
-                                            className={`rounded-full px-3 py-2 text-sm font-medium transition ${active ? 'bg-emerald-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'}`}
+                                            className={`rounded-full px-3 py-2 text-sm font-medium transition ${estado === 'Activo'
+                                                ? 'bg-emerald-500 text-white shadow-sm'
+                                                : estado === 'Inactivo'
+                                                    ? 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                }`}
                                         >
                                             {dayLabels[index]}
                                         </button>

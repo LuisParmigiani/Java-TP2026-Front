@@ -1,12 +1,12 @@
-import { apiGet, apiPut } from "./baseClient";
-import type { domicilioResponse } from "./Interfaces";
+import { apiGet, apiPost, apiPut } from "./baseClient";
+import type { DomicilioRequest, DomicilioResponse } from "./Interfaces";
 
 export async function updateDirection(
-  direction: domicilioResponse,
+  direction: DomicilioResponse,
   token?: string,
-): Promise<domicilioResponse> {
+): Promise<DomicilioResponse> {
   try {
-    const response = await apiPut<domicilioResponse>(
+    const response = await apiPut<DomicilioResponse>(
       `/domicilio/${direction.id}`,
       direction,
       token,
@@ -18,11 +18,28 @@ export async function updateDirection(
   }
 }
 
+export async function postDirection(
+  direction: DomicilioRequest,
+  token?: string,
+): Promise<DomicilioResponse> {
+  try {
+    const response = await apiPost<DomicilioResponse>(
+      "/domicilio",
+      direction,
+      token,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error posting direction:", error);
+    throw error;
+  }
+}
+
 export async function getAllByUserId(
   token: string,
   status?: string,
   deliveryDay?: string,
-): Promise<domicilioResponse[]> {
+): Promise<DomicilioResponse[]> {
   try {
     let query;
     if (deliveryDay) {
@@ -33,7 +50,7 @@ export async function getAllByUserId(
     if (status) {
       query = "&estado=" + status + query;
     }
-    const response = await apiGet<domicilioResponse[]>(
+    const response = await apiGet<DomicilioResponse[]>(
       `/domicilio/token/usuario?${query}`,
       token,
     );
