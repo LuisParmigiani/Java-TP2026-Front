@@ -15,6 +15,7 @@ import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
 import TrucksManagement from "./pages/admin/TruckManagement.tsx";
+import TruckRouting from "./pages/admin/TruckRouting.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -48,6 +49,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ProductsManagement />} />
           <Route path="/admin/trucks" element={<TrucksManagement />} />
+          <Route path="/admin/trucks/routes/:truckId" element={<TruckRouting />} />
           {/*</Route>*/}
         </Routes>
       </Router>

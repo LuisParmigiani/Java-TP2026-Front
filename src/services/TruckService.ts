@@ -13,6 +13,17 @@ export async function fetchTrucks(): Promise<CamionResponse[]> {
     throw errorResponse;
   }
 }
+export async function fetchTruckById(truckId: number): Promise<CamionResponse> {
+  try {
+    const response = await apiGet<CamionResponse>(`/camion/${truckId}`);
+    console.log(`Fetched truck with ID ${truckId}:`, response);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(`Error fetching truck with ID ${truckId}:`, errorResponse);
+    throw errorResponse;
+  }
+}
 //! Método para agregar un nuevo camion
 export async function addTruck(
   product: Omit<CamionRequest, 'id'>,
