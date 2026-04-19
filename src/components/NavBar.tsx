@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./Dialog";
 import { Sheet, SheetContent, SheetTrigger } from "./Sheet";
 import {
   Menu,
@@ -21,7 +29,9 @@ interface NavLink {
 const Header = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
@@ -86,10 +96,11 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${isActive(link.path)
+                className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${
+                  isActive(link.path)
                     ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
                     : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
-                  }`}
+                }`}
               >
                 {link.label}
               </Link>
@@ -116,15 +127,43 @@ const Header = () => {
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => {
-                    logout();
-                    window.location.reload();
-                  }}
+                  onClick={() => setShowLogoutDialog(true)}
                   className=""
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Salir
                 </Button>
+                <Dialog
+                  open={showLogoutDialog}
+                  onOpenChange={setShowLogoutDialog}
+                >
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Cerrar sesión</DialogTitle>
+                      <DialogDescription>
+                        ¿Estás seguro de que deseas cerrar sesión?
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="gray"
+                        onClick={() => setShowLogoutDialog(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          setShowLogoutDialog(false);
+                          logout();
+                          navigate("/");
+                        }}
+                      >
+                        Cerrar sesión
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </div>
@@ -150,10 +189,11 @@ const Header = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(link.path)
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-foreground hover:bg-muted"
-                      }`}
+                    }`}
                   >
                     {link.icon &&
                       React.createElement(link.icon, { className: "w-5 h-5" })}
@@ -193,14 +233,43 @@ const Header = () => {
                       <Button
                         variant="danger"
                         className="w-full"
-                        onClick={() => {
-                          logout();
-                          setMobileMenuOpen(false);
-                        }}
+                        onClick={() => setShowLogoutDialog(true)}
                       >
                         <LogOut className="w-4 h-4 mr-2" />
                         Salir
                       </Button>
+                      <Dialog
+                        open={showLogoutDialog}
+                        onOpenChange={setShowLogoutDialog}
+                      >
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>¿Cerrar sesión?</DialogTitle>
+                            <DialogDescription>
+                              ¿Estás seguro de que deseas cerrar sesión?
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              variant="outline"
+                              onClick={() => setShowLogoutDialog(false)}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                setShowLogoutDialog(false);
+                                logout();
+                                setMobileMenuOpen(false);
+                                navigate("/");
+                              }}
+                            >
+                              Cerrar sesión
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </>
                   )}
                 </div>
