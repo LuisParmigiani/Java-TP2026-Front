@@ -9,20 +9,28 @@ import { useAuth } from "../../hooks/useAuth";
 import { Button } from '../../components/Button';
 import type { DomicilioRequest } from '../../services/Interfaces';
 import NewDirection from '../../components/NewDirection';
+import Input from '../../components/Input';
 
 
 export default function Directions() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [filter, setFilter] = useState({ status: "", deliveryDay: "" });
   const [open, setOpen] = useState(false);
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('Nombre A-Z');
   const { token } = useAuth();
+
+  const handleSearch = () => {
+    setAppliedSearchTerm(searchTerm);
+  };
+
 
   const handleSaveNewDirection = (direction: DomicilioRequest) => {
     const save = async () => {
       try {
         const result = await postDirection(direction, token);
-        console.log("New direction saved:", result);
-        console.log("Saving new direction:", direction);
+        setDirections((current) => [...current, result]);
       } catch (error) {
         console.error("Error saving new direction:", error);
       }
@@ -36,16 +44,16 @@ export default function Directions() {
   useEffect(() => {
     const fetchDirections = async () => {
       try {
-        const result = await getAllByUserId(token, filter.status);
+        const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, ['diaDomicilio']);
+        console.log("Fetched directions:", result);
         setDirections(result);
       } catch (error) {
         console.error("Error fetching directions:", error);
       }
     };
     fetchDirections();
-  }, [filter, token]);
-
-  const handleSaveDirection = (updatedDirection: domicilioResponse) => {
+  }, [filter, token, orderBy, appliedSearchTerm]);
+  const handleSaveDirection = (updatedDirection: DomicilioResponse) => {
     setDirections((current) =>
       current.map((direction) =>
         direction.id === updatedDirection.id ? updatedDirection : direction,
@@ -81,7 +89,7 @@ export default function Directions() {
           </div>
           <Button color='primary' size='md' onClick={() => setOpen(!open)} className="px-4">Agregar Dirección</Button>
         </div>
-        <div className="flex flex-row mt-5">
+        <div className="flex flex-row mt-5 gap-2">
           <Filter
             name={filter.status || "Estado"}
             options={["Mostrar Todas", "Activas", "Inactivas"]}
@@ -89,6 +97,29 @@ export default function Directions() {
             color="primary"
             size="md"
           />
+          <Filter
+            name={orderBy}
+            options={['Nombre A-Z', 'Nombre Z-A']}
+            onSave={(value) => setOrderBy(value)}
+            color="primary"
+            size="md"
+          />
+          <div className="flex gap-2 flex-1 justify-end items-center ">
+            <Input
+              placeholder='Buscar producto...'
+              color='primary'
+              size='md'
+              name="Buscar producto"
+              type="text"
+              onChange={(value) => {
+                if (typeof value === 'string') {
+                  setSearchTerm(value);
+                }
+              }}
+              value={searchTerm}
+            />
+            <Button color='primary' size='md' onClick={handleSearch} className="px-4">Buscar</Button>
+          </div>
         </div>
         <div className="mt-6 space-y-4 mb-10">
           <div className="flex flex-col gap-6">

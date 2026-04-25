@@ -11,6 +11,7 @@ import type { UserResponse } from '../../services/Interfaces';
 import { getByUserId } from '../../services/SalesService';
 import NavBar from '../../components/NavBar';
 import { useAuth } from "../../hooks/useAuth";
+import { Alert, AlertDescription, AlertTitle } from "../../components/Alert";
 
 
 export default function Dashboard() {
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [user, setUser] = useState<UserResponse | null>(null);
   const [containers, setContainers] = useState(0);
+  const [alert, SetAlert] = useState(0);
   const { token } = useAuth();
   const handleSaveDirection = (updatedDirection: typeof directions[0]) => {
     setDirections((current) =>
@@ -28,9 +30,10 @@ export default function Dashboard() {
   useEffect(() => {
     const chargeInformation = async () => {
       try {
-        const result = await getUser(token, ['domicilio', 'zona', 'persona', 'productosDomicilio']);
+        const result = await getUser(token, ['domicilio', 'zona', 'persona', 'productosDomicilio', 'diaDomicilio']);
         setDirections(result.persona.domicilios);
         setUser(result);
+        console.log(result);
 
         setContainers(0);
         result.persona.domicilios.forEach((domicilio) => {
@@ -39,7 +42,7 @@ export default function Dashboard() {
           });
         });
 
-        const ordersResult = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto']);
+        const ordersResult = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto', 'domicilio'], 'Mas Recientes', 'Todos');
         setRecentOrders(ordersResult);
       } catch (error) {
         console.error('Error al traer usuario:', error);
@@ -48,6 +51,17 @@ export default function Dashboard() {
 
     chargeInformation();
   }, [token]);
+
+  const handleOrderCancelled = (orderId: number) => {
+    setRecentOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, estado: 'Cancelada' } : order
+      )
+    );
+    SetAlert(orderId);
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -104,17 +118,31 @@ export default function Dashboard() {
             {recentOrders.length === 0 ? (
               <InformationCard miniTitle="Pedidos" title="No realizaste ningún pedido" description="Realiza tu primer pedido para verlo aquí." cardColor="white" titleColor='black' descriptionColor='gray' size="sm" />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentOrders.map((order) => (
-                  <OrderCard
-                    prop={order}
-                  />
-                ))}
-              </div>
-
-
-
-
+              <>
+                {alert != 0 && alert != -1 ? (
+                  <div className="mb-2">
+                    <Alert variant="success" autoClose={true} onClose={() => SetAlert(0)}>
+                      <AlertTitle>¡El pedido se ha cancelado con exito.!</AlertTitle>
+                      <AlertDescription>Muchas gracias por cancelar el pedido.</AlertDescription>
+                    </Alert>
+                  </div>
+                ) : alert == -1 ? (
+                  <div className='mb-2'>
+                    <Alert variant="danger" autoClose={true} onClose={() => SetAlert(0)}>
+                      <AlertTitle>¡El pedido no se ha podido cancelar.!</AlertTitle>
+                      <AlertDescription>Perdone las molestas por favor intente mas tarde .</AlertDescription>
+                    </Alert>
+                  </div>
+                ) : null}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recentOrders.map((order) => (
+                    <OrderCard
+                      prop={order}
+                      setAlert={handleOrderCancelled}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
           <div>
@@ -127,7 +155,7 @@ export default function Dashboard() {
               <InformationCard miniTitle="Direcciones" title="No tenés direcciones cargadas" description="Agregá una dirección para verla aquí." cardColor="white" titleColor='black' descriptionColor='gray' size="sm" />
             ) : (
               <div className="flex flex-col gap-6">
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                   <button
                     key={1}
                     type="button"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState, createElement } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./Button";
@@ -87,8 +87,8 @@ const Header = () => {
                 key={link.path}
                 to={link.path}
                 className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${isActive(link.path)
-                    ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
-                    : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
+                  ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
+                  : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
                   }`}
               >
                 {link.label}
@@ -151,12 +151,12 @@ const Header = () => {
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground hover:bg-muted"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-muted"
                       }`}
                   >
                     {link.icon &&
-                      React.createElement(link.icon, { className: "w-5 h-5" })}
+                      createElement(link.icon, { className: "w-5 h-5" })}
                     <span>{link.label}</span>
                   </Link>
                 ))}

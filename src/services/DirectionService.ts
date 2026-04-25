@@ -6,6 +6,7 @@ export async function updateDirection(
   token?: string,
 ): Promise<DomicilioResponse> {
   try {
+    console.log("Updating direction with data:", direction);
     const response = await apiPut<DomicilioResponse>(
       `/domicilio/${direction.id}`,
       direction,
@@ -23,11 +24,13 @@ export async function postDirection(
   token?: string,
 ): Promise<DomicilioResponse> {
   try {
+    console.log("Posting new direction with data:", direction);
     const response = await apiPost<DomicilioResponse>(
       "/domicilio",
       direction,
       token,
     );
+    console.log("Direction posted successfully:", response);
     return response;
   } catch (error) {
     console.error("Error posting direction:", error);
@@ -39,6 +42,9 @@ export async function getAllByUserId(
   token: string,
   status?: string,
   deliveryDay?: string,
+  orderBy?: string,
+  nameSearch?: string,
+  populate?: string[],
 ): Promise<DomicilioResponse[]> {
   try {
     let query;
@@ -50,6 +56,15 @@ export async function getAllByUserId(
     if (status) {
       query = "&estado=" + status + query;
     }
+    if (populate) {
+      query = "populate=" + populate.join(",") + query;
+    }
+    if (orderBy) {
+      query = "orderBy=" + orderBy + "&" + query;
+    }
+    if (nameSearch) {
+      query = "nameSearch=" + nameSearch + "&" + query;
+    }
     const response = await apiGet<DomicilioResponse[]>(
       `/domicilio/token/usuario?${query}`,
       token,
@@ -57,6 +72,26 @@ export async function getAllByUserId(
     return response;
   } catch (error) {
     console.error("Error fetching directions:", error);
+    throw error;
+  }
+}
+
+
+export async function getById(
+  id: number,
+  populate?: string[],
+): Promise<DomicilioResponse> {
+  try {
+    let query = "";
+    if (populate) {
+      query = "populate=" + populate.join(",");
+    }
+    const response = await apiGet<DomicilioResponse>(
+      `/domicilio/${id}?${query}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching direction by ID:", error);
     throw error;
   }
 }

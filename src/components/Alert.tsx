@@ -64,7 +64,7 @@ function Alert({
       {...props}
     >
       {/* Content wrapper WITH grid (was previously on root) */}
-      <div className="grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current">
+      <div className="grid has-[>svg]:grid-cols-[var(--spacing,1rem)_calc(var(--spacing,1rem)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current">
         {props.children}
       </div>
 

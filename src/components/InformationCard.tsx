@@ -15,6 +15,7 @@ const cardColors = {
     white: "bg-white text-black",
     red: "bg-red-100 text-red-800",
     primary: "bg-primary text-primary",
+    primaryLight: "bg-primary/90 text-primary",
     secondary: "bg-secondary text-secondary",
     gray: "bg-gray-100 text-gray-800",
 }
@@ -32,7 +33,7 @@ const titleColors = {
 const descriptionColors = {
     black: "text-gray-300",
     gray: "text-gray-600",
-    white: "text-gray-600",
+    white: "text-white/80",
     red: "text-red-600",
     primary: "text-primary/80",
     secondary: "text-secondary/80",
@@ -47,7 +48,7 @@ export default function InformationCard(prop: Prop) {
     return (
         <div className={`w-full h-full justify-center ${cardColors[prop.cardColor]}  flex flex-col gap-2 rounded-lg p-4 size-${size[prop.size]} border-1 border-${cardColors[prop.cardColor]} shadow-sm`}>
             <div className="flex flex-row  items-center justify-between">
-                <p className={`text-md ${titleColors[prop.description]}`}>{prop.miniTitle}</p>
+                <p className={`text-md ${titleColors[prop.descriptionColor]}`}>{prop.miniTitle}</p>
                 {prop.svg &&
                     <div className="w-1/8 bg-primary/10 rounded-full p-2 flex items-center justify-center">
                         {prop.svg}

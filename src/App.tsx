@@ -15,6 +15,9 @@ import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
 import TrucksManagement from "./pages/admin/TruckManagement.tsx";
+import EditWeeklyOrder from "./pages/customer/EditWeeklyOrder.tsx";
+import Pay from "./pages/customer/Pay.tsx";
+
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -40,12 +43,15 @@ function App() {
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
+          <Route path="/customer/editWeeklyOrder" element={<EditWeeklyOrder />} />
+          <Route path="/customer/semanalOrder" element={<SemanalOrder />} />
+          <Route path="/customer/profile" element={<Profile />} />
+          <Route path="/customer/pay" element={<Pay />} />
+
           {/*</Route>*/}
 
           <Route path="/components" element={<Components />} />
-          <Route path="/customer/profile" element={<Profile />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/customer/semanalOrder" element={<SemanalOrder />} />
           {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage />} />
           {/*Rutas para el Admin*/}

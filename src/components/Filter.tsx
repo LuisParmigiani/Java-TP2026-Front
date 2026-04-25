@@ -6,6 +6,7 @@ interface Props {
     onSave: (options: string) => void;
     color: 'primary' | 'secondary' | 'green' | 'red';
     size: 'sm' | 'md' | 'lg';
+    containerSize?: 'sm' | 'md' | 'lg' | 'full';
 }
 
 
@@ -38,12 +39,19 @@ const size = {
     lg: 'text-lg'
 };
 
+const containerSize = {
+    sm: 'w-32',
+    md: 'w-40',
+    lg: 'w-48',
+    full: 'w-full'
+};
+
 export default function Filter(props: Props) {
     const [open, setOpen] = useState(false);
 
 
     return (
-        <div className="relative w-40 ml-4 " >
+        <div className={`relative ${containerSize[props.containerSize] ? containerSize[props.containerSize] : 'w-40 '} `} >
             <button
                 className={`w-full min-h-10 px-4 py-2 ${color[props.color].selected} ${size[props.size]} rounded-2xl my-2 flex flex-row items-center justify-between`}
                 onClick={() => setOpen(!open)}

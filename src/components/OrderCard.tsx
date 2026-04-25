@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { VentaResponse } from '../services/Interfaces';
 import { updateSale } from '../services/SalesService';
 import ProductTable from './ProductTable';
-import { useAuth } from '../hooks/useAuth';
+import { MapPin } from 'lucide-react';
 
 
 
@@ -16,10 +16,10 @@ const statusColors = {
 }
 interface OrderCardProps {
     prop: VentaResponse;
+    setAlert: (integer: number) => void;
 }
-export default function OrderCard({ prop }: OrderCardProps) {
+export default function OrderCard({ prop, setAlert }: OrderCardProps) {
     const [open, setOpen] = useState(false);
-    const { token } = useAuth();
 
     useEffect(() => {
         if (open) {
@@ -34,8 +34,17 @@ export default function OrderCard({ prop }: OrderCardProps) {
     }, [open]);
 
     const cancelOrder = async () => {
-        const response = await updateSale(token, { estado: 'Cancelada' }, []);
-        console.log(`Pedido ${prop.id} cancelado`, response);
+
+        try {
+
+            await updateSale(prop.id, { estado: 'Cancelada' });
+            setAlert(prop.id);
+            setOpen(false)
+        } catch {
+            setAlert(-1)
+            setOpen(false)
+
+        }
     }
 
     return (
@@ -52,8 +61,8 @@ export default function OrderCard({ prop }: OrderCardProps) {
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-2xl font-semibold text-gray-900">Detalle del pedido #{prop.id}</h2>
-                                <p className="mt-1 text-sm text-gray-500">Realizado el {prop.fecha}</p>
-
+                                <p> {new Date(prop.fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                <p></p>
 
                             </div>
                             <button
@@ -78,11 +87,6 @@ export default function OrderCard({ prop }: OrderCardProps) {
                         <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50/60 p-4">
                             <p className="mb-4 text-sm font-semibold text-gray-700">Resumen del pedido</p>
                             <ProductTable lineasPedido={prop.lineasPedido} total={prop.total} />
-
-
-
-
-
                         </div>
                         {prop.estado === 'Pendiente' && (
                             <div className="mt-6 flex justify-end">
@@ -104,34 +108,17 @@ export default function OrderCard({ prop }: OrderCardProps) {
                 </div>
 
                 <div className="flex felx-row items-center gap-2">
-                    <svg viewBox="0 0 24 24" className='w-7 h-7' fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                    <MapPin />
                     <h3 className={`text-md  text-gray-600`}>
-                        Realizado el {prop.fecha}
+                        Al domicilio: {prop?.domicilio?.calle} {prop?.domicilio?.numero}, {prop?.domicilio?.casa}
                     </h3>
                 </div>
-                <div className="flex felx-row items-center gap-2">
-                    <svg
-                        viewBox="0 0 24 24"
-                        className="w-7 h-7 "
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M12 21C12 21 18 15.5 18 10.5C18 7.18629 15.3137 4.5 12 4.5C8.68629 4.5 6 7.18629 6 10.5C6 15.5 12 21 12 21Z"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                        <path
-                            d="M12 13.5C13.6569 13.5 15 12.1569 15 10.5C15 8.84315 13.6569 7.5 12 7.5C10.3431 7.5 9 8.84315 9 10.5C9 12.1569 10.3431 13.5 12 13.5Z"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg><p className="text-md text-gray-600">Dia: Lunes</p>
 
+                <div className="flex felx-row items-center gap-2">
+                    <svg viewBox="0 0 24 24" className='w-7 h-7' fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                    <h3 className={`text-md  text-gray-600`}>
+                        Realizado el {new Date(prop.fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </h3>
                 </div>
                 <p className={`text-lg mt-2 text-black`}>Total: $ {prop.total}</p>
             </button>
