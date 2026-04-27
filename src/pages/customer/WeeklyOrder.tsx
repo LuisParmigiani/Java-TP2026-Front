@@ -34,7 +34,7 @@ export default function WeeklyOrder() {
         if (!token) return;
         const adresSearch = async () => {
             try {
-                const response = await getAllByUserId(token, state, undefined, orderBy, actualSearchTerm, ['pedidoSemanal', 'productoZona', 'producto'], page - 1, size);
+                const response = await getAllByUserId(token, state, undefined, orderBy, actualSearchTerm, 'Habilitados', ['pedidoSemanal', 'productoZona', 'producto'], page - 1, size);
                 setDirections(response.content);
                 setTotalItems(response.totalElements);
             } catch (error) {

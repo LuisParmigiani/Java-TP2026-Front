@@ -42,8 +42,9 @@ export default function Dashboard() {
         const result2 = await getAllByUserId(token, null, null, null, null, null, ['diaDomicilio'], 0, 3);
         setDirections(result2.content);
 
-        const ordersResult = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto', 'domicilio'], 'Mas Recientes', 'Todos', 5, 1);
-        setRecentOrders(ordersResult.content);
+        const response = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto', 'domicilio'], "Mas Recientes", null, 6, 0);
+        console.log(response.content);
+        setRecentOrders(response.content);
       } catch (error) {
         console.error('Error al traer usuario:', error);
       }

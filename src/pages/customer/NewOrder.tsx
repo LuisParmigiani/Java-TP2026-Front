@@ -55,7 +55,7 @@ export default function NewOrder() {
         const fetchDirections = async () => {
             try {
                 const status = "Activas";
-                const response = await getAllByUserId(token, status, null, null, null, ['pedidoSemanal', 'productoZona', 'producto']);
+                const response = await getAllByUserId(token, status, null, null, null, 'Habilitados', ['pedidoSemanal', 'productoZona', 'producto']);
                 console.log("Direcciones obtenidas:", response);
                 setDirections(response.content);
             } catch (error) {
