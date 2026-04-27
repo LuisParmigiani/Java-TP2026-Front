@@ -59,10 +59,7 @@ const TrucksManagement = () => {
     marca: ''
   });
   const rutaDeReparto = (truckId: number) => {
-    // Aquí puedes implementar la lógica para redirigir a la página de rutas de reparto del camión
-    // Por ejemplo, podrías usar React Router para navegar a una ruta específica:
     navigate(`/admin/trucks/routes/${truckId}`);
-
   }
   const handleOpenDialog = (truck: CamionResponse | null = null) => {
     if (truck) {
@@ -110,11 +107,11 @@ const TrucksManagement = () => {
       if (editingTruck) {
         console.log("updateando camion")
          await updateTruck(editingTruck.id, truckData);
-        toast.success('Truck actualizado correctamente.');
+        toast.success('Camion actualizado correctamente.');
       } else {
         console.log("guardando camion")
         await addTruck(truckData);
-        toast.success('Truck agregado correctamente.');
+        toast.success('Camion agregado correctamente.');
       } 
 
       const updatedTrucks = await fetchTrucks();

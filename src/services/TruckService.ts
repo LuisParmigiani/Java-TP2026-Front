@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut, apiPatch } from './baseClient.ts';
-import type { CamionRequest, CamionResponse, ErrorResponse } from './Interfaces.ts';
+import type { CamionRequest, CamionResponse, ErrorResponse, DiaZonaResponse, DiaZonaDTORequestWithOrdenes } from './Interfaces.ts';
 
 export async function fetchTrucks(): Promise<CamionResponse[]> {
   try {
@@ -82,6 +82,52 @@ export async function getActiveTrucks(): Promise<CamionResponse[]> {
   } catch (error) {
     const errorResponse = error as ErrorResponse;
     console.error('Error fetching active trucks:', errorResponse);
+    throw errorResponse;
+  }
+}
+
+/**
+ * Obtiene los dias-zonas del camión para un día específico
+ * Incluye los domicilios con su orden dentro de cada zona
+ */
+export async function getDiaZonasByTruckAndDay(
+  truckId: number,
+  day: number,
+): Promise<DiaZonaResponse[]> {
+  try {
+    const response = await apiGet<DiaZonaResponse[]>(
+      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden`,
+    );
+    console.log(`Fetched dia-zona for truck ${truckId}, day ${day}:`, response);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(
+      `Error fetching dia-zona for truck ${truckId}, day ${day}:`,
+      errorResponse,
+    );
+    throw errorResponse;
+  }
+}
+
+/**
+ * Actualiza el orden de los domicilios en una dia-zona
+ * Envía al backend las nuevas órdenes para persistirlas
+ */
+export async function updateDiaZonaWithOrdenes(
+  diaZonaId: number,
+  request: DiaZonaDTORequestWithOrdenes,
+): Promise<DiaZonaResponse> {
+  try {
+    const response = await apiPut<DiaZonaResponse>(
+      `/dia-zona/${diaZonaId}/ordenes`,
+      request,
+    );
+    console.log(`Updated dia-zona ${diaZonaId} with new ordenes:`, response);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(`Error updating dia-zona ${diaZonaId}:`, errorResponse);
     throw errorResponse;
   }
 }

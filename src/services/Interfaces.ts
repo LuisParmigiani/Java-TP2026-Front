@@ -42,6 +42,7 @@ export interface PersonaResponse {
   domicilioIds?: number[];
   usuario?: UserResponse;
   usuarioId?: number;
+  estado?: string;
 }
 
 export interface PagoResponse {
@@ -358,6 +359,7 @@ export interface ErrorResponse {
   codigo: number;
 }
 
+<<<<<<< HEAD
 
 export interface PedidoSemanalRequest {
   cantidad?: number;
@@ -378,3 +380,42 @@ export interface PaginationResponse<T> {
   first: boolean;
   last: boolean;
 }
+=======
+// Interfaces para DiaZona y DiaZonaOrden
+export interface DiaZonaOrdenResponse {
+  id: number;
+  orden: number;
+  domicilio: DomicilioResponse;
+  diaZonaId: number;
+  domicilioId?: number;
+  diaZonaOrdenes?: DiaZonaOrdenResponse[];
+}
+
+export interface DiaZonaResponse {
+  id: number;
+  diaId: number;
+  zonaId: number;
+  diaZonaOrdenes: DiaZonaOrdenResponse[];
+  zona: ZonaResponse;
+  dia?: DiaDTOResponse;
+}
+
+// Interfaces para guardar órdenes
+export interface DiaZonaOrdenRequest {
+  id: number;
+  orden: number;
+  domicilioId: number;
+  diaZonaId: number;
+}
+
+export interface DiaZonaDTORequestWithOrdenes {
+  diaId: number;
+  zonaId: number;
+  diaZonaOrdenes: DiaZonaOrdenRequest[];
+}
+
+export interface DiaDTOResponse {
+  id: number;
+  nombre: string;
+}
+>>>>>>> Camiones
