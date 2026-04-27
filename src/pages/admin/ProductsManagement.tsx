@@ -225,15 +225,21 @@ const ProductsManagement = () => {
                         {product.id}
                       </TableCell>
                       <TableCell>
-                        {product.imagenUrl == "./../../assets/producto.jpeg" ? (
+                        {!product.imagenUrl ||
+                        product.imagenUrl === "./../../assets/producto.jpeg" ? (
                           <img
-                            src={product.imagenUrl}
+                            src={"./../../assets/producto.jpeg"}
                             alt={product.nombre}
                             className="h-12 w-12 object-cover rounded-md"
                           />
                         ) : (
                           <img
-                            src={`http://localhost:8080${product.imagenUrl}?t=${new Date().getTime()}`}
+                            src={
+                              product.imagenUrl.startsWith("http") ||
+                              product.imagenUrl.startsWith("https")
+                                ? product.imagenUrl
+                                : "./../../assets/producto.jpeg"
+                            }
                             alt={product.nombre}
                             className="h-12 w-12 object-cover rounded-md"
                           />
