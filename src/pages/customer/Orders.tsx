@@ -7,7 +7,7 @@ import { getByUserId } from "../../services/SalesService";
 import NavBar from "../../components/NavBar";
 import { useAuth } from "../../hooks/useAuth";
 import { Alert, AlertDescription, AlertTitle } from "../../components/Alert";
-
+import Pagination from "../../components/Pagination";
 
 export default function Orders() {
   const [state, setState] = useState("Todos");
@@ -15,14 +15,18 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const { token } = useAuth();
   const [alert, SetAlert] = useState(0)
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const size = 12
 
   useEffect(() => {
     const result = async () => {
-      const response = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto', 'domicilio'], orderBy, state);
-      setOrders(response);
+      const response = await getByUserId(token, ['lineaPedido', 'productoZona', 'producto', 'domicilio'], orderBy, state, size, page - 1);
+      setOrders(response.content);
+      setTotalItems(response.totalElements);
     };
     result();
-  }, [token, orderBy, state]);
+  }, [token, orderBy, state, page]);
 
   const handleOrderCancelled = (orderId: number) => {
     setOrders(prevOrders =>
@@ -67,14 +71,14 @@ export default function Orders() {
             <Filter
               name={state}
               options={['Todos', 'Pendientes', 'En Proceso', 'Completadas', 'Canceladas']}
-              onSave={setState}
+              onSave={(v) => { setState(v); setPage(1); }}
               color="primary"
               size="md"
             />
             <Filter
               name={orderBy}
               options={['Mas Recientes', 'Mas Antiguos', 'Menor Precio', 'Mayor Precio']}
-              onSave={setOrderBy}
+              onSave={(v) => { setOrderBy(v); setPage(1); }}
               color="primary"
               size="md"
             />
@@ -86,6 +90,7 @@ export default function Orders() {
             ))}
           </div>
         </div>
+        <Pagination page={page} totalPerPage={size} totalItems={totalItems} onPageChange={setPage} />
 
         <Footer />
       </div>

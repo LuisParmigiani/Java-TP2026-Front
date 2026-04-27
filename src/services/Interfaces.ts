@@ -59,6 +59,7 @@ export interface DomicilioResponse {
   numero: string;
   casa: string;
   activo: boolean;
+  habilitado?: number;
   zona?: ZonaResponse;
   zonaId?: number;
   ventas?: VentaResponse[];
@@ -245,6 +246,7 @@ export interface UserRequest {
   nombreUsuario?: string;
   email?: string;
   nivelAcceso?: string;
+  persona?: PersonaRequest;
   personaId?: number;
 }
 
@@ -361,4 +363,18 @@ export interface PedidoSemanalRequest {
   cantidad?: number;
   domicilioId?: number;
   productoZonaId?: number;
+}
+
+
+
+
+
+export interface PaginationResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
 }

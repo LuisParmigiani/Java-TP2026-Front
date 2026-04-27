@@ -59,7 +59,7 @@ export default function NewOrderCard(prop: Props) {
                             <div>
                                 <h2 className="text-2xl font-semibold text-gray-900">Detalle del pedido: </h2>
                                 <h3 className="text-lg font-medium text-gray-700">En la proxima entrega se le entregaran todos estos productos</h3>
-                                <p>Son los productos seleccionados con los semanales.</p>
+                                <p>Son los productos seleccionados con los productos solicitados semanalmente.</p>
                             </div>
                             <button
                                 onClick={() => prop.setOpen(false)}

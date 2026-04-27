@@ -6,7 +6,7 @@ import { getActiveProducts } from '../services/ProductService.ts';
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from "../hooks/useAuth";
 import ProductsFilter from '../components/ProductsFilter.tsx';
-
+import Pagination from '../components/Pagination.tsx';
 
 
 export default function Products() {
@@ -20,6 +20,11 @@ export default function Products() {
     const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | ''>('');
     const [appliedMinPrice, setAppliedMinPrice] = useState<number | ''>('');
     const [appliedDirection, setAppliedDirection] = useState<string>('');
+
+    // Pagination information (if needed in the future)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const pageSize = 12; // Número de productos por página
+    const [totalItems, setTotalItems] = useState<number>(0);
 
     // UI direction filter (for select)
     const [direction, setDirection] = useState<string>('');
@@ -38,12 +43,16 @@ export default function Products() {
                 min ?? appliedMinPrice,
                 max ?? appliedMaxPrice,
                 directionParam ?? appliedDirection,
+                currentPage - 1,
+                pageSize, // Tamaño de página fijo, se puede hacer dinámico si se desea (numero de elementos por página)
             );
-            setProducts(response);
+            setTotalItems(response.totalElements);
+            setCurrentPage(response.number + 1);
+            setProducts(response.content);
         } catch (error) {
             console.error('Error fetching products:', error);
         }
-    }, [currentUser, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice, appliedDirection, token]);
+    }, [currentUser, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice, appliedDirection, token, currentPage, pageSize]);
 
     // Fetch inicial de productos o de cuando se cambia el orden o filtros aplicados
     useEffect(() => {
@@ -71,6 +80,7 @@ export default function Products() {
                     <ProductCard key={product.id} product={product} />
                 ))}
             </div>
+            <Pagination page={currentPage} totalPerPage={pageSize} totalItems={totalItems} onPageChange={setCurrentPage} />
             <Footer />
         </div >
     );

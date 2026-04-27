@@ -21,8 +21,8 @@ import Pay from "./pages/customer/Pay.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
-import SemanalOrder from "./pages/customer/SemanalOrder.tsx";
 import Profile from "./pages/customer/Profile.tsx";
+import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
 
 function App() {
   return (
@@ -44,7 +44,7 @@ function App() {
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
           <Route path="/customer/editWeeklyOrder" element={<EditWeeklyOrder />} />
-          <Route path="/customer/semanalOrder" element={<SemanalOrder />} />
+          <Route path="/customer/weeklyOrder" element={<WeeklyOrder />} />
           <Route path="/customer/profile" element={<Profile />} />
           <Route path="/customer/pay" element={<Pay />} />
 

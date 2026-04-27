@@ -8,7 +8,10 @@ import { getAllByUserId } from "../../services/DirectionService";
 import { useAuth } from "../../hooks/useAuth";
 import ProductTable from "../../components/ProductTable";
 import { useNavigate } from "react-router-dom";
-export default function SemanalOrder() {
+import Pagination from "../../components/Pagination";
+
+
+export default function WeeklyOrder() {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
     const [orderBy, setOrderBy] = useState('Nombre A-Z');
@@ -19,22 +22,27 @@ export default function SemanalOrder() {
     const [directionSelected, setDirectionSelected] = useState(null);
     const [showDescription, setShowDescription] = useState(false);
     const { token } = useAuth();
-
+    const size = 10;
+    const [page, setPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const handleSearch = () => {
         setActualSearchTerm(searchTerm);
+        setPage(1);
     };
 
     useEffect(() => {
+        if (!token) return;
         const adresSearch = async () => {
             try {
-                const response = await getAllByUserId(token, state, undefined, orderBy, actualSearchTerm, ['pedidoSemanal', 'productoZona', 'producto']);
-                setDirections(response);
+                const response = await getAllByUserId(token, state, undefined, orderBy, actualSearchTerm, ['pedidoSemanal', 'productoZona', 'producto'], page - 1, size);
+                setDirections(response.content);
+                setTotalItems(response.totalElements);
             } catch (error) {
                 console.error("Error fetching directions:", error);
             }
         }
         adresSearch();
-    }, [token, state, orderBy]);
+    }, [token, state, orderBy, actualSearchTerm, page]);
 
     const description = (id: number) => () => {
         const direction = directions.find((dir) => dir.id === id);
@@ -78,14 +86,14 @@ export default function SemanalOrder() {
                         <Filter
                             name={orderBy}
                             options={['Nombre A-Z', 'Nombre Z-A']}
-                            onSave={(value) => setOrderBy(value)}
+                            onSave={(value) => { setOrderBy(value); setPage(1); }}
                             color="primary"
                             size="md"
                         />
                         <Filter
                             name={state}
                             options={['Mostrar Todas', 'Activas', 'Inactivas']}
-                            onSave={(value) => setState(value)}
+                            onSave={(value) => { setState(value); setPage(1); }}
                             color="primary"
                             size="md"
                         />
@@ -166,6 +174,7 @@ export default function SemanalOrder() {
                         </div>
                     ))}
                 </div>
+                <Pagination page={page} totalPerPage={size} totalItems={totalItems} onPageChange={setPage} />
             </main >
             <Footer />
         </div >

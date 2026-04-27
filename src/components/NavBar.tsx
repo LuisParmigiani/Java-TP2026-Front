@@ -27,7 +27,7 @@ const Header = () => {
 
   const publicLinks: NavLink[] = [
     { path: "/", label: "Inicio" },
-    { path: "/products-showcase", label: "Productos" },
+    { path: "/products", label: "Productos" },
     { path: "/about", label: "Nosotros" },
     { path: "/contact", label: "Contacto" },
   ];
@@ -36,7 +36,9 @@ const Header = () => {
     { path: "/customer/dashboard", label: "Panel", icon: LayoutDashboard },
     { path: "/products", label: "Productos", icon: Package },
     { path: "/customer/orders", label: "Pedidos", icon: Truck },
-    { path: "/customer/profile", label: "Perfil", icon: User },
+    { path: "/customer/directions", label: "Direcciones", icon: User },
+    { path: "/customer/pay", label: "Saldo", icon: User },
+    { path: "/customer/profile", label: "Perfil", icon: User }
   ];
 
   const driverLinks: NavLink[] = [

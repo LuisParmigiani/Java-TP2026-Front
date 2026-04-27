@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from "./baseClient";
-import type { DomicilioRequest, DomicilioResponse } from "./Interfaces";
+import type { DomicilioRequest, DomicilioResponse, PaginationResponse } from "./Interfaces";
 
 export async function updateDirection(
   direction: DomicilioResponse,
@@ -44,8 +44,11 @@ export async function getAllByUserId(
   deliveryDay?: string,
   orderBy?: string,
   nameSearch?: string,
+  enabledStatus?: string,
   populate?: string[],
-): Promise<DomicilioResponse[]> {
+  page?: number,
+  size?: number,
+): Promise<PaginationResponse<DomicilioResponse>> {
   try {
     let query;
     if (deliveryDay) {
@@ -65,7 +68,13 @@ export async function getAllByUserId(
     if (nameSearch) {
       query = "nameSearch=" + nameSearch + "&" + query;
     }
-    const response = await apiGet<DomicilioResponse[]>(
+    if (page !== undefined && size !== undefined) {
+      query = "page=" + page + "&size=" + size + "&" + query;
+    }
+    if (enabledStatus) {
+      query = "enabledStatus=" + enabledStatus + "&" + query;
+    }
+    const response = await apiGet<PaginationResponse<DomicilioResponse>>(
       `/domicilio/token/usuario?${query}`,
       token,
     );

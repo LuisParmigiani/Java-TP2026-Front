@@ -51,7 +51,7 @@ export default function ProductsFilter(props: Props) {
             if (currentUserRole === 'Usuario' && setAppliedDirection && setDirection) {
                 try {
                     const response = await getAllByUserId(token);
-                    setDirections(response);
+                    setDirections(response.content);
                 } catch (error) {
                     console.error('Error fetching directions:', error);
                 }
@@ -66,18 +66,18 @@ export default function ProductsFilter(props: Props) {
         setSearchTerm('');
         setMinPrice('');
         setMaxPrice('');
-        setDirection('');
+        setDirection?.('');
         setAppliedSearchTerm('');
         setAppliedMinPrice('');
         setAppliedMaxPrice('');
-        setAppliedDirection('');
+        setAppliedDirection?.('');
     };
     // Handlers for search and clear
     const handleSearch = () => {
         setAppliedSearchTerm(searchTerm);
         setAppliedMinPrice(minPrice);
         setAppliedMaxPrice(maxPrice);
-        setAppliedDirection(direction);
+        setAppliedDirection?.(direction);
     };
 
     return (

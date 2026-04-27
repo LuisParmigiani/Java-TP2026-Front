@@ -10,19 +10,32 @@ import { Button } from '../../components/Button';
 import type { DomicilioRequest } from '../../services/Interfaces';
 import NewDirection from '../../components/NewDirection';
 import Input from '../../components/Input';
+import Pagination from '../../components/Pagination';
+import { Alert, AlertTitle, AlertDescription } from '../../components/Alert';
 
 
 export default function Directions() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [filter, setFilter] = useState({ status: "", deliveryDay: "" });
   const [open, setOpen] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState<'created' | 'edited' | null>(null);
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState('Nombre A-Z');
+  const [enabledStatus, setEnabledStatus] = useState('Habilitados');
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const size = 5;
   const { token } = useAuth();
+
+  const hasActiveFilters =
+    (filter.status !== "" && filter.status !== "Mostrar Todas") ||
+    appliedSearchTerm !== "" ||
+    enabledStatus !== "Habilitados";
 
   const handleSearch = () => {
     setAppliedSearchTerm(searchTerm);
+    setPage(1);
   };
 
 
@@ -31,10 +44,10 @@ export default function Directions() {
       try {
         const result = await postDirection(direction, token);
         setDirections((current) => [...current, result]);
+        setShowSuccessAlert('created');
       } catch (error) {
         console.error("Error saving new direction:", error);
       }
-
       setOpen(false);
     }
     save();
@@ -42,23 +55,26 @@ export default function Directions() {
 
 
   useEffect(() => {
+    if (!token) return;
     const fetchDirections = async () => {
       try {
-        const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, ['diaDomicilio']);
-        console.log("Fetched directions:", result);
-        setDirections(result);
+        const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, enabledStatus, ['diaDomicilio'], page - 1, size);
+        setDirections(result.content);
+        setTotalItems(result.totalElements);
+        console.log(result);
       } catch (error) {
         console.error("Error fetching directions:", error);
       }
     };
     fetchDirections();
-  }, [filter, token, orderBy, appliedSearchTerm]);
+  }, [filter, token, orderBy, appliedSearchTerm, page, enabledStatus]);
   const handleSaveDirection = (updatedDirection: DomicilioResponse) => {
     setDirections((current) =>
       current.map((direction) =>
         direction.id === updatedDirection.id ? updatedDirection : direction,
       ),
     );
+    setShowSuccessAlert('edited');
   };
   useEffect(() => {
     if (open) {
@@ -80,6 +96,18 @@ export default function Directions() {
       )}
       <div className="p-4 sm:p-6 lg:p-8 gap-4 felx flex-col">
 
+        {showSuccessAlert && (
+          <Alert variant="success" autoClose={true} onClose={() => setShowSuccessAlert(null)}>
+            <AlertTitle>
+              {showSuccessAlert === 'created' ? '¡Dirección creada correctamente!' : '¡Dirección actualizada correctamente!'}
+            </AlertTitle>
+            <AlertDescription>
+              {showSuccessAlert === 'created'
+                ? 'Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite.'
+                : 'Los cambios en tu dirección fueron guardados exitosamente.'}
+            </AlertDescription>
+          </Alert>
+        )}
         <div className='flex flex-row justify-between '>
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Direcciones</h1>
@@ -93,14 +121,21 @@ export default function Directions() {
           <Filter
             name={filter.status || "Estado"}
             options={["Mostrar Todas", "Activas", "Inactivas"]}
-            onSave={(value) => setFilter({ ...filter, status: value })}
+            onSave={(value) => { setFilter({ ...filter, status: value }); setPage(1); }}
             color="primary"
             size="md"
           />
           <Filter
             name={orderBy}
             options={['Nombre A-Z', 'Nombre Z-A']}
-            onSave={(value) => setOrderBy(value)}
+            onSave={(value) => { setOrderBy(value); setPage(1); }}
+            color="primary"
+            size="md"
+          />
+          <Filter
+            name={enabledStatus}
+            options={['Todos', 'Habilitados', 'Pendientes de aprobacion', 'Rechazados']}
+            onSave={(value) => { setEnabledStatus(value); setPage(1); }}
             color="primary"
             size="md"
           />
@@ -126,8 +161,9 @@ export default function Directions() {
             {directions.length === 0 ? (
               <div className="rounded-lg border border-gray-200 bg-white p-4 text-center">
                 <p className="text-sm text-gray-500">
-                  No tenés direcciones cargadas. Agregá una dirección para verla
-                  aquí.
+                  {hasActiveFilters
+                    ? 'No se encontraron direcciones con los filtros aplicados.'
+                    : 'No tenés direcciones cargadas. Agregá una dirección para verla aquí.'}
                 </p>
               </div>
             ) : (
@@ -140,6 +176,7 @@ export default function Directions() {
             )}
           </div>
         </div>
+        <Pagination page={page} totalPerPage={size} totalItems={totalItems} onPageChange={setPage} />
         <Footer />
       </div>
     </>

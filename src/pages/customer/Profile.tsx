@@ -4,11 +4,12 @@ import NavBar from "../../components/NavBar";
 import { Button } from "../../components/Button";
 import { FormField } from "../../components/FormField";
 import InformationCard from "../../components/InformationCard";
-import type { UserResponse } from "../../services/Interfaces.ts";
-import { getUser } from "../../services/ClientService.ts";
+import type { UserResponse, UserRequest } from "../../services/Interfaces.ts";
+import { getUser, UpdateUserAPersona } from "../../services/ClientService.ts";
 import { useAuth } from "../../hooks/useAuth";
 import { User, Mail, Phone, FileText, Edit3, Save, X, Wallet, Shield } from "lucide-react";
 import InfoRow from "../../components/InfoRow.tsx";
+
 
 interface FormData {
     nombre: string;
@@ -85,9 +86,23 @@ export default function Profile() {
         setEditing(false);
     };
 
-    const handleSave = () => {
-        console.log("Guardar perfil:", formData);
-
+    const handleSave = async () => {
+        try {
+            const payload: UserRequest = {
+                nombreUsuario: formData.nombreUsuario,
+                persona: {
+                    nombre: formData.nombre,
+                    apellido: formData.apellido,
+                    email: formData.email,
+                    telefono: formData.telefono,
+                    tipoDoc: formData.tipoDoc,
+                    nroDocumento: formData.nroDocumento,
+                },
+            };
+            await UpdateUserAPersona(token, payload);
+        } catch (error) {
+            console.error("Error updating user data:", error);
+        }
         setEditing(false);
     };
 
@@ -272,7 +287,7 @@ export default function Profile() {
                                     <InfoRow
                                         icon={<Mail className="w-4 h-4 text-primary" />}
                                         label="Email de acceso"
-                                        value={user?.email ?? ""}
+                                        value={formData.email}
                                     />
 
                                 </div>

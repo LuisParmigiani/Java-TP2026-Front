@@ -11,6 +11,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/Select.tsx';
 import ProductsFilter from "../../components/ProductsFilter.tsx";
 import { createSale } from "../../services/SalesService.ts";
+import Pagination from "../../components/Pagination.tsx";
 
 
 export default function NewOrder() {
@@ -31,18 +32,23 @@ export default function NewOrder() {
     const hasProducts = selectedProducts.length > 0 && selectedProducts.some(item => item.quantity > 0);
     const { currentUser } = useAuth();
     const { token } = useAuth();
+    const size = 12;
+    const [page, setPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
 
     useEffect(() => {
+        if (!token) return;
         const fetchProducts = async () => {
             try {
-                const response = await getActiveProducts(token, currentUser?.role, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice, selectedDirection);
-                setProducts(response);
+                const response = await getActiveProducts(token, currentUser?.role, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice, selectedDirection, page - 1, size);
+                setProducts(response.content);
+                setTotalItems(response.totalElements);
             } catch (error) {
                 console.error("Error fetching products:", error);
             }
         };
         fetchProducts();
-    }, [currentUser?.role, selectedDirection, token, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice]);
+    }, [currentUser?.role, selectedDirection, token, sortOption, appliedSearchTerm, appliedMinPrice, appliedMaxPrice, page]);
 
 
     useEffect(() => {
@@ -51,7 +57,7 @@ export default function NewOrder() {
                 const status = "Activas";
                 const response = await getAllByUserId(token, status, null, null, null, ['pedidoSemanal', 'productoZona', 'producto']);
                 console.log("Direcciones obtenidas:", response);
-                setDirections(response);
+                setDirections(response.content);
             } catch (error) {
                 console.error("Error fetching directions:", error);
             }
@@ -74,10 +80,10 @@ export default function NewOrder() {
     }
 
     const changeDirection = (value: string) => {
+        setPage(1);
         if (selectedDirection === "" && directions.length > 0) {
             setSelectedDirection(value);
-        }
-        else {
+        } else {
             setPendingDirection(value);
             setShowAlert(true);
         }
@@ -170,11 +176,11 @@ export default function NewOrder() {
                             </button>
 
                             <ProductsFilter
-                                setAppliedSearchTerm={setAppliedSearchTerm}
-                                setAppliedMinPrice={setAppliedMinPrice}
-                                setAppliedMaxPrice={setAppliedMaxPrice}
+                                setAppliedSearchTerm={(v) => { setAppliedSearchTerm(v); setPage(1); }}
+                                setAppliedMinPrice={(v) => { setAppliedMinPrice(v); setPage(1); }}
+                                setAppliedMaxPrice={(v) => { setAppliedMaxPrice(v); setPage(1); }}
                                 sortOption={sortOption}
-                                setSortOption={setSortOption}
+                                setSortOption={(v) => { setSortOption(v); setPage(1); }}
                                 currentUserRole={currentUser?.role}
                             />
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -213,12 +219,12 @@ export default function NewOrder() {
                                     );
                                 })}
                             </div>
+                            <Pagination page={page} totalPerPage={size} totalItems={totalItems} onPageChange={setPage} />
                         </>
                     )}
                 </div>
 
             </div>
-
             <Footer />
         </div >
     );
