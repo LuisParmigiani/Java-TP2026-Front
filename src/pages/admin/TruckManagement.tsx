@@ -8,6 +8,7 @@ import Input from '../../components/Input.tsx';
 import { Label } from '../../components/Label.tsx';
 import type { ErrorResponse } from '../../services/Interfaces.ts';
 import { formatErrorResponse } from '../../lib/utils.ts';
+import { useNavigate } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -30,13 +31,14 @@ import {
   TableRow,
 } from '../../components/Table.tsx';
 import { Badge } from '../../components/Badge.tsx';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Route } from 'lucide-react';
 import { toast } from 'sonner';
 import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../services/TruckService.ts';
 import type { CamionResponse } from '../../services/Interfaces.ts';
 import { Alert, AlertTitle, AlertDescription } from '../../components/Alert.tsx';
 
 const TrucksManagement = () => {
+  const navigate = useNavigate();
   const [trucks, setTrucks] = useState<CamionResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTruck, setEditingTruck] = useState<CamionResponse | null>(null);
@@ -56,6 +58,12 @@ const TrucksManagement = () => {
     estado: '1',
     marca: ''
   });
+  const rutaDeReparto = (truckId: number) => {
+    // Aquí puedes implementar la lógica para redirigir a la página de rutas de reparto del camión
+    // Por ejemplo, podrías usar React Router para navegar a una ruta específica:
+    navigate(`/admin/trucks/routes/${truckId}`);
+
+  }
   const handleOpenDialog = (truck: CamionResponse | null = null) => {
     if (truck) {
       setEditingTruck(truck);
@@ -147,7 +155,7 @@ const TrucksManagement = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight">
-            Gestion de Camiones
+              Gestion de Camiones
             </h1>
             <Button onClick={() => handleOpenDialog()}>
               <Plus className="w-4 h-4 mr-2" /> Agregar Camion
@@ -169,23 +177,22 @@ const TrucksManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                {trucks.map((truck) => (
+                  {trucks.map((truck) => (
                     <TableRow key={truck.id}>
-                      <TableCell className="font-medium">
-                        {truck.id}
-                      </TableCell>
+                      <TableCell className="font-medium">{truck.id}</TableCell>
                       <TableCell>{truck.marca}</TableCell>
                       <TableCell>{truck.modelo}</TableCell>
                       <TableCell>{truck.patente}</TableCell>
                       <TableCell>{truck.kilometraje}</TableCell>
                       <TableCell>
-                        <Badge
-                          variant={truck.estado ? 'default' : 'secondary'}
-                        >
+                        <Badge variant={truck.estado ? 'default' : 'secondary'}>
                           {truck.estado ? 'Activo' : 'Inactivo'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
+                        <Button variant="secondary" size="icon" className="mr-1" onClick={() => rutaDeReparto(truck.id)}>
+                          <Route className='w-4 h-4' />
+                        </Button>
                         <Button
                           className="mr-1"
                           variant="accent"
@@ -266,23 +273,23 @@ const TrucksManagement = () => {
                 }
               />
             </div>
-              <div className="space-y-2">
-                <Label htmlFor="precio">Kilometraje ($)</Label>
-                <Input
-                  name="precio"
-                  type="number"
-                  value={formData.kilometraje}
-                  onChange={(value) =>
-                    setFormData({ ...formData, kilometraje: value as string })
-                  }
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="precio">Kilometraje ($)</Label>
+              <Input
+                name="precio"
+                type="number"
+                value={formData.kilometraje}
+                onChange={(value) =>
+                  setFormData({ ...formData, kilometraje: value as string })
+                }
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="activo">Estado</Label>
               <Select
                 value={formData.estado}
                 onValueChange={(val) =>
-                  setFormData({ ...formData, estado: val})
+                  setFormData({ ...formData, estado: val })
                 }
               >
                 <SelectTrigger>
@@ -296,7 +303,11 @@ const TrucksManagement = () => {
             </div>
             <div>
               {showAlert && (
-                <Alert variant="danger" autoClose={true} onClose={() => setShowAlert(false)}>
+                <Alert
+                  variant="danger"
+                  autoClose={true}
+                  onClose={() => setShowAlert(false)}
+                >
                   <AlertTitle>{error?.errorTitle}</AlertTitle>
                   <AlertDescription>{error?.errorMessage}</AlertDescription>
                 </Alert>
