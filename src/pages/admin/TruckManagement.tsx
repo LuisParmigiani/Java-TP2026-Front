@@ -110,11 +110,11 @@ const TrucksManagement = () => {
       if (editingTruck) {
         console.log("updateando camion")
          await updateTruck(editingTruck.id, truckData);
-        toast.success('Truck actualizado correctamente.');
+        toast.success('Camion actualizado correctamente.');
       } else {
         console.log("guardando camion")
         await addTruck(truckData);
-        toast.success('Truck agregado correctamente.');
+        toast.success('Camion agregado correctamente.');
       } 
 
       const updatedTrucks = await fetchTrucks();

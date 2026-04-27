@@ -21,6 +21,7 @@ import TruckRouting from "./pages/admin/TruckRouting.tsx";
 }
 import SemanalOrder from "./pages/customer/SemanalOrder.tsx";
 import Profile from "./pages/customer/Profile.tsx";
+import CustomersManagement from "./pages/admin/CustomersManagement.tsx";
 
 function App() {
   return (
@@ -54,8 +55,10 @@ function App() {
           {/*<Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>*/}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ProductsManagement />} />
+          <Route path="/admin/customers" element={<CustomersManagement />} />
           <Route path="/admin/trucks" element={<TrucksManagement />} />
           <Route path="/admin/trucks/routes/:truckId" element={<TruckRouting />} />
+
           {/*</Route>*/}
         </Routes>
       </Router>

@@ -11,3 +11,5 @@ export async function getUser(
   }
   return await apiGet<UserResponse>(`/usuario/me${query}`, token);
 }
+
+
