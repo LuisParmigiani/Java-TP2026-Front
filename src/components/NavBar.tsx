@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, createElement } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./Button";
@@ -37,7 +37,7 @@ const Header = () => {
 
   const publicLinks: NavLink[] = [
     { path: "/", label: "Inicio" },
-    { path: "/products-showcase", label: "Productos" },
+    { path: "/products", label: "Productos" },
     { path: "/about", label: "Nosotros" },
     { path: "/contact", label: "Contacto" },
   ];
@@ -46,7 +46,9 @@ const Header = () => {
     { path: "/customer/dashboard", label: "Panel", icon: LayoutDashboard },
     { path: "/products", label: "Productos", icon: Package },
     { path: "/customer/orders", label: "Pedidos", icon: Truck },
-    { path: "/customer/profile", label: "Perfil", icon: User },
+    { path: "/customer/directions", label: "Direcciones", icon: User },
+    { path: "/customer/pay", label: "Saldo", icon: User },
+    { path: "/customer/profile", label: "Perfil", icon: User }
   ];
 
   const driverLinks: NavLink[] = [
@@ -96,11 +98,10 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${
-                  isActive(link.path)
-                    ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
-                    : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
-                }`}
+                className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${isActive(link.path)
+                  ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
+                  : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -189,14 +190,13 @@ const Header = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive(link.path)
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground hover:bg-muted"
-                    }`}
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-muted"
+                      }`}
                   >
                     {link.icon &&
-                      React.createElement(link.icon, { className: "w-5 h-5" })}
+                      createElement(link.icon, { className: "w-5 h-5" })}
                     <span>{link.label}</span>
                   </Link>
                 ))}

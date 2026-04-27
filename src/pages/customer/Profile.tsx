@@ -1,47 +1,315 @@
 import { useEffect, useState } from "react";
 import Footer from "../../components/Footer";
 import NavBar from "../../components/NavBar";
-import type { UserResponse } from "../../services/Interfaces.ts";
-import { getUser } from "../../services/ClientService.ts";
+import { Button } from "../../components/Button";
+import { FormField } from "../../components/FormField";
+import InformationCard from "../../components/InformationCard";
+import type { UserResponse, UserRequest } from "../../services/Interfaces.ts";
+import { getUser, UpdateUserAPersona } from "../../services/ClientService.ts";
 import { useAuth } from "../../hooks/useAuth";
+import { User, Mail, Phone, FileText, Edit3, Save, X, Wallet, Shield } from "lucide-react";
+import InfoRow from "../../components/InfoRow.tsx";
+
+
+interface FormData {
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono: string;
+    tipoDoc: string;
+    nroDocumento: string;
+    nombreUsuario: string;
+}
+
+const DocOption = [
+    { value: "DNI", label: "DNI" },
+    { value: "Cédula", label: "Cédula" },
+    { value: "Pasaporte", label: "Pasaporte" },
+];
+
+const UserLevel = {
+    Administrador: "bg-red-100 text-red-700 border border-red-200",
+    Empleado: "bg-blue-100 text-blue-700 border border-blue-200",
+    Usuario: "bg-primary/10 text-primary border border-primary/20",
+    Conductor: "bg-amber-100 text-amber-700 border border-amber-200",
+};
+
+
+
 export default function Profile() {
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const { token } = useAuth();
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const response = await getUser(token, ["persona", "domicilios"]);
-        setUser(response);
-        console.log("User data fetched successfully:", response);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
+    const { token } = useAuth();
+    const [user, setUser] = useState<UserResponse | null>(null);
+    const [editing, setEditing] = useState(false);
+    const [fetchLoading, setFetchLoading] = useState(true);
+    const [formData, setFormData] = useState<FormData>({
+        nombre: "", apellido: "", email: "", telefono: "",
+        tipoDoc: "", nroDocumento: "", nombreUsuario: "",
+    });
+
+    useEffect(() => {
+        async function fetchUserData() {
+            try {
+                const response = await getUser(token, ['persona']);
+                setUser(response);
+                setFormData({
+                    nombre: response.persona?.nombre ?? "",
+                    apellido: response.persona?.apellido ?? "",
+                    email: response.persona?.email ?? "",
+                    telefono: response.persona?.telefono ?? "",
+                    tipoDoc: response.persona?.tipoDoc ?? "",
+                    nroDocumento: response.persona?.nroDocumento ?? "",
+                    nombreUsuario: response.nombreUsuario ?? "",
+                });
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            } finally {
+                setFetchLoading(false);
+            }
+        }
+        if (token) fetchUserData();
+    }, [token]);
+
+
+
+    const handleCancel = () => {
+        if (user) {
+            setFormData({
+                nombre: user.persona?.nombre ?? "",
+                apellido: user.persona?.apellido ?? "",
+                email: user.persona?.email ?? "",
+                telefono: user.persona?.telefono ?? "",
+                tipoDoc: user.persona?.tipoDoc ?? "",
+                nroDocumento: user.persona?.nroDocumento ?? "",
+                nombreUsuario: user.nombreUsuario ?? "",
+            });
+        }
+        setEditing(false);
+    };
+
+    const handleSave = async () => {
+        try {
+            const payload: UserRequest = {
+                nombreUsuario: formData.nombreUsuario,
+                persona: {
+                    nombre: formData.nombre,
+                    apellido: formData.apellido,
+                    email: formData.email,
+                    telefono: formData.telefono,
+                    tipoDoc: formData.tipoDoc,
+                    nroDocumento: formData.nroDocumento,
+                },
+            };
+            await UpdateUserAPersona(token, payload);
+        } catch (error) {
+            console.error("Error updating user data:", error);
+        }
+        setEditing(false);
+    };
+
+    const update = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData(prev => ({ ...prev, [field]: e.target.value }));
+    };
+
+    const saldo = user?.persona?.saldo ?? 0;
+    const nivelAcceso = user?.nivelAcceso ?? "";
+    const badgeClass = UserLevel[nivelAcceso] ?? "bg-gray-100 text-gray-700 border border-gray-200";
+
+    if (fetchLoading) {
+        return (
+            <div className="min-h-screen flex flex-col bg-gray-50">
+                <NavBar />
+                <main className="grow container mx-auto px-4 py-8 max-w-4xl flex flex-col gap-4">
+                    <div className="h-36 bg-gray-100 rounded-2xl animate-pulse" />
+                    <div className="h-72 bg-gray-100 rounded-2xl animate-pulse" />
+                </main>
+                <Footer />
+            </div>
+        );
     }
-    fetchUserData();
-  }, [token]);
-  return (
-    <div className="h-screen flex flex-col">
-      <NavBar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Perfil del Usuario</h1>
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Información Personal</h2>
-          <p className="mb-2">
-            <strong>Nombre:</strong> {user?.persona?.nombre}
-          </p>
-          <p className="mb-2">
-            <strong>Email:</strong> {user?.email}
-          </p>
-          <p className="mb-2">
-            <strong>Dirección:</strong> {user?.persona?.domicilios?.[0]?.calle},{" "}
-            {user?.persona?.domicilios?.[0]?.numero}
-          </p>
-          <p className="mb-2">
-            <strong>Teléfono:</strong> {user?.persona?.telefono}
-          </p>
+
+    return (
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            <NavBar />
+
+            <main className="grow container mx-auto px-4 py-8 max-w-4xl flex flex-col gap-6">
+
+                {/* Header */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                        <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-md">
+                            <span className="text-white text-2xl font-bold tracking-tight">SR</span>
+                        </div>
+
+                        <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4 text-center sm:text-left">
+                            <div className="flex-1">
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    {formData.nombre || formData.apellido
+                                        ? `${formData.nombre} ${formData.apellido}`.trim()
+                                        : user?.nombreUsuario}
+                                </h1>
+                                <p className="text-gray-400 text-sm mt-0.5">@{formData.nombreUsuario}</p>
+                                {nivelAcceso && (
+                                    <span className={`inline-flex items-center gap-1 mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeClass}`}>
+                                        <Shield className="w-3 h-3" />
+                                        {nivelAcceso}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex gap-2 shrink-0">
+                                {!editing ? (
+                                    <Button variant="primary" size="md" onClick={() => setEditing(true)}>
+                                        <Edit3 className="w-4 h-4" />
+                                        Editar perfil
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button variant="outline" size="md" onClick={handleCancel}>
+                                            <X className="w-4 h-4" />
+                                            Cancelar
+                                        </Button>
+                                        <Button variant="primary" size="md" onClick={handleSave}>
+                                            <Save className="w-4 h-4" />
+                                            Guardar
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Body */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Información personal */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div className="flex items-center gap-2 mb-5">
+                            <User className="w-5 h-5 text-primary" />
+                            <h2 className="text-base font-semibold text-gray-800">Información Personal</h2>
+                        </div>
+
+                        {editing ? (
+                            <div className="flex flex-col gap-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <FormField
+                                        label="Nombre"
+                                        name="nombre"
+                                        value={formData.nombre}
+                                        onChange={update('nombre')}
+                                    />
+                                    <FormField
+                                        label="Apellido"
+                                        name="apellido"
+                                        value={formData.apellido}
+                                        onChange={update('apellido')}
+                                    />
+                                </div>
+                                <FormField
+                                    label="Email"
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={update('email')}
+                                />
+                                <FormField
+                                    label="Teléfono"
+                                    name="telefono"
+                                    type="tel"
+                                    value={formData.telefono}
+                                    onChange={update('telefono')}
+                                />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <FormField
+                                        label="Tipo de Doc."
+                                        name="tipoDoc"
+                                        type="select"
+                                        value={formData.tipoDoc}
+                                        onChange={update('tipoDoc')}
+                                        options={DocOption}
+                                    />
+                                    <FormField
+                                        label="Nro. Documento"
+                                        name="nroDocumento"
+                                        value={formData.nroDocumento}
+                                        onChange={update('nroDocumento')}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <InfoRow
+                                    icon={<User className="w-4 h-4 text-primary" />}
+                                    label="Nombre completo"
+                                    value={`${formData.nombre} ${formData.apellido}`.trim()}
+                                />
+                                <InfoRow
+                                    icon={<Mail className="w-4 h-4 text-primary" />}
+                                    label="Email"
+                                    value={formData.email}
+                                />
+                                <InfoRow
+                                    icon={<Phone className="w-4 h-4 text-primary" />}
+                                    label="Teléfono"
+                                    value={formData.telefono}
+                                />
+                                <InfoRow
+                                    icon={<FileText className="w-4 h-4 text-primary" />}
+                                    label="Documento"
+                                    value={`${formData.tipoDoc} ${formData.nroDocumento}`.trim()}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Cuenta + Saldo */}
+                    <div className="flex flex-col gap-4">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                            <div className="flex items-center gap-2 mb-5">
+                                <Shield className="w-5 h-5 text-primary" />
+                                <h2 className="text-base font-semibold text-gray-800">Mi Cuenta</h2>
+                            </div>
+
+                            {editing ? (
+                                <FormField
+                                    label="Nombre de usuario"
+                                    name="nombreUsuario"
+                                    value={formData.nombreUsuario}
+                                    onChange={update('nombreUsuario')}
+                                />
+                            ) : (
+                                <div>
+                                    <InfoRow
+                                        icon={<User className="w-4 h-4 text-primary" />}
+                                        label="Usuario"
+                                        value={formData.nombreUsuario}
+                                    />
+                                    <InfoRow
+                                        icon={<Mail className="w-4 h-4 text-primary" />}
+                                        label="Email de acceso"
+                                        value={formData.email}
+                                    />
+
+                                </div>
+                            )}
+                        </div>
+
+                        <InformationCard
+                            miniTitle="Saldo disponible"
+                            title={new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(saldo)}
+                            description="Usá tu saldo para pagar pedidos"
+                            cardColor={saldo < 0 ? "red" : "primaryLight"}
+                            titleColor="white"
+                            descriptionColor="white"
+                            size="md"
+                            svg={<Wallet className="w-5 h-5 text-white" />}
+                        />
+                    </div>
+                </div>
+
+            </main>
+
+            <Footer />
         </div>
-      </main>
-      <Footer />
-    </div>
-  );
+    );
 }

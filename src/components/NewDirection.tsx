@@ -16,10 +16,6 @@ const initialForm: domicilioRequest = {
     calle: "",
     numero: "",
     casa: "",
-    dia: [2, 2, 2, 2, 2, 2, 2],
-    zonaId: 0,
-    personaId: 0,
-    activo: true,
 };
 
 export default function NewDirection({ close, setDirection }: Props) {
@@ -39,25 +35,7 @@ export default function NewDirection({ close, setDirection }: Props) {
         fetchZonas();
     }, []);
 
-    const onZonaChange = (value: string) => {
-        const zonaSeleccionada = zonas.find(zona => zona.id.toString() === value);
-        if (!zonaSeleccionada) return;
-        const dias: number[] = [];
-        for (let i = 0; i < 7; i++) {
-            if (zonaSeleccionada.dia[i]) {
-                dias.push(1);
-            } else {
-                dias.push(2);
-            }
-        }
-        setFormInformation(current => ({
-            ...current,
-            personaId: 0,
-            dia: dias,
-            activo: true,
-            zonaId: parseInt(value)
-        }));
-    };
+
 
     // Esquema Zod para domicilioRequest
     const domicilioSchema = z.object({
@@ -69,8 +47,7 @@ export default function NewDirection({ close, setDirection }: Props) {
             .regex(/^\d{0,5}$/, "El número de casa debe tener entre 0 y 5 dígitos")
             .optional()
             .or(z.literal("")),
-        dia: z.array(z.number())
-            .length(7, "El array de días debe tener exactamente 7 elementos"),
+
         zonaId: z.number().min(1, "El id de la zona no puede estar vacío"),
     });
 
@@ -154,7 +131,10 @@ export default function NewDirection({ close, setDirection }: Props) {
                         </label>
                         <label className="flex flex-col gap-2">
                             <span className="text-sm font-semibold text-gray-700">Zona:</span>
-                            <Select value={formInformation.zonaId ? formInformation.zonaId.toString() : ""} onValueChange={onZonaChange}>
+                            <Select value={formInformation.zonaId ? formInformation.zonaId.toString() : ""} onValueChange={(value) => setFormInformation(current => ({
+                                ...current,
+                                zonaId: parseInt(value)
+                            }))}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Filtrar por direccion" />
                                 </SelectTrigger>
@@ -168,7 +148,7 @@ export default function NewDirection({ close, setDirection }: Props) {
                         </label>
                     </div>
                     <div className="flex justify-end gap-4 mt-8">
-                        <Button color='secondary' size='md' onClick={close} className="px-6" type="button">Cerrar</Button>
+                        <Button color='red' size='md' onClick={close} className="px-6" type="button">Cerrar</Button>
                         <Button color='primary' size='md' className="px-6" type="submit">Crear</Button>
                     </div>
                 </form>

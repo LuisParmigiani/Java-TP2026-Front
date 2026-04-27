@@ -58,8 +58,8 @@ export interface DomicilioResponse {
   calle: string;
   numero: string;
   casa: string;
-  dia?: number[];
   activo: boolean;
+  habilitado?: number;
   zona?: ZonaResponse;
   zonaId?: number;
   ventas?: VentaResponse[];
@@ -72,6 +72,9 @@ export interface DomicilioResponse {
   camionId?: number;
   persona?: PersonaResponse;
   personaId?: number;
+  diasDomicilio?: DiaDomicilioResponse[];
+  diasDomicilioIds?: number[];
+
 }
 
 
@@ -200,6 +203,25 @@ export interface CargaProductoResponse {
   productoId?: number;
 }
 
+
+export interface DiaDomicilioResponse {
+  id: number;
+  estado: string;
+  dia?: DiaResponse;
+  diaId?: number;
+  domicilio: DomicilioResponse;
+  domicilioId?: number;
+}
+
+
+export interface DiaResponse {
+  id: number;
+  nombre: string;
+}
+
+
+
+
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------- REQUESTS --------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -224,6 +246,7 @@ export interface UserRequest {
   nombreUsuario?: string;
   email?: string;
   nivelAcceso?: string;
+  persona?: PersonaRequest;
   personaId?: number;
 }
 
@@ -270,6 +293,7 @@ export interface VentaRequest {
   pagado?: boolean;
   idDomicilio?: number;
   lineasPedidoIds?: number[];
+  lineasPedido?: LineaPedidoRequest[];
 }
 
 export interface LineaPedidoRequest {
@@ -332,4 +356,25 @@ export interface ErrorResponse {
   mensaje: string;
   errores?: Record<string, string>;
   codigo: number;
+}
+
+
+export interface PedidoSemanalRequest {
+  cantidad?: number;
+  domicilioId?: number;
+  productoZonaId?: number;
+}
+
+
+
+
+
+export interface PaginationResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
 }

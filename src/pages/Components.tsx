@@ -22,8 +22,13 @@ import * as Sheet from "../components/Sheet";
 import * as Table from "../components/Table";
 import InformationCard from "../components/InformationCard";
 import { Alert, AlertTitle, AlertDescription } from "../components/Alert.tsx";
+import Pagination from "../components/Pagination";
+import { useState } from "react";
+
 
 export default function ComponentsPage() {
+  const [paginationPage, setPaginationPage] = useState(1);
+
   return (
     <div>
       <div className="min-h-screen bg-gray-100 p-8 space-y-8">
@@ -106,7 +111,7 @@ export default function ComponentsPage() {
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
           <h1 className="text-3xl font-bold text-orange-700 mb-4 border-b-2 border-orange-400 pb-2">DirectionCard</h1>
-          <DirectionCard direction={{
+          {/* <DirectionCard direction={{
             id: 1,
             calle: "Calle Falsa",
             numero: "123",
@@ -117,7 +122,7 @@ export default function ComponentsPage() {
             ventas: [],
             activo: true,
             productosDomicilio: []
-          }} onSave={() => { }} />
+          }} onSave={() => { }} /> */}
         </div>
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
@@ -274,12 +279,12 @@ export default function ComponentsPage() {
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
           <h1 className="text-3xl font-bold text-pink-900 mb-4 border-b-2 border-pink-600 pb-2">NewOrderCard</h1>
-          <NewOrderCard orderNumber="001" cant={[1, 2]} products={[{ name: "Producto", description: "desc", image: "", price: 10 }]} total={20} open={false} setOpen={() => { }} />
+          {/* <NewOrderCard orderNumber="001" cant={[1, 2]} products={[{ name: "Producto", description: "desc", image: "", price: 10 }]} total={20} open={false} setOpen={() => { }} /> */}
         </div>
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow flex flex-col gap-4">
           <h1 className="text-3xl font-bold text-lime-900 mb-4 border-b-2 border-lime-600 pb-2">OrderCard</h1>
-          <OrderCard prop={{
+          {/* <OrderCard prop={{
             id: 1,
             fecha: "2026-04-13",
             total: 100,
@@ -323,7 +328,7 @@ export default function ComponentsPage() {
             pagado: true,
             idDomicilio: 1,
             lineasPedido: []
-          }} />
+          }} /> */}
         </div>
 
         <div className="mb-8 p-6 bg-white rounded-xl shadow">
@@ -443,7 +448,7 @@ export default function ComponentsPage() {
         <h1 className="text-3xl font-bold text-orange-700 mb-4 border-b-2 border-orange-400 pb-2">
           DirectionCard
         </h1>
-        <DirectionCard
+        {/* <DirectionCard
           direction={{
             id: 1,
             calle: "Calle Falsa",
@@ -457,7 +462,7 @@ export default function ComponentsPage() {
             productosDomicilio: [],
           }}
           onSave={() => { }}
-        />
+        /> */}
       </div>
 
       <div className="mb-8 p-6 bg-white rounded-xl shadow">
@@ -723,7 +728,7 @@ export default function ComponentsPage() {
         <h1 className="text-3xl font-bold text-pink-900 mb-4 border-b-2 border-pink-600 pb-2">
           NewOrderCard
         </h1>
-        <NewOrderCard
+        {/* <NewOrderCard
           orderNumber="001"
           cant={[1, 2]}
           products={[
@@ -732,14 +737,14 @@ export default function ComponentsPage() {
           total={20}
           open={false}
           setOpen={() => { }}
-        />
+        /> */}
       </div>
 
       <div className="mb-8 p-6 bg-white rounded-xl shadow flex flex-col gap-4">
         <h1 className="text-3xl font-bold text-lime-900 mb-4 border-b-2 border-lime-600 pb-2">
           OrderCard
         </h1>
-        <OrderCard
+        {/* <OrderCard
           prop={{
             id: 1,
             fecha: "2026-04-13",
@@ -793,7 +798,7 @@ export default function ComponentsPage() {
             idDomicilio: 1,
             lineasPedido: [],
           }}
-        />
+        /> */}
       </div>
 
       <div className="mb-8 p-6 bg-white rounded-xl shadow">
@@ -922,6 +927,14 @@ export default function ComponentsPage() {
           required
         />
       </div>
+      <div className="mb-8 p-6 bg-white rounded-xl shadow">
+        <h1 className="text-3xl font-bold text-primary mb-4 border-b-2 border-primary pb-2">Pagination</h1>
+        <p className="text-sm text-gray-500 mb-2">Página actual: {paginationPage} — 87 items, 10 por página</p>
+        <Pagination page={paginationPage} totalPerPage={10} totalItems={87} onPageChange={setPaginationPage} />
+        <p className="text-sm text-gray-400 mt-2">No se muestra si totalItems ≤ totalPerPage:</p>
+        <Pagination page={1} totalPerPage={10} totalItems={8} onPageChange={() => { }} />
+      </div>
+
       <div className="mb-8 p-6 bg-white rounded-xl shadow">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-gray-600 pb-2">
           ALERT (Mirar el componente porque tiene varias props)

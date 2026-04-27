@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from "./baseClient.ts";
-import type { ProductoRequest, ProductoResponse } from "./Interfaces.ts";
+import type { ProductoRequest, ProductoResponse, PaginationResponse } from "./Interfaces.ts";
 
 export async function fetchProducts(
   token: string,
@@ -82,7 +82,10 @@ export async function updateProduct(
 
 
 
-export async function getActiveProducts(token: string, userType?: string, sortOption?: string, searchTerm?: string, minPrice?: number | '', maxPrice?: number | '', direction?: string): Promise<ProductoResponse[]> {
+export async function getActiveProducts(
+  token: string, userType?: string, sortOption?: string, searchTerm?: string,
+  minPrice?: number | '', maxPrice?: number | '', direction?: string, currentPage?: number, pageSize?: number):
+  Promise<PaginationResponse<ProductoResponse>> {
   try {
     let url = '';
     if (userType == 'Usuario') {
@@ -107,11 +110,17 @@ export async function getActiveProducts(token: string, userType?: string, sortOp
     if (maxPrice !== '' && !isNaN(Number(maxPrice))) {
       params.append('maxPrice', Number(maxPrice).toString());
     }
+    if (currentPage !== undefined) {
+      params.append('page', currentPage.toString());
+    }
+    if (pageSize !== undefined) {
+      params.append('size', pageSize.toString());
+    }
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
     console.log('Fetching products with URL:', url);
-    const response = await apiGet<ProductoResponse[]>(url, token);
+    const response = await apiGet<PaginationResponse<ProductoResponse>>(url, token);
     return response;
   } catch (error) {
     console.error('Error fetching active products:', error);
