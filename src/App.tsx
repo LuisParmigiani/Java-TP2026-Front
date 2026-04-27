@@ -15,13 +15,10 @@ import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
 import TrucksManagement from "./pages/admin/TruckManagement.tsx";
-<<<<<<< HEAD
 import EditWeeklyOrder from "./pages/customer/EditWeeklyOrder.tsx";
 import Pay from "./pages/customer/Pay.tsx";
 
-=======
 import TruckRouting from "./pages/admin/TruckRouting.tsx";
->>>>>>> f7537b194e71989f5ccc423498b981f0f3a6431a
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }

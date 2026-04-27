@@ -37,7 +37,6 @@ const UserLevel = {
 
 
 export default function Profile() {
-<<<<<<< HEAD
     const { token } = useAuth();
     const [user, setUser] = useState<UserResponse | null>(null);
     const [editing, setEditing] = useState(false);
@@ -313,45 +312,4 @@ export default function Profile() {
             <Footer />
         </div>
     );
-=======
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const { token } = useAuth();
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const response = await getUser(token, ["persona", "domicilios"]);
-        setUser(response);
-        console.log("User data fetched successfully:", response);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    }
-    fetchUserData();
-  }, [token]);
-  return (
-    <div className="h-screen flex flex-col">
-      <NavBar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Perfil del Usuario</h1>
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Información Personal</h2>
-          <p className="mb-2">
-            <strong>Nombre:</strong> {user?.persona?.nombre}
-          </p>
-          <p className="mb-2">
-            <strong>Email:</strong> {user?.email}
-          </p>
-          <p className="mb-2">
-            <strong>Dirección:</strong> {user?.persona?.domicilios?.[0]?.calle},{" "}
-            {user?.persona?.domicilios?.[0]?.numero}
-          </p>
-          <p className="mb-2">
-            <strong>Teléfono:</strong> {user?.persona?.telefono}
-          </p>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
->>>>>>> f7537b194e71989f5ccc423498b981f0f3a6431a
 }

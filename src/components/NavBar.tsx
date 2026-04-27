@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { useState, createElement } from "react";
-import { Link, useLocation } from "react-router-dom";
-=======
-import React, { useEffect, useState } from "react";
+import React, { useState, createElement } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
->>>>>>> f7537b194e71989f5ccc423498b981f0f3a6431a
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./Button";
 import {
@@ -103,18 +98,10 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-<<<<<<< HEAD
                 className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${isActive(link.path)
                   ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
                   : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
                   }`}
-=======
-                className={`px-4 py-2 mx-2 rounded-lg text-md font-medium transition-all duration-200 ${
-                  isActive(link.path)
-                    ? "bg-primary text-white shadow-s hover:border-2 hover:border-black transition-all duration-100"
-                    : "hover:text-foreground hover:border-2 hover:border-b-4 hover:border-primary"
-                }`}
->>>>>>> f7537b194e71989f5ccc423498b981f0f3a6431a
               >
                 {link.label}
               </Link>
@@ -203,18 +190,10 @@ const Header = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
-<<<<<<< HEAD
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-foreground hover:bg-muted"
                       }`}
-=======
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive(link.path)
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground hover:bg-muted"
-                    }`}
->>>>>>> f7537b194e71989f5ccc423498b981f0f3a6431a
                   >
                     {link.icon &&
                       createElement(link.icon, { className: "w-5 h-5" })}
