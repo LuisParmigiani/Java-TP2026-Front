@@ -359,7 +359,6 @@ export interface ErrorResponse {
   codigo: number;
 }
 
-<<<<<<< HEAD
 
 export interface PedidoSemanalRequest {
   cantidad?: number;
@@ -380,7 +379,6 @@ export interface PaginationResponse<T> {
   first: boolean;
   last: boolean;
 }
-=======
 // Interfaces para DiaZona y DiaZonaOrden
 export interface DiaZonaOrdenResponse {
   id: number;
@@ -418,4 +416,3 @@ export interface DiaDTOResponse {
   id: number;
   nombre: string;
 }
->>>>>>> Camiones

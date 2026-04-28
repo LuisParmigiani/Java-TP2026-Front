@@ -6,6 +6,7 @@ import { Card, CardContent } from "./../../components/Card";
 import { Button } from "./../../components/Button";
 import Input from "./../../components/Input";
 import { Label } from "./../../components/Label";
+import { Link } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -63,6 +64,24 @@ const ProductsManagement = () => {
     activo: "1", // Por defecto activo
     imagenUrl: "",
   });
+  const { currentUser, isAuthenticated } = useAuth();
+  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Helmet>
+          <title>Acceso Denegado - Sodas Rojas</title>
+          <meta name="description" content="Acceso denegado al panel de administración" />
+        </Helmet>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+            Volver al Inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
   const handleImageChange = async (file: File) => {
     if (!file) return;
 
@@ -226,7 +245,7 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell>
                         {!product.imagenUrl ||
-                        product.imagenUrl === "./../../assets/producto.jpeg" ? (
+                          product.imagenUrl === "./../../assets/producto.jpeg" ? (
                           <img
                             src={"./../../assets/producto.jpeg"}
                             alt={product.nombre}
@@ -236,7 +255,7 @@ const ProductsManagement = () => {
                           <img
                             src={
                               product.imagenUrl.startsWith("http") ||
-                              product.imagenUrl.startsWith("https")
+                                product.imagenUrl.startsWith("https")
                                 ? product.imagenUrl
                                 : "./../../assets/producto.jpeg"
                             }

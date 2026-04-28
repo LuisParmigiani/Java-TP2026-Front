@@ -23,11 +23,8 @@ import TruckRouting from "./pages/admin/TruckRouting.tsx";
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
 import Profile from "./pages/customer/Profile.tsx";
-<<<<<<< HEAD
 import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
-=======
 import CustomersManagement from "./pages/admin/CustomersManagement.tsx";
->>>>>>> Camiones
 
 function App() {
   return (

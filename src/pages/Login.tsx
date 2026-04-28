@@ -12,6 +12,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const authLogin = useAuth().login;
   const authLogout = useAuth().logout;
+  const { currentUser } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -52,12 +54,13 @@ const LoginPage = () => {
       // ✅ Usar authLogin del contexto
       await authLogin(formData.email, formData.password, rememberMe);
       toast.success("Inicio de sesión exitoso", { duration: 1000 });
+
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (error) {
       setLoading(false);
-      const status = (error as any).status;
+      const status = (error).status;
       if (status === 401) {
         toast.error("Credenciales inválidas", { duration: 1000 });
       } else if (

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from '../../components/Helmet';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import { Card, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
-import  Input  from '../../components/Input';
+import Input from '../../components/Input';
 import { Label } from '../../components/Label';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Select,
   SelectContent,
@@ -49,10 +51,10 @@ const customerSchema = z.object({
   estado: z.enum(['activo', 'inactivo'], { message: 'El estado debe ser activo o inactivo' }),
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
 
 const CustomersManagementPage = () => {
-  const [customers, setCustomers] = useState <PersonaResponse[]>([]);
+
+  const [customers, setCustomers] = useState<PersonaResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<PersonaResponse | null>(null);
@@ -60,6 +62,10 @@ const CustomersManagementPage = () => {
   const [notificationMsg, setNotificationMsg] = useState('');
   const [formData, setFormData] = useState({ tipoDoc: '', nroDocumento: '', nombre: '', apellido: '', email: '', telefono: '', saldo: '0', estado: 'activo' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { currentUser, isAuthenticated } = useAuth();
+
+
+
   useEffect(() => {
     fetchPersonas()
       .then((data) => setCustomers(data))
@@ -86,6 +92,23 @@ const CustomersManagementPage = () => {
     setIsDialogOpen(true);
   };
 
+  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Helmet>
+          <title>Acceso Denegado - Sodas Rojas</title>
+          <meta name="description" content="Acceso denegado al panel de administración" />
+        </Helmet>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+            Volver al Inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
   const handleOpenNotify = (customer) => {
     setNotifyCustomer(customer);
     setNotificationMsg('');
@@ -104,7 +127,7 @@ const CustomersManagementPage = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    
+
     // Validar con Zod
     const result = customerSchema.safeParse(formData);
     if (!result.success) {

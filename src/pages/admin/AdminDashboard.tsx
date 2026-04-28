@@ -4,8 +4,28 @@ import Footer from './../../components/Footer';
 import { Helmet } from './../../components/Helmet';
 import { Card, CardContent, CardHeader, CardTitle } from './../../components/Card';
 import { Package, Users, Truck, DollarSign } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const AdminDashboard = () => {
+  const { currentUser, isAuthenticated } = useAuth();
+  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Helmet>
+          <title>Acceso Denegado - Sodas Rojas</title>
+          <meta name="description" content="Acceso denegado al panel de administración" />
+        </Helmet>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+            Volver al Inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   console.log('Rendering AdminDashboard');
   const opciones = [
     { name: 'Gestión de Productos', path: '/admin/products', description: 'Administra el catálogo de productos, precios y disponibilidad.' },

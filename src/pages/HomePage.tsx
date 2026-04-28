@@ -7,10 +7,12 @@ import type { ProductoResponse } from "../services/Interfaces.ts";
 import { useEffect, useState } from "react";
 import { getActiveProducts } from "../services/ProductService.ts";
 import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const [productos, setProductos] = useState<ProductoResponse[]>([]);
-  const { token } = useAuth();
+  const { token, currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -25,13 +27,24 @@ export default function HomePage() {
     fetchProductos();
   }, [token]);
 
+  useEffect(() => {
+    if (!currentUser) return;
+
+    if (currentUser.role === "Administrador") {
+      navigate("/admin/dashboard");
+    } else if (currentUser.role === "Usuario") {
+      navigate("/customer/dashboard");
+    } else if (currentUser.role === "Conductor") {
+      navigate("/driver/daily-route");
+    }
+  }, [currentUser, navigate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       <main className="flex-1 flex flex-col">
         {/* Hero Section */}
-        <section className="relative w-full min-h-[600px] flex items-center justify-center bg-muted overflow-hidden">
+        <section className="relative w-full min-h-150 flex items-center justify-center bg-muted overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
               src="https://images.unsplash.com/photo-1687069185135-a65edd256382?q=80&w=2070&auto=format&fit=crop"
@@ -222,7 +235,7 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
           <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-200 ">
               ¿Listo para hacer tu primer pedido?

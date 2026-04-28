@@ -9,7 +9,7 @@ export interface AuthContextType {
     email: string,
     password: string,
     rememberMe: boolean,
-  ) => Promise<void>;
+  ) => Promise<jwtDecoded | null>;
   logout: () => void;
   register: (
     email: string,

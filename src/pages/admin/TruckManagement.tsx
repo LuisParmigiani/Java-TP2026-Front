@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { Helmet } from '../../components/Helmet.tsx';
 import NavBar from '../../components/NavBar.tsx';
 import Footer from '../../components/Footer.tsx';
-import { Card, CardContent  } from '../../components/Card.tsx';
+import { Card, CardContent } from '../../components/Card.tsx';
 import { Button } from '../../components/Button.tsx';
 import Input from '../../components/Input.tsx';
 import { Label } from '../../components/Label.tsx';
 import type { ErrorResponse } from '../../services/Interfaces.ts';
 import { formatErrorResponse } from '../../lib/utils.ts';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth.ts';
 import {
   Select,
   SelectContent,
@@ -31,7 +32,7 @@ import {
   TableRow,
 } from '../../components/Table.tsx';
 import { Badge } from '../../components/Badge.tsx';
-import { Plus, Edit, Trash2, Route } from 'lucide-react';
+import { Plus, Edit, Trash2, Route, Link } from 'lucide-react';
 import { toast } from 'sonner';
 import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../services/TruckService.ts';
 import type { CamionResponse } from '../../services/Interfaces.ts';
@@ -44,7 +45,7 @@ const TrucksManagement = () => {
   const [editingTruck, setEditingTruck] = useState<CamionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [error, setError] = useState<{errorTitle: string, errorMessage: string} | null>(null);
+  const [error, setError] = useState<{ errorTitle: string, errorMessage: string } | null>(null);
 
   useEffect(() => {
     fetchTrucks()
@@ -93,7 +94,7 @@ const TrucksManagement = () => {
       toast.error('El kilometraje debe ser un valor válido.');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       // Crear/actualizar camion
@@ -101,18 +102,18 @@ const TrucksManagement = () => {
         modelo: formData.modelo,
         patente: formData.patente,
         kilometraje: Number(formData.kilometraje),
-        estado: formData.estado === '1' ,
+        estado: formData.estado === '1',
         marca: formData.marca
       };
       if (editingTruck) {
         console.log("updateando camion")
-         await updateTruck(editingTruck.id, truckData);
+        await updateTruck(editingTruck.id, truckData);
         toast.success('Camion actualizado correctamente.');
       } else {
         console.log("guardando camion")
         await addTruck(truckData);
         toast.success('Camion agregado correctamente.');
-      } 
+      }
 
       const updatedTrucks = await fetchTrucks();
       setTrucks(updatedTrucks);
@@ -122,7 +123,7 @@ const TrucksManagement = () => {
       const formattedError = formatErrorResponse(errorResponse);
       setError(formattedError);
       setShowAlert(true);
-      toast.error(errorResponse.mensaje )
+      toast.error(errorResponse.mensaje)
     } finally {
       setIsLoading(false);
     }
@@ -137,11 +138,28 @@ const TrucksManagement = () => {
         .catch((error) => {
           console.error('Error deshabilitando camion:', error);
           toast.error('Ocurrió un error al eliminar el camion.');
-      });
+        });
       toast.success('Truck dado de baja.');
     }
   };
-
+  const { currentUser, isAuthenticated } = useAuth();
+  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Helmet>
+          <title>Acceso Denegado - Sodas Rojas</title>
+          <meta name="description" content="Acceso denegado al panel de administración" />
+        </Helmet>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+            Volver al Inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>

@@ -1,7 +1,7 @@
 import { Helmet } from "../../components/Helmet.tsx"
 import NavBar from "../../components/NavBar.tsx"
 import Footer from "../../components/Footer.tsx"
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { fetchTruckById, getDiaZonasByTruckAndDay, updateDiaZonaWithOrdenes } from "../../services/TruckService.ts";
 import { useEffect, useState } from "react";
 import { formatErrorResponse } from "../../lib/utils.ts";
@@ -11,6 +11,7 @@ import DraggableTable, { type Domicilio } from "../../components/DraggableTable.
 import { Button } from "../../components/Button.tsx";
 import { Alert, AlertTitle, AlertDescription } from "../../components/Alert.tsx";
 import { toast } from "sonner";
+import { useAuth } from "../../hooks/useAuth.ts";
 
 // Etiquetas de los días de la semana (1 = Lunes, 6 = Sábado)
 const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -50,7 +51,24 @@ const TruckRouting = () => {
     };
     loadTruck();
   }, [truckId]);
-
+  const { currentUser, isAuthenticated } = useAuth();
+  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Helmet>
+          <title>Acceso Denegado - Sodas Rojas</title>
+          <meta name="description" content="Acceso denegado al panel de administración" />
+        </Helmet>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+            Volver al Inicio
+          </Link>
+        </div>
+      </div>
+    );
+  }
   /**
    * Obtiene los domicilios del camión para un día específico
    * Usa el endpoint que devuelve datos agrupados por día-zona con orden
@@ -61,20 +79,20 @@ const TruckRouting = () => {
     try {
       // Llamar al endpoint que devuelve dia-zona con domicilios ordenados
       const diaZonas = await getDiaZonasByTruckAndDay(truckIdParam, day);
-      
+
       // Transformar la respuesta a array de Domicilios
       // Iteramos cada dia-zona y sus domicilios ordenados
       const domicilios: Domicilio[] = [];
-      
+
       // Construir mapa de zona -> IDs
       const newZonaIdMap = new Map<string, { diaZonaId: number; zonaId: number }>();
-      
+
       diaZonas.forEach((diaZona, index) => {
         // Guardar el diaId del primer elemento
         if (index === 0 && diaZona.diaId) {
           setCurrentDiaId(diaZona.diaId);
         }
-        
+
         // Mapear cada zona a su diaZonaId y zonaId
         if (diaZona.zona?.nombre && diaZona.id && diaZona.zonaId) {
           newZonaIdMap.set(diaZona.zona.nombre, {
@@ -82,7 +100,7 @@ const TruckRouting = () => {
             zonaId: diaZona.zonaId,
           });
         }
-        
+
         if (diaZona.diaZonaOrdenes && diaZona.diaZonaOrdenes.length > 0) {
           diaZona.diaZonaOrdenes.forEach((diaZonaOrden) => {
             const domicilio = diaZonaOrden.domicilio;
@@ -107,7 +125,7 @@ const TruckRouting = () => {
         }
         return a.orden - b.orden;
       });
-      
+
       setZonaIdMap(newZonaIdMap);
       setDomiciliosDelDia(domicilios);
     } catch (error) {
@@ -136,7 +154,7 @@ const TruckRouting = () => {
   const handleReorder = (reorderedData: Domicilio[]) => {
     // Agrupar domicilios por zona y renumerar dentro de cada zona
     const zonaGroups = new Map<string, Domicilio[]>();
-    
+
     // Agrupar por zona
     reorderedData.forEach((domicilio) => {
       if (!zonaGroups.has(domicilio.zona)) {
@@ -144,7 +162,7 @@ const TruckRouting = () => {
       }
       zonaGroups.get(domicilio.zona)!.push(domicilio);
     });
-    
+
     // Renumerar dentro de cada zona (1, 2, 3...)
     const updatedData: Domicilio[] = [];
     zonaGroups.forEach((items) => {
@@ -155,7 +173,7 @@ const TruckRouting = () => {
         });
       });
     });
-    
+
     setDomiciliosDelDia(updatedData);
   };
 
@@ -169,7 +187,7 @@ const TruckRouting = () => {
 
       // Agrupar domicilios por zona para enviar al backend
       const zonaGroups = new Map<string, Domicilio[]>();
-      
+
       domiciliosDelDia.forEach((domicilio) => {
         if (!zonaGroups.has(domicilio.zona)) {
           zonaGroups.set(domicilio.zona, []);
@@ -268,11 +286,10 @@ const TruckRouting = () => {
                       type="button"
                       onClick={() => handleDayChange(index + 1)}
                       disabled={isLoading}
-                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
-                        selectedDay === index + 1
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${selectedDay === index + 1
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {label}
                     </button>

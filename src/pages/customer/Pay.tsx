@@ -10,6 +10,8 @@ import { getPagos } from "../../services/payService";
 import type { PagoResponse } from "../../services/Interfaces";
 import { Wallet, History, CreditCard, Plus, Banknote, ArrowDownCircle, Upload } from "lucide-react";
 import { getUser } from "../../services/ClientService";
+import { Link } from "react-router-dom";
+import { Helmet } from "../../components/Helmet";
 
 type Tab = 'mercadopago' | 'comprobante';
 
@@ -67,7 +69,25 @@ export default function Pay() {
 
     const isValidAmount = amount !== '' && parseFloat(amount) > 0;
     const isValidComprobante = comprobante !== null && comprobante.length > 0;
+    const { currentUser, isAuthenticated } = useAuth();
 
+    if (!isAuthenticated || !currentUser || currentUser.role !== 'Usuario') {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Helmet>
+                    <title>Acceso Denegado - Sodas Rojas</title>
+                    <meta name="description" content="Acceso denegado al panel de administración" />
+                </Helmet>
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+                    <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+                    <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+                        Volver al Inicio
+                    </Link>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <NavBar />

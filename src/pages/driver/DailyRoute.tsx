@@ -9,9 +9,10 @@ import {
 
 import { Badge } from "./../../components/Badge";
 import { Button } from "./../../components/Button";
-import { MapPin, Package } from "lucide-react";
+import { Link, MapPin, Package } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { useEffect, useState } from "react";
+import { Helmet } from "../../components/Helmet.tsx";
 
 const DailyRoutePage = () => {
   const { currentUser, isAuthenticated } = useAuth();
@@ -56,8 +57,19 @@ const DailyRoutePage = () => {
   //! Falta verificar que esté asignado a un camión hoy
 
   if (!isAuthenticated || currentUser?.role !== "Empleado") {
-    console.log(currentUser);
-    return <div>Acceso denegado. Solo empleados habilitados a un reparto.</div>;
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <Helmet>
+        <title>Acceso Denegado - Sodas Rojas</title>
+        <meta name="description" content="Acceso denegado al panel de administración" />
+      </Helmet>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
+        <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
+        <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          Volver al Inicio
+        </Link>
+      </div>
+    </div>
   }
 
   if (loading) {
@@ -113,6 +125,7 @@ const DailyRoutePage = () => {
         );
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col">
