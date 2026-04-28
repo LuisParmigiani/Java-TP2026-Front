@@ -1,5 +1,5 @@
 /* 1. New Tailwind v4 import (must be at the top) */
- @import 'tailwindcss';
+@import "tailwindcss";
 
 /* 2. Map your custom CSS variables to Tailwind classes */
 @theme {
@@ -20,7 +20,7 @@
   --color-secondary: rgb(var(--color--secondary));
   --color-secondary-100: rgb(var(--color--secondary-100));
   --color-secondary-200: rgb(var(--color--secondary-200));
-  --color-secondary-300: rgb(var(--color--secondary-300));  
+  --color-secondary-300: rgb(var(--color--secondary-300));
   --color-secondary-400: rgb(var(--color--secondary-400));
   --color-secondary-500: rgb(var(--color--secondary-500));
   --color-secondary-600: rgb(var(--color--secondary-600));
@@ -71,7 +71,8 @@
 }
 
 /* 3. Define the actual RGB values */
-:root {  --color--primary: 34 116 165;
+:root {
+  --color--primary: 34 116 165;
   --color--primary-100: 34 116 165 / 0.1;
   --color--primary-200: 34 116 165 / 0.2;
   --color--primary-300: 34 116 165 / 0.3;
@@ -97,18 +98,18 @@
   --color--secondary-active: 229 98 94 / 1;
   --color--secondary-focus: 229 98 94 / 0.95;
 
-  --color--terciary: 255 235 120;
-  --color--terciary-100: 255 235 120 / 0.1;
-  --color--terciary-200: 255 235 120 / 0.2;
-  --color--terciary-300: 255 235 120 / 0.3;
-  --color--terciary-400: 255 235 120 / 0.4;
-  --color--terciary-500: 255 235 120 / 0.5;
-  --color--terciary-600: 255 235 120 / 0.6;
-  --color--terciary-700: 255 235 120 / 0.7;
-  --color--terciary-800: 255 235 120 / 0.8;
-  --color--terciary-hover: 255 235 120 / 0.9;
-  --color--terciary-active: 255 235 120 / 1;
-  --color--terciary-focus: 255 235 120 / 0.95;
+  --color--terciary: 222 191 0;
+  --color--terciary-100: 222 191 0 / 0.1;
+  --color--terciary-200: 222 191 0 / 0.2;
+  --color--terciary-300: 222 191 0 / 0.3;
+  --color--terciary-400: 222 191 0 / 0.4;
+  --color--terciary-500: 222 191 0 / 0.5;
+  --color--terciary-600: 222 191 0 / 0.6;
+  --color--terciary-700: 222 191 0 / 0.7;
+  --color--terciary-800: 222 191 0 / 0.8;
+  --color--terciary-hover: 222 191 0 / 0.9;
+  --color--terciary-active: 222 191 0 / 1;
+  --color--terciary-focus: 222 191 0 / 0.95;
 
   --color--danger: 199 62 29;
   --color--danger-100: 199 62 29 / 0.1;
@@ -137,8 +138,8 @@
   --color--accent-focus: 99 75 102 / 0.95;
 }
 
-[data-theme='dark'] {
-    --color--primary: 34 116 165;
+[data-theme="dark"] {
+  --color--primary: 34 116 165;
   --color--primary-100: 34 116 165 / 0.1;
   --color--primary-200: 34 116 165 / 0.2;
   --color--primary-300: 34 116 165 / 0.3;
