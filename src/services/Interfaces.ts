@@ -21,6 +21,7 @@ export interface UserResponse {
   nombreUsuario: string;
   email: string;
   nivelAcceso: string;
+  precioUltPedidoSem?: number;
   persona?: PersonaResponse;
   personaId?: number;
   cargas?: CargaResponse[];
@@ -75,12 +76,9 @@ export interface DomicilioResponse {
   personaId?: number;
   diasDomicilio?: DiaDomicilioResponse[];
   diasDomicilioIds?: number[];
-
 }
 
-
 export interface ProductosDomicilio {
-
   id: number;
   productoId?: number;
   nombreProducto?: string;
@@ -204,7 +202,6 @@ export interface CargaProductoResponse {
   productoId?: number;
 }
 
-
 export interface DiaDomicilioResponse {
   id: number;
   estado: string;
@@ -214,14 +211,10 @@ export interface DiaDomicilioResponse {
   domicilioId?: number;
 }
 
-
 export interface DiaResponse {
   id: number;
   nombre: string;
 }
-
-
-
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------- REQUESTS --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -323,7 +316,6 @@ export interface ZonaRequest {
   detalle?: string;
 }
 
-
 export interface GastoRequest {
   detalle?: string;
   monto?: number;
@@ -359,16 +351,11 @@ export interface ErrorResponse {
   codigo: number;
 }
 
-
 export interface PedidoSemanalRequest {
   cantidad?: number;
   domicilioId?: number;
   productoZonaId?: number;
 }
-
-
-
-
 
 export interface PaginationResponse<T> {
   content: T[];

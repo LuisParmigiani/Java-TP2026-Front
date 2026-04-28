@@ -118,11 +118,11 @@ export default function ProductsFilter(props: Props) {
                     }}
                     value={maxPrice.toString()}
                 />
-                <Button color='primary' size='md' onClick={handleSearch}>Buscar</Button>
-                <Button color='secondary' size='md' onClick={handleClearFilters}>Borrar filtros</Button>
+                <Button variant='primary' size='md' onClick={handleSearch}>Buscar</Button>
+                <Button variant='secondary' size='md' onClick={handleClearFilters}>Borrar filtros</Button>
             </div>
             <div className="md:hidden w-full mb-4 flex flex-col items-end ">
-                <Button color='primary' size='full' onClick={() => setShowFilters(!showFilters)}>
+                <Button variant='primary' size='full' onClick={() => setShowFilters(!showFilters)}>
                     {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
                 </Button>
                 {showFilters && (
@@ -163,8 +163,8 @@ export default function ProductsFilter(props: Props) {
                             value={maxPrice.toString()}
                         />
                         <div className="flex gap-2">
-                            <Button color='primary' size='md' onClick={handleSearch}>Buscar</Button>
-                            <Button color='secondary' size='md' onClick={handleClearFilters}>Borrar filtros</Button>
+                            <Button variant='primary' size='md' onClick={handleSearch}>Buscar</Button>
+                            <Button variant='secondary' size='md' onClick={handleClearFilters}>Borrar filtros</Button>
                         </div>
                     </div>
                 )}
