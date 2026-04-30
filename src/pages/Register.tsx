@@ -146,7 +146,7 @@ const RegisterPage = () => {
         { duration: 2000 },
       );
       setTimeout(() => {
-        navigate("/");
+        navigate("/login");
       }, 2000);
     } catch (error) {
       setLoading(false);

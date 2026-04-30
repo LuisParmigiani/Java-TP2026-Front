@@ -16,6 +16,10 @@ export interface jwtDecoded {
   username?: string;
 }
 
+export interface ResetPasswordRequest {
+  email: string;
+}
+
 export interface UserResponse {
   id: number;
   nombreUsuario: string;

@@ -1,5 +1,10 @@
 import { apiPost } from "./baseClient";
-import type { LoginResponse, RegisterResponse, jwtDecoded } from "./Interfaces";
+import type {
+  LoginResponse,
+  RegisterResponse,
+  ResetPasswordRequest,
+  jwtDecoded,
+} from "./Interfaces";
 import { jwtDecode } from "jwt-decode";
 
 export async function login(
@@ -49,4 +54,10 @@ export function decodeToken(token: string): jwtDecoded | null {
   } catch {
     return null;
   }
+}
+
+export async function resetPassword(
+  request: ResetPasswordRequest,
+): Promise<string> {
+  return await apiPost("/auth/solicitar-reset-password", request);
 }

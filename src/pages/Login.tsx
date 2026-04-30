@@ -89,7 +89,7 @@ const LoginPage = () => {
               <p className="text-center text-sm mb-2">
                 <Link
                   to="/forgot-password"
-                  className="text-blue-600 font-medium hover:underline"
+                  className="text-primary font-medium hover:underline"
                 >
                   ¿Olvidaste tu contraseña?
                 </Link>
