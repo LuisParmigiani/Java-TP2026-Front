@@ -15,16 +15,19 @@ import { Alert, AlertTitle, AlertDescription } from '../../components/Alert';
 import { Link } from 'lucide-react';
 import { Helmet } from '../../components/Helmet';
 
+
+
 export default function Directions() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [filter, setFilter] = useState({ status: "", deliveryDay: "" });
   const [open, setOpen] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState<'created' | 'edited' | null>(null);
+  const [showSuccessAlert, setShowSuccessAlert] = useState<'created' | 'edited' | 'false' | null>(null);
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState('Nombre A-Z');
-  const [enabledStatus, setEnabledStatus] = useState('Habilitados');
+  const [enabledStatus, setEnabledStatus] = useState('Todos');
   const [page, setPage] = useState(1);
+  const [error, setError] = useState('');
   const [totalItems, setTotalItems] = useState(0);
   const size = 5;
   const { token } = useAuth();
@@ -32,7 +35,7 @@ export default function Directions() {
   const hasActiveFilters =
     (filter.status !== "" && filter.status !== "Mostrar Todas") ||
     appliedSearchTerm !== "" ||
-    enabledStatus !== "Habilitados";
+    enabledStatus !== "Todos";
 
   const handleSearch = () => {
     setAppliedSearchTerm(searchTerm);
@@ -47,7 +50,9 @@ export default function Directions() {
         setDirections((current) => [...current, result]);
         setShowSuccessAlert('created');
       } catch (error) {
-        console.error("Error saving new direction:", error);
+        setShowSuccessAlert(null);
+        setShowSuccessAlert('false');
+        setError((error as Error).message || 'Error al crear la dirección');
       }
       setOpen(false);
     }
@@ -60,6 +65,7 @@ export default function Directions() {
     const fetchDirections = async () => {
       try {
         const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, enabledStatus, ['diaDomicilio'], page - 1, size);
+        console.log(result.content);
         setDirections(result.content);
         setTotalItems(result.totalElements);
         console.log(result);
@@ -116,14 +122,16 @@ export default function Directions() {
       <div className="p-4 sm:p-6 lg:p-8 gap-4 felx flex-col">
 
         {showSuccessAlert && (
-          <Alert variant="success" autoClose={true} onClose={() => setShowSuccessAlert(null)}>
+          <Alert variant={showSuccessAlert === 'false' ? 'danger' : 'success'} autoClose={true} onClose={() => setShowSuccessAlert(null)}>
             <AlertTitle>
-              {showSuccessAlert === 'created' ? '¡Dirección creada correctamente!' : '¡Dirección actualizada correctamente!'}
+              {showSuccessAlert === 'created' ? '¡Dirección creada correctamente!' : showSuccessAlert === 'false' ? 'Error al crear la dirección' : '¡Dirección actualizada correctamente!'}
             </AlertTitle>
             <AlertDescription>
               {showSuccessAlert === 'created'
                 ? 'Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite.'
-                : 'Los cambios en tu dirección fueron guardados exitosamente.'}
+                : showSuccessAlert === 'false'
+                  ? error || 'Ocurrió un error al guardar tu dirección. Por favor, intenta nuevamente.'
+                  : 'Los cambios en tu dirección fueron guardados exitosamente.'}
             </AlertDescription>
           </Alert>
         )}

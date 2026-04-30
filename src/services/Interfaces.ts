@@ -60,8 +60,8 @@ export interface DomicilioResponse {
   calle: string;
   numero: string;
   casa: string;
-  activo: boolean;
-  habilitado?: number;
+  activo: string;
+  habilitado?: string;
   zona?: ZonaResponse;
   zonaId?: number;
   ventas?: VentaResponse[];
@@ -270,7 +270,7 @@ export interface domicilioRequest {
   zonaId?: number;
   camionId?: number;
   ventas?: VentaRequest[];
-  activo?: boolean;
+  activo?: string;
 }
 
 export interface productosDomicilioRequest {

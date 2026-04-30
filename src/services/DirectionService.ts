@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from "./baseClient";
-import type { DomicilioRequest, DomicilioResponse, PaginationResponse } from "./Interfaces";
+import type { DomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
 
 export async function updateDirection(
   direction: DomicilioResponse,
@@ -30,11 +30,11 @@ export async function postDirection(
       direction,
       token,
     );
-    console.log("Direction posted successfully:", response);
     return response;
   } catch (error) {
-    console.error("Error posting direction:", error);
-    throw error;
+    const errorResponse = error as ErrorResponse;
+    console.error("Error posting new direction:", errorResponse);
+    throw errorResponse;
   }
 }
 

@@ -26,9 +26,9 @@ function DirectionCard(props: Props) {
       diasDomicilio: current.diasDomicilio.map((dia) =>
         dia.id === diaId
           ? {
-              ...dia,
-              estado: dia.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO",
-            }
+            ...dia,
+            estado: dia.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO",
+          }
           : dia,
       ),
     }));
@@ -49,11 +49,11 @@ function DirectionCard(props: Props) {
     setOpen(false);
   };
 
-  const isPending = direction.habilitado === 0;
+  const isPending = direction.habilitado === "Pendiente";
 
   const headerBg = isPending
     ? "bg-yellow-100"
-    : direction.activo
+    : direction.activo === "Activa"
       ? "bg-green-100"
       : "bg-red-100";
 
@@ -101,13 +101,12 @@ function DirectionCard(props: Props) {
             {direction.diasDomicilio.map((dia, index) => (
               <div
                 key={index}
-                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${
-                  dia.estado === "ACTIVO"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : dia.estado === "INACTIVO"
-                      ? "bg-gray-100 text-gray-500"
-                      : "bg-gray-300 text-gray-500"
-                }`}
+                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${dia.estado === "ACTIVO"
+                  ? "bg-emerald-100 text-emerald-800"
+                  : dia.estado === "INACTIVO"
+                    ? "bg-gray-100 text-gray-500"
+                    : "bg-gray-300 text-gray-500"
+                  }`}
               >
                 {dayLabels[index]}
               </div>
@@ -127,16 +126,15 @@ function DirectionCard(props: Props) {
                 onClick={() => {
                   setFormData((current) => ({
                     ...current,
-                    activo: !current.activo,
+                    activo: current.activo === "Activa" ? "Inactiva" : "Activa",
                   }));
                 }}
-                className={`rounded-full px-3 py-2 text-sm w-xl font-medium transition ${
-                  formData.activo
-                    ? "bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700"
-                    : "bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white"
-                }`}
+                className={`rounded-full px-3 py-2 text-sm w-xl font-medium transition ${formData.activo === "Activa"
+                  ? "bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700"
+                  : "bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white"
+                  }`}
               >
-                {formData.activo ? "Desactivar dirección" : "Activar dirección"}
+                {formData.activo === "Activa" ? "Desactivar dirección" : "Activar dirección"}
               </button>
             </div>
             {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -190,13 +188,12 @@ function DirectionCard(props: Props) {
                             : "Activar día"
                       }
                       onClick={() => handleDayToggle(dia.id)}
-                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${
-                        dia.estado === "ACTIVO"
-                          ? "bg-emerald-500 text-white shadow-sm"
-                          : dia.estado === "INACTIVO"
-                            ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      }`}
+                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${dia.estado === "ACTIVO"
+                        ? "bg-emerald-500 text-white shadow-sm"
+                        : dia.estado === "INACTIVO"
+                          ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
                     >
                       {dayLabels[index]}
                     </button>
