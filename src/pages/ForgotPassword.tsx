@@ -4,7 +4,7 @@ import Navbar from "../components/NavBar.tsx";
 import { AuthCard } from "../components/AuthCard.tsx";
 import { FormField } from "../components/FormField.tsx";
 import { Button } from "../components/Button.tsx";
-import { resetPassword } from "../services/authService.ts";
+import { getResetPassword, verifyResetToken } from "../services/authService.ts";
 import { CodeInput } from "../components/CodeInput";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -57,7 +57,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      await resetPassword({ email: formData.email });
+      await getResetPassword({ email: formData.email });
       setSuccess(true);
       setTimer(120); // Inicia el cronómetro en 120 segundos (2 minutos)
       // Crea un intervalo que se ejecuta cada 1 segundo
@@ -181,7 +181,7 @@ const ForgotPasswordPage = () => {
             </form>
           ) : (
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 setCodeError("");
                 // Aquí deberías validar el código con el backend
@@ -189,11 +189,12 @@ const ForgotPasswordPage = () => {
                   setCodeError("El código debe tener 6 caracteres");
                   return;
                 }
-                // Simulación de éxito
-                if (code === "123456") {
-                  navigate("/validate-code");
-                } else {
-                  setCodeError("Código incorrecto");
+
+                try {
+                  await verifyResetToken({ token: code });
+                  navigate(`/reset-password/${code}`);
+                } catch (error) {
+                  setCodeError(error.message || "Error al validar el código");
                 }
               }}
               className="flex flex-col gap-4 mt-4"

@@ -4,6 +4,8 @@ import type {
   RegisterResponse,
   ResetPasswordRequest,
   jwtDecoded,
+  ResetTokenRequest,
+  GetResetPasswordRequest,
 } from "./Interfaces";
 import { jwtDecode } from "jwt-decode";
 
@@ -56,8 +58,20 @@ export function decodeToken(token: string): jwtDecoded | null {
   }
 }
 
+export async function getResetPassword(
+  request: GetResetPasswordRequest,
+): Promise<string> {
+  return await apiPost("/auth/solicitar-reset-password", request);
+}
+
+export async function verifyResetToken(
+  request: ResetTokenRequest,
+): Promise<string> {
+  return await apiPost("/auth/verificar-reset-token", request);
+}
+
 export async function resetPassword(
   request: ResetPasswordRequest,
 ): Promise<string> {
-  return await apiPost("/auth/solicitar-reset-password", request);
+  return await apiPost("/auth/reset-password", request);
 }

@@ -26,6 +26,7 @@ import Profile from "./pages/customer/Profile.tsx";
 import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
 import CustomersManagement from "./pages/admin/CustomersManagement.tsx";
 import ForgotPasswordPage from "./pages/ForgotPassword.tsx";
+import ResetPasswordPage from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -40,6 +41,10 @@ function App() {
           <Route path="/components" element={<Components />} />
           <Route path="/products" element={<Products />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
           {/*Rutas para el cliente*/}
 
           {/*<Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>*/}
