@@ -35,6 +35,7 @@ import {
   addProduct,
   updateProduct,
   fetchProducts,
+  deleteProduct,
 } from "../../services/ProductService.ts";
 import type { ProductoResponse } from "../../services/Interfaces";
 import ProductPictureInput from "../../components/ProductPictureInput.tsx";
@@ -48,6 +49,10 @@ const ProductsManagement = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDeleteId, setProductToDeleteId] = useState<number | null>(
+    null,
+  );
   const { token } = useAuth();
 
   useEffect(() => {
@@ -193,10 +198,34 @@ const ProductsManagement = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
-      setProducts(products.filter((p) => p.id !== id));
-      toast.success("Producto eliminado.");
+    // Abrir diálogo de confirmación en vez de usar window.confirm
+    setProductToDeleteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (productToDeleteId === null) return;
+    setIsDeleteDialogOpen(false);
+    setIsLoading(true);
+    try {
+      await deleteProduct(productToDeleteId, token);
+      const updated = await fetchProducts(token);
+      setProducts(updated);
+      toast.success("Producto eliminado correctamente.");
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast.error(
+        error?.mensaje || error?.message || "No se pudo eliminar el producto.",
+      );
+    } finally {
+      setIsLoading(false);
+      setProductToDeleteId(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setProductToDeleteId(null);
   };
 
   return (
@@ -401,6 +430,32 @@ const ProductsManagement = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">¿Estás seguro de eliminar este producto?</div>
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button
+              type="button"
+              variant="grayTransparent"
+              onClick={cancelDelete}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isLoading}
+            >
+              {isLoading ? "Eliminando..." : "Eliminar"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
       <Footer />

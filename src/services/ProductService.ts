@@ -1,4 +1,9 @@
-import { apiGet, apiPostFormData, apiPutFormData } from "./baseClient.ts";
+import {
+  apiGet,
+  apiPostFormData,
+  apiPutFormData,
+  apiDelete,
+} from "./baseClient.ts";
 import type {
   ProductoRequest,
   ProductoResponse,
@@ -19,6 +24,15 @@ export async function fetchProducts(
   }
 }
 
+export async function deleteProduct(id: number, token?: string): Promise<void> {
+  try {
+    await apiDelete<void>(`/producto/${id}`, token);
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    throw error;
+  }
+}
+
 export async function addProduct(
   producto: ProductoRequest,
   imageFile: File | null,
@@ -34,26 +48,6 @@ export async function addProduct(
   }
   return apiPostFormData<ProductoResponse>("/producto", formData, token);
 }
-
-//! Método para actualizar un producto existente
-/*export async function updateProduct(
-  productId: number,
-  updatedData: Partial<Omit<ProductoRequest, "id">>,
-  token: string,
-): Promise<ProductoResponse> {
-  try {
-    const response = await apiPut<ProductoResponse>(
-      `/producto/${productId}`,
-      updatedData,
-      token,
-    );
-    console.log("Updated product:", response);
-    return response;
-  } catch (error) {
-    console.error("Error updating product:", error);
-    throw error;
-  }
-}*/
 
 export async function updateProduct(
   id: number,
