@@ -34,7 +34,7 @@ const titleColors = {
 const descriptionColors = {
   black: "text-gray-300",
   gray: "text-gray-600",
-  white: "text-white/80",
+  white: "text-white",
   red: "text-red-600",
   primary: "text-primary/80",
   secondary: "text-secondary/80",
@@ -51,7 +51,7 @@ export default function InformationCard(prop: Prop) {
       className={`w-full h-full justify-center ${cardColors[prop.cardColor]}  flex flex-col gap-2 rounded-lg p-4 size-${size[prop.size]} border-1 border-${cardColors[prop.cardColor]} shadow-sm`}
     >
       <div className="flex flex-row  items-center justify-between">
-        <p className={`text-md ${titleColors[prop.descriptionColor]}`}>
+        <p className={`text-md ${titleColors[prop.titleColor]}`}>
           {prop.miniTitle}
         </p>
         {prop.svg && (
