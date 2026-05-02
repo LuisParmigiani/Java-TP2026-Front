@@ -76,7 +76,7 @@ export default function Profile() {
           tipoDoc: response.persona?.tipoDoc ?? "",
           nroDocumento: response.persona?.nroDocumento ?? "",
           nombreUsuario: response.nombreUsuario ?? "",
-          precioUltPedidoSem: response.precioUltPedidoSem ?? 0,
+          precioUltPedidoSem: response.precioPedidosSemanales ?? 0,
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -122,7 +122,7 @@ export default function Profile() {
         tipoDoc: user.persona?.tipoDoc ?? "",
         nroDocumento: user.persona?.nroDocumento ?? "",
         nombreUsuario: user.nombreUsuario ?? "",
-        precioUltPedidoSem: user.precioUltPedidoSem ?? 0,
+        precioUltPedidoSem: user.precioPedidosSemanales ?? 0,
       });
     }
     setEditing(false);

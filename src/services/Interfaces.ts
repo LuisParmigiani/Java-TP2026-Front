@@ -34,7 +34,7 @@ export interface UserResponse {
   nombreUsuario: string;
   email: string;
   nivelAcceso: string;
-  precioUltPedidoSem?: number;
+  precioPedidosSemanales?: number;
   persona?: PersonaResponse;
   personaId?: number;
   cargas?: CargaResponse[];
