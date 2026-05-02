@@ -8,7 +8,7 @@ import NavBar from "../../components/NavBar";
 import { useAuth } from "../../hooks/useAuth";
 import { Alert, AlertDescription, AlertTitle } from "../../components/Alert";
 import Pagination from "../../components/Pagination";
-import { Link } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Helmet } from "../../components/Helmet";
 
 export default function Orders() {
@@ -47,17 +47,25 @@ export default function Orders() {
   };
   const { currentUser, isAuthenticated } = useAuth();
 
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Usuario') {
+  if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
