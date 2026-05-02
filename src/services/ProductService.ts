@@ -1,5 +1,9 @@
-import { apiGet, apiPost, apiPut } from "./baseClient.ts";
-import type { ProductoRequest, ProductoResponse, PaginationResponse } from "./Interfaces.ts";
+import { apiGet, apiPostFormData, apiPutFormData } from "./baseClient.ts";
+import type {
+  ProductoRequest,
+  ProductoResponse,
+  PaginationResponse,
+} from "./Interfaces.ts";
 
 export async function fetchProducts(
   token: string,
@@ -14,53 +18,25 @@ export async function fetchProducts(
     throw error;
   }
 }
-//! Método para agregar un nuevo producto
+
 export async function addProduct(
-  product: Omit<ProductoResponse, "id">,
+  producto: ProductoRequest,
+  imageFile: File | null,
   token: string,
 ): Promise<ProductoResponse> {
-  try {
-    const response = await apiPost<ProductoResponse>(
-      "/producto",
-      product,
-      token,
-    );
-    console.log("Added product:", response);
-    return response;
-  } catch (error) {
-    console.error("Error adding product:", error);
-    throw error;
+  const formData = new FormData();
+  formData.append(
+    "entidad",
+    new Blob([JSON.stringify(producto)], { type: "application/json" }),
+  );
+  if (imageFile) {
+    formData.append("file", imageFile);
   }
-}
-export async function uploadImage(
-  file: File,
-  productoId: number,
-): Promise<string> {
-  try {
-    const formData = new FormData();
-
-    formData.append("file", file);
-    formData.append("productoId", productoId.toString());
-    console.log("Uploading image for product ID:", productoId);
-    const response = await fetch("http://localhost:8080/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Error uploading image");
-    }
-    console.log("Image upload response:", response);
-    const data = await response.json();
-    return data.filePath; // Asegúrate de que el backend devuelva la URL de la imagen
-  } catch (error) {
-    console.error("Error uploading image:", error);
-    throw error;
-  }
+  return apiPostFormData<ProductoResponse>("/producto", formData, token);
 }
 
 //! Método para actualizar un producto existente
-export async function updateProduct(
+/*export async function updateProduct(
   productId: number,
   updatedData: Partial<Omit<ProductoRequest, "id">>,
   token: string,
@@ -77,54 +53,77 @@ export async function updateProduct(
     console.error("Error updating product:", error);
     throw error;
   }
+}*/
+
+export async function updateProduct(
+  id: number,
+  producto: ProductoRequest,
+  imageFile: File | null,
+  token: string,
+): Promise<ProductoResponse> {
+  const formData = new FormData();
+  formData.append(
+    "entidad",
+    new Blob([JSON.stringify(producto)], { type: "application/json" }),
+  );
+  if (imageFile) {
+    formData.append("file", imageFile);
+  }
+  return apiPutFormData<ProductoResponse>(`/producto/${id}`, formData, token);
 }
 
-
-
-
 export async function getActiveProducts(
-  token: string, userType?: string, sortOption?: string, searchTerm?: string,
-  minPrice?: number | '', maxPrice?: number | '', direction?: string, currentPage?: number, pageSize?: number):
-  Promise<PaginationResponse<ProductoResponse>> {
+  token: string,
+  userType?: string,
+  sortOption?: string,
+  searchTerm?: string,
+  minPrice?: number | "",
+  maxPrice?: number | "",
+  direction?: string,
+  currentPage?: number,
+  pageSize?: number,
+): Promise<PaginationResponse<ProductoResponse>> {
   try {
-    let url = '';
-    if (userType == 'Usuario') {
-      url = '/producto/customer/active';
+    let url = "";
+    if (userType == "Usuario") {
+      url = "/producto/customer/active";
     } else {
-      url = '/producto/active';
+      url = "/producto/active";
     }
     const params = new URLSearchParams();
 
-    if (sortOption && sortOption !== 'Ordenar por:') {
-      params.append('sort', sortOption);
+    if (sortOption && sortOption !== "Ordenar por:") {
+      params.append("sort", sortOption);
     }
     if (searchTerm) {
-      params.append('search', searchTerm);
+      params.append("search", searchTerm);
     }
     if (direction) {
-      params.append('direction', direction);
+      params.append("direction", direction);
     }
-    if (minPrice !== '' && !isNaN(Number(minPrice))) {
-      params.append('minPrice', Number(minPrice).toString());
+    if (minPrice !== "" && !isNaN(Number(minPrice))) {
+      params.append("minPrice", Number(minPrice).toString());
     }
-    if (maxPrice !== '' && !isNaN(Number(maxPrice))) {
-      params.append('maxPrice', Number(maxPrice).toString());
+    if (maxPrice !== "" && !isNaN(Number(maxPrice))) {
+      params.append("maxPrice", Number(maxPrice).toString());
     }
     if (currentPage !== undefined) {
-      params.append('page', currentPage.toString());
+      params.append("page", currentPage.toString());
     }
     if (pageSize !== undefined) {
-      params.append('size', pageSize.toString());
+      params.append("size", pageSize.toString());
     }
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    console.log('Fetching products with URL:', url);
-    const response = await apiGet<PaginationResponse<ProductoResponse>>(url, token);
+    console.log("Fetching products with URL:", url);
+    const response = await apiGet<PaginationResponse<ProductoResponse>>(
+      url,
+      token,
+    );
     return response;
   } catch (error) {
-    console.error('Error fetching active products:', error);
+    console.error("Error fetching active products:", error);
     throw error;
   }
-
 }

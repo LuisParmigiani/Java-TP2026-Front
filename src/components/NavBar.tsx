@@ -122,10 +122,15 @@ const Header = () => {
               </>
             ) : (
               <>
-                <span className="text-sm font-medium text-muted-foreground mr-2 inline-block">
-                  {currentUser?.username || currentUser?.email}
-                </span>
-                <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8" />
+                <Link
+                  to="/customer/profile"
+                  className="flex items-center space-x-2 group"
+                >
+                  <span className="text-sm font-medium text-muted-foreground mr-2 inline-block group-hover:underline">
+                    {currentUser?.username || currentUser?.email}
+                  </span>
+                  <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8 group-hover:border-black transition" />
+                </Link>
                 <Button
                   variant="danger"
                   size="sm"

@@ -33,9 +33,8 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   addProduct,
-  fetchProducts,
   updateProduct,
-  uploadImage,
+  fetchProducts,
 } from "../../services/ProductService.ts";
 import type { ProductoResponse } from "../../services/Interfaces";
 import ProductPictureInput from "../../components/ProductPictureInput.tsx";
@@ -65,17 +64,29 @@ const ProductsManagement = () => {
     imagenUrl: "",
   });
   const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
@@ -118,6 +129,7 @@ const ProductsManagement = () => {
         imagenUrl: "",
       });
     }
+    setPendingImageFile(null); // Limpiar imagen pendiente al abrir el diálogo
     setIsDialogOpen(true);
   };
 
@@ -134,65 +146,47 @@ const ProductsManagement = () => {
 
     setIsLoading(true);
     try {
-      // Crear/actualizar producto
       const productData = {
         nombre: formData.nombre,
         precio: Number(formData.precio),
         stock: Number(formData.stock),
         activo: formData.activo === "1",
         detalle: formData.detalle,
-        imagenUrl: "./../../assets/producto.jpeg", // Valor temporal, se actualizará después de subir la imagen
+        // imagenUrl no se envía, el backend lo setea tras subir la imagen
       };
-      let savedProduct: ProductoResponse;
       if (editingProduct) {
-        console.log("updeteando producto");
-        savedProduct = await updateProduct(
+        await updateProduct(
           editingProduct.id,
           productData,
+          pendingImageFile,
           token,
         );
         toast.success("Producto actualizado correctamente.");
       } else {
-        console.log("guardando producto");
-        savedProduct = await addProduct(productData, token);
+        await addProduct(productData, pendingImageFile, token);
         toast.success("Producto agregado correctamente.");
       }
-      if (pendingImageFile && savedProduct.id) {
-        console.log("📤 Uploading profile image for new user...");
-        try {
-          const imageResponse = await uploadImage(
-            pendingImageFile,
-            savedProduct.id,
-          );
-          console.log("✅ Profile image uploaded successfully:", imageResponse);
-          // Actualiza solo el campo imagenUrl sin pasar el id
-          await updateProduct(
-            savedProduct.id,
-            {
-              imagenUrl: imageResponse,
-              nombre: productData.nombre,
-              precio: productData.precio,
-              stock: productData.stock,
-              activo: productData.activo,
-              detalle: productData.detalle,
-            },
-            token,
-          );
-          console.log("Producto actualizado con URL de imagen");
-        } catch (imageError) {
-          console.error(
-            "No se pudo subir la imagen, pero se creo el usuario",
-            imageError,
-          );
-        }
-      }
-
+      // Actualiza la lista de productos
       const updatedProducts = await fetchProducts(token);
       setProducts(updatedProducts);
       setIsDialogOpen(false);
-    } catch (error) {
+      setEditingProduct(null);
+      setFormData({
+        nombre: "",
+        detalle: "",
+        precio: "",
+        stock: "",
+        activo: "1",
+        imagenUrl: "",
+      });
+      setPendingImageFile(null);
+    } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error("Ocurrió un error al guardar el producto.");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.mensaje ||
+          "Ocurrió un error al guardar el producto.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -245,7 +239,7 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell>
                         {!product.imagenUrl ||
-                          product.imagenUrl === "./../../assets/producto.jpeg" ? (
+                        product.imagenUrl === "./../../assets/producto.jpeg" ? (
                           <img
                             src={"./../../assets/producto.jpeg"}
                             alt={product.nombre}
@@ -255,7 +249,7 @@ const ProductsManagement = () => {
                           <img
                             src={
                               product.imagenUrl.startsWith("http") ||
-                                product.imagenUrl.startsWith("https")
+                              product.imagenUrl.startsWith("https")
                                 ? product.imagenUrl
                                 : "./../../assets/producto.jpeg"
                             }
