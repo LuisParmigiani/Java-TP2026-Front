@@ -17,66 +17,70 @@ function ProductPictureInput({
       onImageChange(file);
     }
   };
-  let ruta = '';
-  if (src != './../../assets/producto.jpeg'){
-    ruta = src
-
-  }else{
-  ruta = `localhost:8080/${src}`
+  let ruta = "";
+  if (src != "./../../assets/producto.jpeg") {
+    ruta = src;
+  } else {
+    ruta = `localhost:8080/${src}`;
   }
-  console.log("src: " + ruta)
-    return (
-      <div className="flex justify-center mb-8">
-        <div className="relative">
+  console.log("src: " + ruta);
+  return (
+    <div className="flex justify-center mb-8">
+      <div className="relative">
+        <label
+          htmlFor="profile-image-input"
+          className={uploading ? "cursor-not-allowed" : "cursor-pointer"}
+        >
           <img
             src={ruta}
-            alt="Foto de perfil"
-            className={`w-24 h-24 rounded-full object-cover border-4 border-gray-100 transition-opacity ${
-              uploading ? 'opacity-50' : 'opacity-100'
+            alt="Foto del producto"
+            className={`w-24 h-24 flex items-center justify-center text-center text-sm text-gray-500 bg-gray-50 rounded-full object-cover border-4 border-gray-100 transition-opacity ${
+              uploading ? "opacity-50" : "opacity-100"
             }`}
           />
+        </label>
 
-          {/* Loading overlay */}
-          {uploading && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-            </div>
-          )}
+        {/* Loading overlay */}
+        {uploading && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+          </div>
+        )}
 
-          <label
-            htmlFor="profile-image-input" //
-            className={`absolute bottom-0 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-orange-500 text-white rounded-full p-2 transition-colors ${
-              uploading
-                ? 'cursor-not-allowed opacity-50 bg-gray-400'
-                : 'cursor-pointer hover:bg-orange-600'
-            }`}
+        <label
+          htmlFor="profile-image-input" //
+          className={`absolute bottom-0 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-orange-500 text-white rounded-full p-2 transition-colors ${
+            uploading
+              ? "cursor-not-allowed opacity-50 bg-gray-400"
+              : "cursor-pointer hover:bg-orange-600"
+          }`}
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-          </label>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            />
+          </svg>
+        </label>
 
-          <input
-            id="profile-image-input" //
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={uploading} //
-          />
-        </div>
+        <input
+          id="profile-image-input" //
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={uploading} //
+        />
       </div>
-    );
+    </div>
+  );
 }
 
 export default ProductPictureInput;

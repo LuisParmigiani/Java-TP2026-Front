@@ -16,14 +16,28 @@ export interface jwtDecoded {
   username?: string;
 }
 
+export interface GetResetPasswordRequest {
+  email: string;
+}
+
+export interface ResetTokenRequest {
+  token: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  nuevaPassword: string;
+}
+
 export interface UserResponse {
   id: number;
   nombreUsuario: string;
   email: string;
   nivelAcceso: string;
-  precioUltPedidoSem?: number;
+  precioPedidosSemanales?: number;
   persona?: PersonaResponse;
   personaId?: number;
+  imagenUrl?: string;
   cargas?: CargaResponse[];
   cargaIds?: number[];
 }
@@ -242,6 +256,7 @@ export interface UserRequest {
   nivelAcceso?: string;
   persona?: PersonaRequest;
   personaId?: number;
+  password?: string;
 }
 
 export interface PersonaRequest {

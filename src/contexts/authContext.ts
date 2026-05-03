@@ -9,7 +9,7 @@ export interface AuthContextType {
     email: string,
     password: string,
     rememberMe: boolean,
-  ) => Promise<jwtDecoded | null>;
+  ) => Promise<void>;
   logout: () => void;
   register: (
     email: string,
@@ -23,6 +23,8 @@ export interface AuthContextType {
     usuario_nivelAcceso: string,
   ) => Promise<void>;
   loading: boolean; // NUEVO
+  userProfilePic: string | null;
+  setUserProfilePic: (pic: string | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

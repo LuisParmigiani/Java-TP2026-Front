@@ -83,6 +83,40 @@ export async function apiPost<T>(
   });
 }
 
+export async function apiPostFormData<T>(
+  path: string,
+  formData: FormData,
+  token?: string,
+): Promise<T> {
+  const url = buildApiUrl(path);
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      // No pongas Content-Type, el navegador lo setea solo
+    },
+  });
+
+  let result: any;
+  try {
+    result = await response.json();
+  } catch {
+    result = {};
+  }
+
+  if (!response.ok) {
+    // Manejo de error igual que apiFetch
+    const error: any = new Error(
+      result.error || `Error: ${response.status} ${response.statusText}`,
+    );
+    error.status = response.status;
+    throw error;
+  }
+
+  return result;
+}
+
 // PUT
 export async function apiPut<T>(
   path: string,
@@ -94,6 +128,38 @@ export async function apiPut<T>(
     body: data ? JSON.stringify(data) : undefined,
   });
 }
+
+// PUT FormData
+export async function apiPutFormData<T>(
+  path: string,
+  formData: FormData,
+  token?: string,
+): Promise<T> {
+  const url = buildApiUrl(path);
+  const response = await fetch(url, {
+    method: "PUT",
+    body: formData,
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      // No Content-Type aquí
+    },
+  });
+  let result: any;
+  try {
+    result = await response.json();
+  } catch {
+    result = {};
+  }
+  if (!response.ok) {
+    const error: any = new Error(
+      result.error || `Error: ${response.status} ${response.statusText}`,
+    );
+    error.status = response.status;
+    throw error;
+  }
+  return result;
+}
+
 //PATCH
 export async function apiPatch<T>(
   path: string,

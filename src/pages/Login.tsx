@@ -12,7 +12,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const authLogin = useAuth().login;
   const authLogout = useAuth().logout;
-  const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -60,7 +59,7 @@ const LoginPage = () => {
       }, 1000);
     } catch (error) {
       setLoading(false);
-      const status = (error).status;
+      const status = error.status;
       if (status === 401) {
         toast.error("Credenciales inválidas", { duration: 1000 });
       } else if (
@@ -86,15 +85,25 @@ const LoginPage = () => {
           title="Bienvenido de nuevo"
           description="Ingresa tus credenciales para acceder a tu cuenta"
           bottomText={
-            <p className="text-center text-sm text-gray-600">
-              ¿No tienes cuenta?{" "}
-              <Link
-                to="/register"
-                className="text-primary font-medium hover:underline"
-              >
-                Regístrate aquí
-              </Link>
-            </p>
+            <>
+              <p className="text-center text-sm mb-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-primary font-medium hover:underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </p>
+              <p className="text-center text-sm text-gray-600">
+                ¿No tienes cuenta?{" "}
+                <Link
+                  to="/register"
+                  className="text-primary font-medium hover:underline"
+                >
+                  Regístrate aquí
+                </Link>
+              </p>
+            </>
           }
         >
           <form onSubmit={handleSubmit} className="space-y-5">

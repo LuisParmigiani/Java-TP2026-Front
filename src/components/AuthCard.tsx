@@ -2,7 +2,7 @@ import React from "react";
 
 interface AuthCardProps {
   title: string;
-  description: string;
+  description: React.ReactNode;
   children: React.ReactNode;
   bottomText?: React.ReactNode;
   className?: string;

@@ -33,9 +33,9 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   addProduct,
-  fetchProducts,
   updateProduct,
-  uploadImage,
+  fetchProducts,
+  deleteProduct,
 } from "../../services/ProductService.ts";
 import type { ProductoResponse } from "../../services/Interfaces";
 import ProductPictureInput from "../../components/ProductPictureInput.tsx";
@@ -49,6 +49,10 @@ const ProductsManagement = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDeleteId, setProductToDeleteId] = useState<number | null>(
+    null,
+  );
   const { token } = useAuth();
 
   useEffect(() => {
@@ -65,17 +69,29 @@ const ProductsManagement = () => {
     imagenUrl: "",
   });
   const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
@@ -118,6 +134,7 @@ const ProductsManagement = () => {
         imagenUrl: "",
       });
     }
+    setPendingImageFile(null); // Limpiar imagen pendiente al abrir el diálogo
     setIsDialogOpen(true);
   };
 
@@ -134,75 +151,81 @@ const ProductsManagement = () => {
 
     setIsLoading(true);
     try {
-      // Crear/actualizar producto
       const productData = {
         nombre: formData.nombre,
         precio: Number(formData.precio),
         stock: Number(formData.stock),
         activo: formData.activo === "1",
         detalle: formData.detalle,
-        imagenUrl: "./../../assets/producto.jpeg", // Valor temporal, se actualizará después de subir la imagen
+        // imagenUrl no se envía, el backend lo setea tras subir la imagen
       };
-      let savedProduct: ProductoResponse;
       if (editingProduct) {
-        console.log("updeteando producto");
-        savedProduct = await updateProduct(
+        await updateProduct(
           editingProduct.id,
           productData,
+          pendingImageFile,
           token,
         );
         toast.success("Producto actualizado correctamente.");
       } else {
-        console.log("guardando producto");
-        savedProduct = await addProduct(productData, token);
+        await addProduct(productData, pendingImageFile, token);
         toast.success("Producto agregado correctamente.");
       }
-      if (pendingImageFile && savedProduct.id) {
-        console.log("📤 Uploading profile image for new user...");
-        try {
-          const imageResponse = await uploadImage(
-            pendingImageFile,
-            savedProduct.id,
-          );
-          console.log("✅ Profile image uploaded successfully:", imageResponse);
-          // Actualiza solo el campo imagenUrl sin pasar el id
-          await updateProduct(
-            savedProduct.id,
-            {
-              imagenUrl: imageResponse,
-              nombre: productData.nombre,
-              precio: productData.precio,
-              stock: productData.stock,
-              activo: productData.activo,
-              detalle: productData.detalle,
-            },
-            token,
-          );
-          console.log("Producto actualizado con URL de imagen");
-        } catch (imageError) {
-          console.error(
-            "No se pudo subir la imagen, pero se creo el usuario",
-            imageError,
-          );
-        }
-      }
-
+      // Actualiza la lista de productos
       const updatedProducts = await fetchProducts(token);
       setProducts(updatedProducts);
       setIsDialogOpen(false);
-    } catch (error) {
+      setEditingProduct(null);
+      setFormData({
+        nombre: "",
+        detalle: "",
+        precio: "",
+        stock: "",
+        activo: "1",
+        imagenUrl: "",
+      });
+      setPendingImageFile(null);
+    } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error("Ocurrió un error al guardar el producto.");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.mensaje ||
+          "Ocurrió un error al guardar el producto.",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
-      setProducts(products.filter((p) => p.id !== id));
-      toast.success("Producto eliminado.");
+    // Abrir diálogo de confirmación en vez de usar window.confirm
+    setProductToDeleteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (productToDeleteId === null) return;
+    setIsDeleteDialogOpen(false);
+    setIsLoading(true);
+    try {
+      await deleteProduct(productToDeleteId, token);
+      const updated = await fetchProducts(token);
+      setProducts(updated);
+      toast.success("Producto eliminado correctamente.");
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast.error(
+        error?.mensaje || error?.message || "No se pudo eliminar el producto.",
+      );
+    } finally {
+      setIsLoading(false);
+      setProductToDeleteId(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setProductToDeleteId(null);
   };
 
   return (
@@ -245,7 +268,7 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell>
                         {!product.imagenUrl ||
-                          product.imagenUrl === "./../../assets/producto.jpeg" ? (
+                        product.imagenUrl === "./../../assets/producto.jpeg" ? (
                           <img
                             src={"./../../assets/producto.jpeg"}
                             alt={product.nombre}
@@ -255,7 +278,7 @@ const ProductsManagement = () => {
                           <img
                             src={
                               product.imagenUrl.startsWith("http") ||
-                                product.imagenUrl.startsWith("https")
+                              product.imagenUrl.startsWith("https")
                                 ? product.imagenUrl
                                 : "./../../assets/producto.jpeg"
                             }
@@ -407,6 +430,32 @@ const ProductsManagement = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">¿Estás seguro de eliminar este producto?</div>
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button
+              type="button"
+              variant="grayTransparent"
+              onClick={cancelDelete}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isLoading}
+            >
+              {isLoading ? "Eliminando..." : "Eliminar"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
       <Footer />

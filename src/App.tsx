@@ -25,6 +25,8 @@ import TruckRouting from "./pages/admin/TruckRouting.tsx";
 import Profile from "./pages/customer/Profile.tsx";
 import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
 import CustomersManagement from "./pages/admin/CustomersManagement.tsx";
+import ForgotPasswordPage from "./pages/ForgotPassword.tsx";
+import ResetPasswordPage from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -38,6 +40,11 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/components" element={<Components />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
           {/*Rutas para el cliente*/}
 
           {/*<Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>*/}
@@ -45,7 +52,10 @@ function App() {
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
           <Route path="/customer/directions" element={<Directions />} />
-          <Route path="/customer/editWeeklyOrder" element={<EditWeeklyOrder />} />
+          <Route
+            path="/customer/editWeeklyOrder"
+            element={<EditWeeklyOrder />}
+          />
           <Route path="/customer/weeklyOrder" element={<WeeklyOrder />} />
           <Route path="/customer/profile" element={<Profile />} />
           <Route path="/customer/pay" element={<Pay />} />
@@ -63,7 +73,10 @@ function App() {
           <Route path="/admin/products" element={<ProductsManagement />} />
           <Route path="/admin/customers" element={<CustomersManagement />} />
           <Route path="/admin/trucks" element={<TrucksManagement />} />
-          <Route path="/admin/trucks/routes/:truckId" element={<TruckRouting />} />
+          <Route
+            path="/admin/trucks/routes/:truckId"
+            element={<TruckRouting />}
+          />
 
           {/*</Route>*/}
         </Routes>
