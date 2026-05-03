@@ -22,3 +22,23 @@ export function formatErrorResponse(errorResponse: ErrorResponse): {errorTitle: 
     errorMessage: fieldErrors
   };
 }
+
+export function stylesFromSaldo(saldo: number): string {
+  if (saldo > 0) {
+    return 'text-green-800 font-medium';
+  } else if (saldo < 0) {
+    return 'text-danger-600 font-medium';
+  } else {
+    return 'text-gray-600';
+  }
+}
+
+export function variantFromEstado(estado: string): string {
+  if (estado === 'Habilitado') {
+    return 'default';
+  } else if (estado === 'Deshabilitado') {
+    return 'secondary';
+  } else {
+    return 'gray';
+  }
+}
