@@ -24,9 +24,9 @@ import TruckRouting from "./pages/admin/TruckRouting.tsx";
 }
 import Profile from "./pages/customer/Profile.tsx";
 import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
-import CustomersManagement from "./pages/admin/CustomersManagement.tsx";
 import ForgotPasswordPage from "./pages/ForgotPassword.tsx";
 import ResetPasswordPage from "./pages/ResetPassword";
+import CustomersManagement from "./pages/admin/CustomersManagement/CustomersManagement.tsx";
 
 function App() {
   return (

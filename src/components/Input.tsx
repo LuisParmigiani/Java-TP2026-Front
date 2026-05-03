@@ -7,6 +7,7 @@ interface Props {
   value?: string;
   color?: keyof typeof colors;
   size?: keyof typeof sizes;
+  className?: string;
   disabled?: boolean;
   onChange?: (value: string | FileList) => void;
 }
@@ -51,7 +52,7 @@ export default function Input(props: Props) {
           }
         }}
         disabled={props.disabled}
-        className={`block w-full rounded-md border-2 py-1 px-3 focus:ring-2 focus:ring-offset-1 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${colors[color]} ${sizes[size]}`}
+        className={`block w-full rounded-md border-2 py-1 px-3 focus:ring-2 focus:ring-offset-1 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${colors[color]} ${sizes[size]} ${props.className}`}
       />
     </div>
   );

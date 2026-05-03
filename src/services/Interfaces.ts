@@ -57,7 +57,7 @@ export interface PersonaResponse {
   domicilioIds?: number[];
   usuario?: UserResponse;
   usuarioId?: number;
-  estado?: string;
+  estado?: 'Habilitado' | 'Deshabilitado'| 'Pendiente';
 }
 
 export interface PagoResponse {
@@ -223,6 +223,7 @@ export interface DiaDomicilioResponse {
   diaId?: number;
   domicilio: DomicilioResponse;
   domicilioId?: number;
+  persona?: PersonaResponse;
 }
 
 export interface DiaResponse {
@@ -365,6 +366,7 @@ export interface ErrorResponse {
   errores?: Record<string, string>;
   codigo: number;
 }
+
 
 export interface PedidoSemanalRequest {
   cantidad?: number;

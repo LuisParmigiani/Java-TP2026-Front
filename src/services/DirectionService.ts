@@ -84,7 +84,30 @@ export async function getAllByUserId(
     throw error;
   }
 }
-
+export async function fetchDomiciliosByCalleAndNumero(
+  populate?: string[],
+  calleYNumero ?: string,
+  ): Promise<DomicilioResponse[]> {
+  try {
+    let query = "";
+    if (populate) {
+      query = "populate=" + populate.join(",") + "&";
+    }
+    if (calleYNumero) {
+      
+      query = query + "calleNumero=" + calleYNumero ;
+    }
+    console.log(`domicilio/search?${query}`);
+    const response = await apiGet<DomicilioResponse[]>(
+      `/domicilio/search?${query}`,
+    );
+    console.log("Domicilios fetched successfully:", response);
+    return response;
+  } catch (error) {
+    console.error("Error fetching directions:", error);
+    throw error;
+  }
+}
 
 export async function getById(
   id: number,
