@@ -27,7 +27,7 @@ interface NavLink {
 }
 
 const Header = () => {
-  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { currentUser, isAuthenticated, logout, userProfilePic } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -129,7 +129,15 @@ const Header = () => {
                   <span className="text-sm font-medium text-muted-foreground mr-2 inline-block group-hover:underline">
                     {currentUser?.username || currentUser?.email}
                   </span>
-                  <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8 group-hover:border-black transition" />
+                  {userProfilePic ? (
+                    <img
+                      src={userProfilePic}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-2xl border-2 border-primary object-cover group-hover:border-black transition"
+                    />
+                  ) : (
+                    <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8 group-hover:border-black transition" />
+                  )}
                 </Link>
                 <Button
                   variant="danger"
@@ -234,7 +242,15 @@ const Header = () => {
                   ) : (
                     <>
                       <div className="px-4 py-2 text-sm font-medium text-muted-foreground mb-2 flex items-center space-x-2 gap-2">
-                        <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8" />
+                        {userProfilePic ? (
+                          <img
+                            src={userProfilePic}
+                            alt="Profile"
+                            className="w-8 h-8 rounded-2xl border-2 border-primary object-cover"
+                          />
+                        ) : (
+                          <User className="text-white border-2 border-primary bg-primary rounded-2xl w-8 h-8" />
+                        )}
                         {currentUser?.username || currentUser?.email}
                       </div>
                       <Button

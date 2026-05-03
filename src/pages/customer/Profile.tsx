@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Footer from "../../components/Footer";
 import NavBar from "../../components/NavBar";
 import { Button } from "../../components/Button";
@@ -17,6 +17,7 @@ import {
   X,
   Wallet,
   Shield,
+  Loader,
 } from "lucide-react";
 import InfoRow from "../../components/InfoRow.tsx";
 import { Link } from "react-router-dom";
@@ -47,10 +48,15 @@ const UserLevel = {
 };
 
 export default function Profile() {
-  const { token, currentUser, isAuthenticated } = useAuth();
+  const { token, currentUser, isAuthenticated, setUserProfilePic } = useAuth();
   const [user, setUser] = useState<UserResponse | null>(null);
   const [editing, setEditing] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string>("");
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<FormData>({
     nombre: "",
     apellido: "",
@@ -67,6 +73,8 @@ export default function Profile() {
       try {
         const response = await getUser(token, ["persona"]);
         setUser(response);
+        setProfilePreview("");
+        setImageLoadError(false); // Reset error cuando se fetch usuario // Limpiar preview local para sincronizar con backend
 
         setFormData({
           nombre: response.persona?.nombre ?? "",
@@ -125,11 +133,31 @@ export default function Profile() {
         precioUltPedidoSem: user.precioPedidosSemanales ?? 0,
       });
     }
+    setSelectedFile(null);
+    setProfilePreview("");
     setEditing(false);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setImageLoadError(false); // Reset error cuando se selecciona archivo. para que si cloudinary no devuelve foto usemos SR
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageError = () => {
+    setImageLoadError(true);
   };
 
   const handleSave = async () => {
     try {
+      setUploading(true);
       const payload: UserRequest = {
         nombreUsuario: formData.nombreUsuario,
         persona: {
@@ -141,11 +169,25 @@ export default function Profile() {
           nroDocumento: formData.nroDocumento,
         },
       };
-      await UpdateUserAPersona(token, payload);
+      const response = await UpdateUserAPersona(
+        token,
+        payload,
+        selectedFile || undefined,
+        ["persona"],
+      );
+      setUser(response);
+      if (response.imagenUrl) {
+        setUserProfilePic(response.imagenUrl);
+      }
+      setSelectedFile(null);
+      setProfilePreview("");
+      setImageLoadError(false); // Reset error después de guardar
     } catch (error) {
       console.error("Error updating user data:", error);
+    } finally {
+      setUploading(false);
+      setEditing(false);
     }
-    setEditing(false);
   };
 
   const update =
@@ -181,10 +223,74 @@ export default function Profile() {
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-md">
-              <span className="text-white text-2xl font-bold tracking-tight">
-                SR
-              </span>
+            <div className="relative group">
+              {editing ? (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-md overflow-hidden hover:opacity-75 transition disabled:opacity-50 cursor-pointer"
+                >
+                  {profilePreview ? (
+                    <img
+                      src={profilePreview}
+                      alt="Profile preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : user?.imagenUrl && !imageLoadError ? (
+                    <img
+                      src={user.imagenUrl + "?t=" + Date.now()} //esto es para que pida la foto nueva a cloudinary y no use la de la cache
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <span className="text-white text-2xl font-bold tracking-tight">
+                      SR
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-md overflow-hidden">
+                  {profilePreview ? (
+                    <img
+                      src={profilePreview}
+                      alt="Profile preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : user?.imagenUrl && !imageLoadError ? (
+                    <img
+                      src={user.imagenUrl + "?t=" + Date.now()} //para que no use la de la cache y la pida
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <span className="text-white text-2xl font-bold tracking-tight">
+                      SR
+                    </span>
+                  )}
+                </div>
+              )}
+              {editing && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-primary/90 transition disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <Loader className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Edit3 className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
 
             <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4 text-center sm:text-left">
@@ -219,13 +325,32 @@ export default function Profile() {
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" size="md" onClick={handleCancel}>
+                    <Button
+                      variant="outline"
+                      size="md"
+                      onClick={handleCancel}
+                      disabled={uploading}
+                    >
                       <X className="w-4 h-4" />
                       Cancelar
                     </Button>
-                    <Button variant="primary" size="md" onClick={handleSave}>
-                      <Save className="w-4 h-4" />
-                      Guardar
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleSave}
+                      disabled={uploading}
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader className="w-4 h-4 animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          Guardar
+                        </>
+                      )}
                     </Button>
                   </>
                 )}

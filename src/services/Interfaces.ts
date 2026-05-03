@@ -37,6 +37,7 @@ export interface UserResponse {
   precioPedidosSemanales?: number;
   persona?: PersonaResponse;
   personaId?: number;
+  imagenUrl?: string;
   cargas?: CargaResponse[];
   cargaIds?: number[];
 }

@@ -5,6 +5,7 @@ import {
   verifyToken, // función de authService que valida token
   decodeToken, // función de authService que decodifica token para extraer datos confiables del usuario
 } from "../services/authService";
+import { getUser } from "../services/ClientService";
 import { AuthContext } from "./authContext";
 import type { jwtDecoded } from "../services/Interfaces";
 
@@ -15,6 +16,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfilePic, setUserProfilePic] = useState<string | null>(null);
 
   // 1. Cargar token del storage al montar
   useEffect(() => {
@@ -39,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     setLoading(true);
     verifyToken(token)
-      .then(() => {
+      .then(async () => {
         // Decodifica localmente después de validar con el backend
         const decoded = decodeToken(token);
         setCurrentUser({
@@ -49,10 +51,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           username: decoded.username,
         });
         setIsAuthenticated(true);
+
+        // Obtener foto del usuario
+        try {
+          const userData = await getUser(token);
+          setUserProfilePic(userData.imagenUrl || null);
+        } catch (error) {
+          console.error("Error fetching user profile pic:", error);
+          setUserProfilePic(null);
+        }
       })
       .catch(() => {
         setCurrentUser(null);
         setIsAuthenticated(false);
+        setUserProfilePic(null);
         setToken(null);
         localStorage.removeItem("authToken");
         sessionStorage.removeItem("authToken");
@@ -87,6 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = () => {
     setCurrentUser(null);
     setIsAuthenticated(false);
+    setUserProfilePic(null);
     setToken(null);
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("authToken");
@@ -138,6 +151,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         logout,
         register,
         loading,
+        userProfilePic,
+        setUserProfilePic,
       }}
     >
       {children}
