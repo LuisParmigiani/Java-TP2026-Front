@@ -32,6 +32,7 @@ interface FormData {
   nroDocumento: string;
   nombreUsuario: string;
   precioUltPedidoSem: number;
+  password: string;
 }
 
 const DocOption = [
@@ -56,6 +57,9 @@ export default function Profile() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>("");
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<FormData>({
     nombre: "",
@@ -66,6 +70,7 @@ export default function Profile() {
     nroDocumento: "",
     nombreUsuario: "",
     precioUltPedidoSem: 0,
+    password: "",
   });
 
   useEffect(() => {
@@ -85,6 +90,7 @@ export default function Profile() {
           nroDocumento: response.persona?.nroDocumento ?? "",
           nombreUsuario: response.nombreUsuario ?? "",
           precioUltPedidoSem: response.precioPedidosSemanales ?? 0,
+          password: "",
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -131,6 +137,7 @@ export default function Profile() {
         nroDocumento: user.persona?.nroDocumento ?? "",
         nombreUsuario: user.nombreUsuario ?? "",
         precioUltPedidoSem: user.precioPedidosSemanales ?? 0,
+        password: "",
       });
     }
     setSelectedFile(null);
@@ -158,6 +165,8 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       setUploading(true);
+      // password will be included only if user provided one and confirmed it
+      setPasswordError(null);
       const payload: UserRequest = {
         nombreUsuario: formData.nombreUsuario,
         persona: {
@@ -169,6 +178,16 @@ export default function Profile() {
           nroDocumento: formData.nroDocumento,
         },
       };
+      // handle password inclusion
+      if (changePassword && formData.password && formData.password.length > 0) {
+        if (formData.password !== confirmPassword) {
+          setPasswordError("Las contraseñas no coinciden");
+          setUploading(false);
+          return;
+        }
+        // include password in payload
+        (payload as any).password = formData.password;
+      }
       const response = await UpdateUserAPersona(
         token,
         payload,
@@ -182,6 +201,10 @@ export default function Profile() {
       setSelectedFile(null);
       setProfilePreview("");
       setImageLoadError(false); // Reset error después de guardar
+      // reset password inputs after successful save
+      setChangePassword(false);
+      setConfirmPassword("");
+      setFormData((prev) => ({ ...prev, password: "" }));
     } catch (error) {
       console.error("Error updating user data:", error);
     } finally {
@@ -454,12 +477,62 @@ export default function Profile() {
               </div>
 
               {editing ? (
-                <FormField
-                  label="Nombre de usuario"
-                  name="nombreUsuario"
-                  value={formData.nombreUsuario}
-                  onChange={update("nombreUsuario")}
-                />
+                <div className="flex flex-col gap-4">
+                  <FormField
+                    label="Nombre de usuario"
+                    name="nombreUsuario"
+                    value={formData.nombreUsuario}
+                    onChange={update("nombreUsuario")}
+                  />
+
+                  <div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        if (changePassword) {
+                          // Si está activo, al hacer clic se cancela y se limpian los campos
+                          setFormData((prev) => ({ ...prev, password: "" }));
+                          setConfirmPassword("");
+                          setPasswordError(null);
+                        }
+                        setChangePassword((s) => !s);
+                      }}
+                      className="text-sm font-medium"
+                    >
+                      {changePassword
+                        ? "Cancelar cambio de contraseña"
+                        : "Cambiar contraseña"}
+                    </Button>
+
+                    {changePassword && (
+                      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormField
+                          label="Contraseña"
+                          name="password"
+                          type="password"
+                          placeholder="*******"
+                          value={formData.password}
+                          onChange={update("password")}
+                        />
+                        <FormField
+                          label="Repetir contraseña"
+                          name="confirmPassword"
+                          type="password"
+                          placeholder="*******"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </div>
+                    )}
+
+                    {passwordError && (
+                      <p className="text-sm text-red-500 mt-2">
+                        {passwordError}
+                      </p>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div>
                   <InfoRow
@@ -471,6 +544,11 @@ export default function Profile() {
                     icon={<Mail className="w-4 h-4 text-primary" />}
                     label="Email de acceso"
                     value={formData.email}
+                  />
+                  <InfoRow
+                    icon={<Shield className="w-4 h-4 text-primary" />}
+                    label="Contraseña"
+                    value="********"
                   />
                 </div>
               )}

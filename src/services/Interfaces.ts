@@ -256,6 +256,7 @@ export interface UserRequest {
   nivelAcceso?: string;
   persona?: PersonaRequest;
   personaId?: number;
+  password?: string;
 }
 
 export interface PersonaRequest {
