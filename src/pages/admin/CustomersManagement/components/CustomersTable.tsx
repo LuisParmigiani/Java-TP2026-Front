@@ -30,9 +30,7 @@ export const CustomersTable = ({
       <TableHeader>
         <TableRow>
           <TableHead>id</TableHead>
-          <TableHead>Documento</TableHead>
           <TableHead>Nombre</TableHead>
-          <TableHead>Email</TableHead>
           <TableHead>Teléfono</TableHead>
           <TableHead>Saldo</TableHead>
           <TableHead>Estado</TableHead>
@@ -45,12 +43,8 @@ export const CustomersTable = ({
             <TableRow key={customer.id}>
               <TableCell className="font-medium">{customer.id}</TableCell>
               <TableCell className="font-medium">
-                {customer.tipoDoc} {customer.nroDocumento}
-              </TableCell>
-              <TableCell className="font-medium">
                 {customer.nombre} {customer.apellido}
               </TableCell>
-              <TableCell>{customer.email}</TableCell>
               <TableCell>{customer.telefono}</TableCell>
               <TableCell className={stylesFromSaldo(customer.saldo)}>
                 {customer.saldo.toFixed(2)}

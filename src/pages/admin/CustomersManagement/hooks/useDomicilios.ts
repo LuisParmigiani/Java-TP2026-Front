@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 import { fetchDomiciliosByCalleAndNumero } from '../../../../services/DirectionService';
-import type { DomicilioResponse } from '../../../../services/Interfaces';
+import type {
+  DomicilioResponse,
+  ErrorResponse,
+} from '../../../../services/Interfaces';
+import { formatErrorResponse } from '../../../../lib/utils';
 
-export const useDomicilios = () => {
+export const useDomicilios = (
+  onError?: (error: { errorTitle: string; errorMessage: string }) => void,
+) => {
   const [domicilios, setDomicilios] = useState<DomicilioResponse[] | null>(
     null,
   );
@@ -24,7 +29,9 @@ export const useDomicilios = () => {
           }
         } catch (error) {
           console.error('Error:', error);
-          toast.error('Error al buscar domicilios.');
+          const errorResponse = error as ErrorResponse;
+          const formattedError = formatErrorResponse(errorResponse);
+          onError?.(formattedError);
         }
       };
 

@@ -420,3 +420,9 @@ export interface DiaDTOResponse {
   id: number;
   nombre: string;
 }
+
+export interface MailDTORequest {
+  destino: string,
+  asunto: string,
+  cuerpo: string
+}

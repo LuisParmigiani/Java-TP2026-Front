@@ -2,37 +2,59 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
   fetchPersonas,
-  fetchPersonasByName,
+  searchPersonas,
   addPersona,
   updatePersona,
   deletePersona,
 } from '../../../../services/PersonaService';
-import type { PersonaResponse } from '../../../../services/Interfaces';
+import type {
+  PersonaResponse,
+  ErrorResponse,
+} from '../../../../services/Interfaces';
+import { formatErrorResponse } from '../../../../lib/utils';
+import type { ClientesFilters } from './useClientesFilters.ts';
 
-export const useCustomers = () => {
+export const useCustomers = (
+  onError?: (error: { errorTitle: string; errorMessage: string }) => void,
+  filters?: ClientesFilters,
+  page: number = 1,
+  pageSize: number = 10,
+) => {
   const [customers, setCustomers] = useState<PersonaResponse[]>([]);
   const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    fetchPersonas()
-      .then((data) => setCustomers(data))
-      .catch((error) => console.error('Failed to fetch customers:', error));
-  }, []);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       const loadData = async () => {
         try {
-          if (search.trim() === '') {
-            const data = await fetchPersonas();
-            setCustomers(data);
+          // Si hay búsqueda o filtros activos, usa searchPersonas
+          if (
+            search.trim() !== '' ||
+            Object.values(filters || {}).some((v) => v)
+          ) {
+            const results = await searchPersonas(
+              search || undefined,
+              filters?.zone ? String(filters.zone) : undefined,
+              filters?.truck ? String(filters.truck) : undefined,
+              filters?.day ? String(filters.day) : undefined,
+              filters?.saldo ? String(filters.saldo) : undefined,
+              page - 1, // ← Convertir a 0-indexed para el backend
+              pageSize,
+              ['zona', 'camion', 'dia'],
+            );
+            setCustomers(results.content);
+            setTotalItems(results.totalElements); // ← Usar totalElements
           } else {
-            const results = await fetchPersonasByName(search);
-            setCustomers(results);
+            // Sin filtros, traer todos con paginación
+            const data = await fetchPersonas(page - 1, pageSize); // ← Convertir a 0-indexed
+            setCustomers(data.content);
+            setTotalItems(data.totalElements); // ← Usar totalElements
           }
         } catch (error) {
-          console.error('Error:', error);
-          toast.error('Error al buscar clientes.');
+          const errorResponse = error as ErrorResponse;
+          const formattedError = formatErrorResponse(errorResponse);
+          onError?.(formattedError);
         }
       };
 
@@ -40,44 +62,47 @@ export const useCustomers = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, filters?.zone, filters?.truck, filters?.day, filters?.saldo, page, pageSize]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number): Promise<boolean> => {
+    if (!window.confirm('¿Estás seguro de eliminar este cliente?')) {
+      return false;
+    }
+
     try {
       await deletePersona(id);
+      setCustomers((prev) => prev.filter((customer) => customer.id !== id));
       toast.success('Cliente dado de baja');
-      const updatedCustomers = await fetchPersonas();
-      setCustomers(updatedCustomers);
+      return true;
     } catch (error) {
-      console.error('Error deleting customer:', error);
-      toast.error('Error al dar de baja el cliente.');
+      const errorResponse = error as ErrorResponse;
+      const formattedError = formatErrorResponse(errorResponse);
+      onError?.(formattedError);
+      toast.error(errorResponse.mensaje);
+      return false;
     }
   };
 
-  const handleAddCustomer = async (newCustomer: PersonaResponse) => {
+  const handleSaveCustomer = async (
+    newCustomer: PersonaResponse,
+    isEditing: boolean,
+  ): Promise<boolean> => {
     try {
-      await addPersona(newCustomer);
-      toast.success('Cliente agregado correctamente.');
-      const updatedCustomers = await fetchPersonas();
-      setCustomers(updatedCustomers);
+      if (isEditing) {
+        await updatePersona(newCustomer.id, newCustomer);
+        toast.success('Cliente actualizado correctamente.');
+      } else {
+        await addPersona(newCustomer);
+        toast.success('Cliente agregado correctamente.');
+      }
+      // Recargar datos (no cambiamos página, se recargan en el useEffect)
+      return true;
     } catch (error) {
-      console.error('Error adding customer:', error);
-      toast.error('Error al agregar el cliente.');
-    }
-  };
-
-  const handleUpdateCustomer = async (
-    id: number,
-    updatedCustomer: PersonaResponse,
-  ) => {
-    try {
-      await updatePersona(id, updatedCustomer);
-      toast.success('Cliente actualizado correctamente.');
-      const updatedCustomers = await fetchPersonas();
-      setCustomers(updatedCustomers);
-    } catch (error) {
-      console.error('Error updating customer:', error);
-      toast.error('Error al actualizar el cliente.');
+      const errorResponse = error as ErrorResponse;
+      const formattedError = formatErrorResponse(errorResponse);
+      onError?.(formattedError);
+      toast.error(errorResponse.mensaje);
+      return false;
     }
   };
 
@@ -85,8 +110,8 @@ export const useCustomers = () => {
     customers,
     search,
     setSearch,
+    totalItems,
     handleDelete,
-    handleAddCustomer,
-    handleUpdateCustomer,
+    handleSaveCustomer,
   };
 };

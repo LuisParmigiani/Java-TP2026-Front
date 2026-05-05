@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import  { useEffect, useState, useMemo } from 'react';
 import { Helmet } from '../../../components/Helmet';
 import NavBar from '../../../components/NavBar';
 import Footer from '../../../components/Footer';
@@ -10,206 +10,127 @@ import { DomiciliosTable } from './components/DomiciliosTable';
 import { CustomerDialog } from './components/CustomerDialog';
 import { NotifyDialog } from './components/NotifyDialog';
 import { Plus,  Search } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { addPersona, deletePersona, fetchPersonas, updatePersona, fetchPersonasByName } from '../../../services/PersonaService.ts';
-import type { PersonaResponse ,DomicilioResponse} from '../../../services/Interfaces.ts';
-import { fetchDomiciliosByCalleAndNumero } from '../../../services/DirectionService.ts';
-
+import type { PersonaResponse } from '../../../services/Interfaces.ts';
+import { useAuth } from '../../../hooks/useAuth.ts';
+import { useNavigate } from 'react-router-dom';
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from '../../../components/Alert.tsx';
 // Esquema Zod para validar FormData
-const customerSchema = z.object({
-  tipoDoc: z.string().min(1, 'El tipo de documento es requerido'),
-  nroDocumento: z.string()
-    .min(1, 'El número de documento es requerido')
-    .regex(/^\d{5,10}$/, 'El número de documento debe tener entre 5 y 10 dígitos'),
-  nombre: z.string().min(1, 'El nombre es requerido').min(2, 'El nombre debe tener al menos 2 caracteres'),
-  apellido: z.string().optional().default(''),
-  email: z.string().email('El correo electrónico no es válido'),
-  telefono: z.string().optional().default(''),
-  saldo: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, 'El saldo debe ser un número mayor o igual a 0'),
-  estado: z.enum(['activo', 'inactivo'], { message: 'El estado debe ser activo o inactivo' }),
-});
+import { useCustomers } from './hooks/useCustomers';
+import { useDomicilios } from './hooks/useDomicilios';
+import { useNotifyDialog } from './hooks/useNotifyDialog';
+import { customerSchema } from './customerSchema';
+import { useCustomerDialog } from './hooks/useCustomerDialog';
+import { ClientesFilter } from './components/ClientesFilter';
+import Pagination from '../../../components/Pagination.tsx';
+import { useClientesFilters } from './hooks/useClientesFilters'; 
+import { useCustomersFilterOptions } from './hooks/useCustomerFilterOptions';
 
 
 const CustomersManagementPage = () => {
-  //! Hooks para buscar Personas 
-  const [customers, setCustomers] = useState<PersonaResponse[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
-  const [editingCustomer, setEditingCustomer] =
-    useState<PersonaResponse | null>(null);
-  const [notifyCustomer, setNotifyCustomer] = useState<PersonaResponse|null>(null);
-  const [notificationMsg, setNotificationMsg] = useState('');
-  const [formData, setFormData] = useState({
-    tipoDoc: '',
-    nroDocumento: '',
-    nombre: '',
-    apellido: '',
-    email: '',
-    telefono: '',
-    saldo: '0',
-    estado: 'Habilitado',
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [search, setSearch] = useState('');
-  //! Hooks para bucar Domicilios
-  const [domicilios, setDomicilios] = useState<DomicilioResponse[] | null>(null);
-  const [searchDomicilio, setSearchDomicilio] = useState('');
+  const navigate = useNavigate();
+  const { token, isAuthenticated } = useAuth();
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const clientesFilters = useClientesFilters();
+  const filterOptions = useCustomersFilterOptions();
 
+  // Memoriza los filtros activos para evitar re-renders y refetch innecesarios
+  const activeFilters = useMemo(
+    () => clientesFilters.getActiveFilters(),
+    [clientesFilters],
+  );
+
+  // Error state
+  const [error, setError] = useState<{
+    errorTitle: string;
+    errorMessage: string;
+  } | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+
+  // Proteger ruta
   useEffect(() => {
-    fetchPersonas()
-      .then((data) => setCustomers(data))
-      .catch((error) => console.error('Failed to fetch products:', error));
-  }, []);
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
   
-  const handleOpenDialog = (customer = null) => {
-    if (customer) {
-      setEditingCustomer(customer);
-      setFormData({
-        tipoDoc: customer.tipoDoc,
-        nroDocumento: customer.nroDocumento,
-        nombre: customer.nombre,
-        apellido: customer.apellido,
-        email: customer.email,
-        telefono: customer.telefono,
-        saldo: customer.saldo.toString(),
-        estado: customer.estado,
-      });
-    } else {
-      setEditingCustomer(null);
-      setFormData({
-        tipoDoc: '',
-        nroDocumento: '',
-        nombre: '',
-        apellido: '',
-        email: '',
-        telefono: '',
-        saldo: '0',
-        estado: '',
-      });
-    }
-    setErrors({});
-    setIsDialogOpen(true);
-  };
 
-  const handleOpenNotify = (customer) => {
-    setNotifyCustomer(customer);
-    setNotificationMsg('');
-    setIsNotifyOpen(true);
-  };
+  // Hooks
+  const customers = useCustomers(
+    (err) => {
+      setError(err);
+      setShowAlert(true);
+    },
+    activeFilters,
+    page,
+    pageSize,
+  );
 
-  const handleSendNotification = (e) => {
-    e.preventDefault();
-    if (!notificationMsg.trim()) {
-      toast.error('El mensaje no puede estar vacío.');
-      return;
-    }
-    toast.success(
-      `Notificación enviada a ${notifyCustomer.nombre} ${notifyCustomer.apellido}`,
-    );
-    setIsNotifyOpen(false);
-  };
+  const domicilios = useDomicilios((err) => {
+    setError(err);
+    setShowAlert(true);
+  });
 
-  const handleSave = async (e) => {
+  const customerDialog = useCustomerDialog();
+  const notifyDialog = useNotifyDialog((err) => {
+    setError(err);
+    setShowAlert(true);
+  });
+  // Manejar guardar cliente
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validar con Zod
-    const result = customerSchema.safeParse(formData);
+    const result = customerSchema.safeParse(customerDialog.formData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {
         if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
       });
-      setErrors(fieldErrors);
+      customerDialog.setErrors(fieldErrors);
       return;
     }
 
-    setErrors({});
-
-    const newCustomer = {
-      id: editingCustomer
-        ? editingCustomer.id
+    // Crear objeto de cliente
+    const newCustomer: PersonaResponse = {
+      id: customerDialog.editingCustomer
+        ? customerDialog.editingCustomer.id
         : Math.floor(Math.random() * 10000),
-      tipoDoc: formData.tipoDoc,
-      nroDocumento: formData.nroDocumento,
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      email: formData.email,
-      telefono: formData.telefono,
-      saldo: Number(formData.saldo),
-      estado: formData.estado,
+      tipoDoc: customerDialog.formData.tipoDoc,
+      nroDocumento: customerDialog.formData.nroDocumento,
+      nombre: customerDialog.formData.nombre,
+      apellido: customerDialog.formData.apellido,
+      email: customerDialog.formData.email,
+      telefono: customerDialog.formData.telefono,
+      saldo: Number(customerDialog.formData.saldo),
+      estado: customerDialog.formData.estado as 'Habilitado' | 'Deshabilitado' | 'Pendiente',
     };
 
-    if (editingCustomer) {
-      console.log('Updating customer:', editingCustomer);
-      await updatePersona(editingCustomer.id, newCustomer);
-      toast.success('Cliente actualizado correctamente.');
-    } else {
-      console.log('Agregando cliente:', newCustomer);
-      await addPersona(newCustomer);
-      toast.success('Cliente agregado correctamente.');
+    const success = await customers.handleSaveCustomer(
+      newCustomer,
+      !!customerDialog.editingCustomer,
+    );
+
+    if (success) {
+      customerDialog.handleCloseDialog();
     }
-    const updatedCustomers = await fetchPersonas();
-    setCustomers(updatedCustomers);
-    setIsDialogOpen(false);
   };
 
-  const handleDelete = async (id: number) => {
-    deletePersona(id)
-      .then(() => {
-        toast.success('Cliente dado de baja');
-      })
-      .catch((error) => {
-        console.error('Error deleting customer:', error);
-        toast.error('Error al dar de baja el cliente.');
-      });
+  // Manejar notificación
+  const handleSendNotification = async (e: React.FormEvent) => {
+    const success = await notifyDialog.handleSendNotification(e, token);
+    if (success) {
+      // Dialog se cierra automáticamente en el hook
+    }
   };
 
+  // Estado para los filtros
 
-  
-useEffect(() => {
-  const timer = setTimeout(() => {
-    const loadData = async () => {
-      try {
-        if (search.trim() === '') {
-          const data = await fetchPersonas();
-          setCustomers(data);
-        } else {
-          const results = await fetchPersonasByName(search);
-          setCustomers(results);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        toast.error('Error al buscar clientes.');
-      }
-    };
-
-    loadData();
-  }, 500); // Espera 500ms después de que el usuario deje de escribir para no estar haciendo peticiones al back en cada tecla
-
-  return () => clearTimeout(timer);
-}, [search]);
-useEffect(() => {
-  const timer = setTimeout(() => {
-    const loadData = async () => {
-      try {
-        if (searchDomicilio.trim() === '') {
-          setDomicilios(null);
-        } else {
-          const results = await fetchDomiciliosByCalleAndNumero( ['persona'],searchDomicilio);
-          setDomicilios(results);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        toast.error('Error al buscar domicilios.');
-      }
-    };
-
-    loadData();
-  }, 500); // Espera 500ms después de que el usuario deje de escribir para no estar haciendo peticiones al back en cada tecla
-
-  return () => clearTimeout(timer);
-}, [searchDomicilio]);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
@@ -217,6 +138,18 @@ useEffect(() => {
       </Helmet>
       <NavBar />
       <main className="flex-1 py-12">
+        {showAlert && (
+          <Alert
+            variant="danger"
+            autoClose={true}
+            onClose={() => setShowAlert(false)}
+          >
+            <AlertTitle>{error?.errorTitle}</AlertTitle>
+            <AlertDescription>{error?.errorMessage}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* SECCIÓN CLIENTES CON FILTROS */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight">
@@ -226,35 +159,74 @@ useEffect(() => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  name='search'
+                  name="search"
                   type="text"
                   className="pl-10 w-64"
                   placeholder="Buscar cliente"
-                  value={search}
-                  onChange={(val) => {
-                    setSearch(val as string);
-                    //hace de trigger al useEffect que busca las personas
-                  }}
+                  value={customers.search}
+                  onChange={(val) => customers.setSearch(val as string)}
                 />
               </div>
-              <Button onClick={() => handleOpenDialog()}>
+              <Button onClick={() => customerDialog.handleOpenDialog()}>
                 <Plus className="w-4 h-4 mr-2" /> Agregar Cliente
               </Button>
             </div>
           </div>
 
-          <Card>
-            <CardContent className="p-0">
-                <CustomersTable
-                customers={customers}
-                onEdit={handleOpenDialog}
-                onDelete={handleDelete}
-                onNotify={handleOpenNotify}
-                 ></CustomersTable>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="w-full lg:w-64">
+              {/* Filtro Sidebar */}
+              <ClientesFilter
+                zones={filterOptions.zones}
+                trucks={filterOptions.trucks}
+                days={filterOptions.days}
+                saldoRanges={['Ascendente', 'Descendente']}
+                selectedZone={clientesFilters.filters.zone}
+                selectedTruck={clientesFilters.filters.truck}
+                selectedDay={clientesFilters.filters.day}
+                selectedSaldo={clientesFilters.filters.saldo}
+                onApplyFilters={(filters) => {
+                  if (filters.zone !== clientesFilters.filters.zone)
+                    clientesFilters.handleZoneChange(filters.zone || '');
+                  if (filters.truck !== clientesFilters.filters.truck)
+                    clientesFilters.handleTruckChange(filters.truck || '');
+                  if (filters.day !== clientesFilters.filters.day)
+                    clientesFilters.handleDayChange(filters.day || '');
+                  if (filters.saldo !== clientesFilters.filters.saldo)
+                    clientesFilters.handleSaldoChange(filters.saldo || '');
+                  setPage(1);
+                }}
+                onReset={() => {
+                  clientesFilters.resetFilters();
+                  setPage(1);
+                }}
+              />
+            </div>
+            {/* Tabla de Clientes */}
+            <div className="w-full lg:flex-1">
+              <Card>
+                <CardContent className="p-0">
+                  <CustomersTable
+                    customers={customers.customers}
+                    onEdit={customerDialog.handleOpenDialog}
+                    onDelete={customers.handleDelete}
+                    onNotify={notifyDialog.handleOpenDialog}
+                  />
+                  <Pagination
+                    className="border-t border-black mt-2"
+                    page={page}
+                    totalPerPage={pageSize}
+                    totalItems={customers.totalItems}
+                    onPageChange={setPage}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* SECCIÓN DOMICILIOS */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-12">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight">
               Gestión de Domicilios
@@ -263,18 +235,17 @@ useEffect(() => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  name='search'
+                  name="search"
                   type="text"
                   className="pl-10 w-64"
                   placeholder="Buscar por dirección o persona"
-                  value={searchDomicilio}
-                  onChange={(val) => {
-                    setSearchDomicilio(val as string);
-                    //hace de trigger al useEffect que busca los domicilios
-                  }}
+                  value={domicilios.searchDomicilio}
+                  onChange={(val) =>
+                    domicilios.setSearchDomicilio(val as string)
+                  }
                 />
               </div>
-              <Button onClick={() => handleOpenDialog()}>
+              <Button onClick={() => customerDialog.handleOpenDialog()}>
                 <Plus className="w-4 h-4 mr-2" /> Agregar Domicilio
               </Button>
             </div>
@@ -282,35 +253,31 @@ useEffect(() => {
 
           <Card>
             <CardContent className="p-0">
-              <DomiciliosTable domicilios={domicilios}></DomiciliosTable>
+              <DomiciliosTable domicilios={domicilios.domicilios} />
             </CardContent>
           </Card>
         </div>
       </main>
 
-      {/* Form Dialog */}
-      <CustomerDialog 
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        editingCustomer={editingCustomer}
+      {/* DIALOGS */}
+      <CustomerDialog
+        isDialogOpen={customerDialog.isOpen}
+        setIsDialogOpen={customerDialog.setIsOpen}
+        editingCustomer={customerDialog.editingCustomer}
         handleSave={handleSave}
-        formData={formData}
-        setFormData={setFormData}
-        errors={errors}
-      >
-      </CustomerDialog>
+        formData={customerDialog.formData}
+        setFormData={customerDialog.setFormData}
+        errors={customerDialog.errors}
+      />
 
-      {/* Notify Dialog */}
       <NotifyDialog
-      
-        isNotifyOpen={isNotifyOpen}
-        setIsNotifyOpen={setIsNotifyOpen}
-        notifyCustomer={notifyCustomer}
+        isNotifyOpen={notifyDialog.isOpen}
+        setIsNotifyOpen={notifyDialog.setIsOpen}
+        notifyCustomer={notifyDialog.customer}
         handleSendNotification={handleSendNotification}
-        notificationMsg={notificationMsg}
-        setNotificationMsg={setNotificationMsg}
-      >
-      </NotifyDialog>
+        notificationMsg={notifyDialog.message}
+        setNotificationMsg={notifyDialog.setMessage}
+      />
 
       <Footer />
     </div>

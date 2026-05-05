@@ -1,28 +1,86 @@
 
 import { apiDelete, apiGet, apiPost, apiPut } from './baseClient.ts';
-import type {PersonaResponse,ErrorResponse,PersonaRequest} from './Interfaces.ts';
+import type {PersonaResponse,ErrorResponse,PersonaRequest, PaginationResponse} from './Interfaces.ts';
 
-export async function fetchPersonas(): Promise<PersonaResponse[]> {
+export async function fetchPersonas(
+  currentPage: number = 0,
+  pageSize: number = 10,
+  populate?: string[],
+): Promise<PaginationResponse<PersonaResponse>> {
   try {
-    const response = await apiGet<PersonaResponse[]>("/persona");
-    console.log("Fetched personas:", response);
-    //! Por ahora el backend no devuelve un campo "estado", así que asignamos "activo" a cada persona para que se muestre correctamente en la tabla. --- IGNORE ---
-    return response;
-  } catch (error) {
-    const errorResponse = error as ErrorResponse;
-    console.error("Error fetching personas:", errorResponse);
-    throw errorResponse;
-  }
-}
-export async function fetchPersonasByName(query:string): Promise<PersonaResponse[]> {
-  try {
-    const response = await apiGet<PersonaResponse[]>(`/persona/search/${query}`);
-    console.log('Fetched personas:', response);
-    //! Por ahora el backend no devuelve un campo "estado", así que asignamos "activo" a cada persona para que se muestre correctamente en la tabla. --- IGNORE ---
+    const params = new URLSearchParams();
+
+    // Paginación
+    params.append('page', currentPage.toString());
+    params.append('size', pageSize.toString());
+
+    // Populate (relaciones)
+    if (populate && populate.length > 0) {
+      populate.forEach((pop) => {
+        params.append('populate', pop);
+      });
+    }
+
+    const url = `/persona?${params.toString()}`;
+    console.log('Fetching personas with URL:', url);
+
+    const response = await apiGet<PaginationResponse<PersonaResponse>>(url);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
     console.error('Error fetching personas:', errorResponse);
+    throw errorResponse;
+  }
+}
+export async function searchPersonas(
+  query?: string,
+  zona?: string,
+  camion?: string,
+  dia?: string,
+  ordenSaldo: string = 'ascendente',
+  currentPage: number = 0,
+  pageSize: number = 10,
+  populate?: string[],
+): Promise<PaginationResponse<PersonaResponse>> {
+  try {
+    const params = new URLSearchParams();
+
+    // Agregar parámetros opcionales
+    if (query) {
+      params.append('query', query);
+    }
+    if (zona) {
+      params.append('zona', zona);
+    }
+    if (camion) {
+      params.append('camion', camion);
+    }
+    if (dia) {
+      params.append('dia', dia);
+    }
+    if (ordenSaldo) {
+      params.append('ordenSaldo', ordenSaldo);
+    }
+
+    // Paginación
+    params.append('page', currentPage.toString());
+    params.append('size', pageSize.toString());
+
+    // Populate (relaciones)
+    if (populate && populate.length > 0) {
+      populate.forEach((pop) => {
+        params.append('populate', pop);
+      });
+    }
+
+    const url = `/persona/search?${params.toString()}`;
+    console.log('Fetching personas with URL:', url);
+
+    const response = await apiGet<PaginationResponse<PersonaResponse>>(url);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error('Error searching personas:', errorResponse);
     throw errorResponse;
   }
 }
