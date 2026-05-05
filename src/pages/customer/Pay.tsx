@@ -162,12 +162,15 @@ export default function Pay() {
                 ? "Poseés una deuda pendiente de pago."
                 : saldo >= precioUltPedidoSem && precioUltPedidoSem > 0
                   ? "Tu saldo cubre tu próximo pedido semanal."
-                  : "Tu saldo no alcanza para tu próximo pedido semanal."
+                  : saldo === 0 && precioUltPedidoSem === 0
+                    ? "Tu saldo está al día y no tienes pedidos pendientes."
+                    : "Tu saldo no alcanza para tu próximo pedido semanal."
             }
             cardColor={
               saldo < 0
                 ? "redCard"
-                : saldo >= precioUltPedidoSem && precioUltPedidoSem > 0
+                : (saldo >= precioUltPedidoSem && precioUltPedidoSem > 0) ||
+                    (saldo === 0 && precioUltPedidoSem === 0)
                   ? "greenCard"
                   : "yellowCard"
             }

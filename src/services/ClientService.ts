@@ -6,7 +6,7 @@ export async function getUser(
   populate?: string[],
 ): Promise<UserResponse> {
   let query = "";
-  if (populate.length > 0) {
+  if (populate && populate.length > 0) {
     query = "?populate=" + populate.join(",");
   }
   return await apiGet<UserResponse>(`/usuario/me${query}`, token);

@@ -169,22 +169,27 @@ export default function Dashboard() {
                   currency: "ARS",
                 }).format(user?.persona?.saldo ?? 0)}
                 description={
-                  user?.persona?.saldo && user.persona.saldo < 0
+                  (user?.persona?.saldo ?? 0) < 0
                     ? "Poseés una deuda pendiente de pago."
-                    : user?.persona?.saldo &&
-                        user.persona.saldo >=
+                    : (user?.persona?.saldo ?? 0) >=
                           (user?.precioPedidosSemanales ?? 0) &&
                         (user?.precioPedidosSemanales ?? 0) > 0
                       ? "Tu saldo cubre tu próximo pedido semanal."
-                      : "Tu saldo no alcanza para tu próximo pedido semanal."
+                      : user?.persona?.saldo === 0 &&
+                          (user?.precioPedidosSemanales === 0 ||
+                            !user?.precioPedidosSemanales)
+                        ? "Tu saldo está al día y no tienes pedidos pendientes."
+                        : "Tu saldo no alcanza para tu próximo pedido semanal."
                 }
                 cardColor={
-                  user?.persona?.saldo && user.persona.saldo < 0
+                  (user?.persona?.saldo ?? 0) < 0
                     ? "redCard"
-                    : user?.persona?.saldo &&
-                        user.persona.saldo >=
+                    : ((user?.persona?.saldo ?? 0) >=
                           (user?.precioPedidosSemanales ?? 0) &&
-                        (user?.precioPedidosSemanales ?? 0) > 0
+                          (user?.precioPedidosSemanales ?? 0) > 0) ||
+                        (user?.persona?.saldo === 0 &&
+                          (user?.precioPedidosSemanales === 0 ||
+                            !user?.precioPedidosSemanales))
                       ? "greenCard"
                       : "yellowCard"
                 }
