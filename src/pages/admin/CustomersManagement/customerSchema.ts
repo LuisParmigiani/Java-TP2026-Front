@@ -15,15 +15,17 @@ export const customerSchema = z.object({
     .min(2, 'El nombre debe tener al menos 2 caracteres'),
   apellido: z.string().optional().default(''),
   email: z.string().email('El correo electrónico no es válido'),
-  telefono: z.string().optional().default(''),
+  telefono: z
+    .string()
+    .regex(/^\d{10}$/, 'El teléfono debe tener exactamente 10 dígitos'),
   saldo: z
     .string()
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
       'El saldo debe ser un número mayor o igual a 0',
     ),
-  estado: z.enum(['activo', 'inactivo'], {
-    message: 'El estado debe ser activo o inactivo',
+  estado: z.enum(['Habilitado', 'Deshabilitado', 'Pendiente'], {
+    message: 'El estado debe ser Habilitado, Deshabilitado o Pendiente',
   }),
 });
 

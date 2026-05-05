@@ -9,7 +9,7 @@ export interface CustomerFormState {
   email: string;
   telefono: string;
   saldo: string;
-  estado: string;
+  estado: 'Habilitado' | 'Deshabilitado' | 'Pendiente';
 }
 
 const INITIAL_FORM_STATE: CustomerFormState = {
@@ -20,7 +20,7 @@ const INITIAL_FORM_STATE: CustomerFormState = {
   email: '',
   telefono: '',
   saldo: '0',
-  estado: '',
+  estado: 'Habilitado'
 };
 
 export const useCustomerDialog = () => {
@@ -61,6 +61,7 @@ export const useCustomerDialog = () => {
 
   return {
     isOpen,
+    setIsOpen,
     editingCustomer,
     formData,
     errors,

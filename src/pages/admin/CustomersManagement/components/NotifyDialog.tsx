@@ -8,6 +8,8 @@ import {
 import { Label } from '../../../../components/Label';
 import { Button } from '../../../../components/Button.tsx';
 import { Textarea } from '../../../../components/TextArea';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 interface NotifyProps {
   isNotifyOpen:boolean,
   setIsNotifyOpen:(b:boolean)=>void,
@@ -27,18 +29,32 @@ export function NotifyDialog(
     setNotificationMsg
   }:NotifyProps
 ){
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    setIsSending(true);
+    try {
+      await handleSendNotification(e);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <Dialog open={isNotifyOpen} onOpenChange={setIsNotifyOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className='border-b-4 border-secondary w-fit '>
             Notificar a {notifyCustomer?.nombre} {notifyCustomer?.apellido}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSendNotification} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="message">Mensaje</Label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <div>
+              <Label htmlFor="message" className='text-md font-semibold'>
+                Mensaje
+              </Label>
+            </div>
             <Textarea
               id="message"
               rows={4}
@@ -55,7 +71,16 @@ export function NotifyDialog(
             >
               Cancelar
             </Button>
-            <Button type="submit">Enviar Notificación</Button>
+            <Button type="submit">
+              {isSending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                'Enviar Notificación'
+              )}
+            </Button>
           </div>
         </form>
       </DialogContent>

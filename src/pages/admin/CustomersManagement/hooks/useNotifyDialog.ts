@@ -1,7 +1,15 @@
 import { useState } from 'react';
-import type { PersonaResponse } from '../../../../services/Interfaces';
+import { toast } from 'sonner';
+import { sendMail } from '../../../../services/MailService';
+import type {
+  PersonaResponse,
+  ErrorResponse,
+} from '../../../../services/Interfaces';
+import { formatErrorResponse } from '../../../../lib/utils';
 
-export const useNotifyDialog = () => {
+export const useNotifyDialog = (
+  onError?: (error: { errorTitle: string; errorMessage: string }) => void,
+) => {
   const [isOpen, setIsOpen] = useState(false);
   const [customer, setCustomer] = useState<PersonaResponse | null>(null);
   const [message, setMessage] = useState('');
@@ -18,12 +26,48 @@ export const useNotifyDialog = () => {
     setMessage('');
   };
 
+  const handleSendNotification = async (
+    e: React.FormEvent,
+    token: string,
+  ): Promise<boolean> => {
+    e.preventDefault();
+
+    if (!message.trim()) {
+      toast.error('El mensaje no puede estar vacío.');
+      return false;
+    }
+
+    try {
+      const mailData = {
+        destino: customer!.email,
+        asunto: 'Notificación de Sodas Rojas',
+        cuerpo: message,
+      };
+
+      await sendMail(token, mailData);
+
+      toast.success(
+        `Notificación enviada a ${customer!.nombre} ${customer!.apellido}`,
+      );
+      handleCloseDialog();
+      return true;
+    } catch (err) {
+      const errorResponse = err as ErrorResponse;
+      const formattedError = formatErrorResponse(errorResponse);
+      onError?.(formattedError);
+      toast.error(errorResponse.mensaje);
+      return false;
+    }
+  };
+
   return {
     isOpen,
+    setIsOpen,
     customer,
     message,
     setMessage,
     handleOpenDialog,
     handleCloseDialog,
+    handleSendNotification,
   };
 };

@@ -13,11 +13,11 @@ import {
   DialogTitle,
 } from '../../../../components/Dialog.tsx';
 import type { PersonaResponse } from '../../../../services/Interfaces.ts'
- 
+import type { Dispatch, SetStateAction } from 'react';
 import { Label } from '../../../../components/Label';
 import { Button } from '../../../../components/Button.tsx';
 import  Input  from '../../../../components/Input';
-interface data {
+interface CustomerFormData {
     tipoDoc: string,
     nroDocumento: string,
     nombre: string ,
@@ -33,11 +33,9 @@ interface CustomerDialogProps {
   editingCustomer: PersonaResponse | null,
   
   handleSave:(e)=> Promise<void>,
-  formData: data,
-  setFormData:(a:data)=>void,
+  formData: CustomerFormData,
+  setFormData: Dispatch<SetStateAction<CustomerFormData>>,
   errors: Record<string, string>,
-
-
 }
 export function CustomerDialog(
   {
@@ -185,8 +183,8 @@ export function CustomerDialog(
                 <SelectValue placeholder="Selecciona estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="activo">Habilitado</SelectItem>
-                <SelectItem value="inactivo">Deshabilitado</SelectItem>
+                <SelectItem value="Habilitado">Habilitado</SelectItem>
+                <SelectItem value="Deshabilitado">Deshabilitado</SelectItem>
               </SelectContent>
             </Select>
             {errors.estado && (
