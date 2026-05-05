@@ -95,7 +95,6 @@ export default function Pay() {
       </div>
     );
   }
-
   if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">

@@ -88,7 +88,6 @@ export default function Dashboard() {
   };
 
   const { currentUser, isAuthenticated, loading } = useAuth();
-  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
@@ -96,7 +95,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
   if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
