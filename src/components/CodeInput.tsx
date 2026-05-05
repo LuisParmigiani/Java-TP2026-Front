@@ -64,6 +64,24 @@ export const CodeInput: React.FC<Props> = ({
     }
   };
 
+  // Permite pegar el código entero
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/[^0-9a-zA-Z]/g, "")
+      .slice(0, length);
+
+    if (!pastedData) return;
+
+    onChange(pastedData.padEnd(length, ""));
+
+    // Mueve el foco al final del texto pegado o al último casillero
+    const focusIndex = Math.min(pastedData.length, length - 1);
+    const next = document.getElementById(`code-input-${focusIndex}`);
+    if (next) (next as HTMLInputElement).focus();
+  };
+
   // Renderiza los inputs uno al lado del otro
   return (
     <div className="flex gap-2 justify-center">
@@ -78,6 +96,7 @@ export const CodeInput: React.FC<Props> = ({
           value={value[idx] || ""} // Muestra el valor correspondiente
           onChange={(e) => handleChange(e, idx)} // Maneja el cambio de cada input
           onKeyDown={(e) => handleKeyDown(e, idx)} // Permite retroceder con Backspace
+          onPaste={handlePaste} // Maneja el pegado de texto
           disabled={disabled}
         />
       ))}

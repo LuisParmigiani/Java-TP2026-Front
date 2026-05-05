@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { resetPassword, verifyResetToken } from "../services/authService";
 import { toast } from "sonner";
@@ -59,13 +59,21 @@ const ResetPasswordPage = () => {
     try {
       await resetPassword({ token: token, nuevaPassword: formData.password });
     } catch (error) {
-      toast.error("Error al restablecer la contraseña");
+      toast.error("Error al restablecer la contraseña", { id: "reset-error" });
+      return;
     }
-    toast.success("Contraseña restablecida correctamente");
+    toast.success("Contraseña restablecida correctamente", {
+      id: "reset-success",
+    });
     setTimeout(() => navigate("/login"), 1500);
   };
 
+  const effectRan = useRef(false);
+
   useEffect(() => {
+    if (effectRan.current) return;
+    effectRan.current = true;
+
     if (!token) {
       setValid(false);
       setLoading(false);
@@ -73,13 +81,17 @@ const ResetPasswordPage = () => {
     }
     verifyResetToken({ token })
       .then(() => {
-        setValid(true);
+        toast.success("Token de verificación válido", { id: "token-success" });
+        setTimeout(() => {
+          setValid(true);
+          setLoading(false);
+        }, 2000);
       })
       .catch((err) => {
         setValid(false);
         setError(err.message || "Token inválido o expirado");
-      })
-      .finally(() => setLoading(false));
+        setLoading(false);
+      });
   }, [token]);
 
   if (loading) {
