@@ -21,13 +21,6 @@ export default function Directions() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [filter, setFilter] = useState({ status: "", deliveryDay: "" });
   const [open, setOpen] = useState(false);
-<<<<<<< HEAD
-  const [showSuccessAlert, setShowSuccessAlert] = useState<'created' | 'edited' | 'false' | null>(null);
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [orderBy, setOrderBy] = useState('Nombre A-Z');
-  const [enabledStatus, setEnabledStatus] = useState('Todos');
-=======
   const [showSuccessAlert, setShowSuccessAlert] = useState<
     "created" | "edited" | null
   >(null);
@@ -35,7 +28,6 @@ export default function Directions() {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("Nombre A-Z");
   const [enabledStatus, setEnabledStatus] = useState("Habilitados");
->>>>>>> pepi
   const [page, setPage] = useState(1);
   const [error, setError] = useState('');
   const [totalItems, setTotalItems] = useState(0);
@@ -72,10 +64,6 @@ export default function Directions() {
     if (!token) return;
     const fetchDirections = async () => {
       try {
-<<<<<<< HEAD
-        const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, enabledStatus, ['diaDomicilio'], page - 1, size);
-        console.log(result.content);
-=======
         const result = await getAllByUserId(
           token,
           filter.status,
@@ -87,7 +75,6 @@ export default function Directions() {
           page - 1,
           size,
         );
->>>>>>> pepi
         setDirections(result.content);
         setTotalItems(result.totalElements);
         console.log(result);
@@ -154,18 +141,6 @@ export default function Directions() {
       )}
       <div className="p-4 sm:p-6 lg:p-8 gap-4 felx flex-col">
         {showSuccessAlert && (
-<<<<<<< HEAD
-          <Alert variant={showSuccessAlert === 'false' ? 'danger' : 'success'} autoClose={true} onClose={() => setShowSuccessAlert(null)}>
-            <AlertTitle>
-              {showSuccessAlert === 'created' ? '¡Dirección creada correctamente!' : showSuccessAlert === 'false' ? 'Error al crear la dirección' : '¡Dirección actualizada correctamente!'}
-            </AlertTitle>
-            <AlertDescription>
-              {showSuccessAlert === 'created'
-                ? 'Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite.'
-                : showSuccessAlert === 'false'
-                  ? error || 'Ocurrió un error al guardar tu dirección. Por favor, intenta nuevamente.'
-                  : 'Los cambios en tu dirección fueron guardados exitosamente.'}
-=======
           <Alert
             variant="success"
             autoClose={true}
@@ -180,7 +155,6 @@ export default function Directions() {
               {showSuccessAlert === "created"
                 ? "Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite."
                 : "Los cambios en tu dirección fueron guardados exitosamente."}
->>>>>>> pepi
             </AlertDescription>
           </Alert>
         )}
