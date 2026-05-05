@@ -1,24 +1,48 @@
-import { Link } from 'react-router-dom';
-import NavBar from './../../components/NavBar';
-import Footer from './../../components/Footer';
-import { Helmet } from './../../components/Helmet';
-import { Card, CardContent, CardHeader, CardTitle } from './../../components/Card';
-import { Package, Users, Truck, DollarSign } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { Link } from "react-router-dom";
+import NavBar from "./../../components/NavBar";
+import Footer from "./../../components/Footer";
+import { Helmet } from "./../../components/Helmet";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "./../../components/Card";
+import { Package, Users, Truck, DollarSign } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 const AdminDashboard = () => {
-  const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  const { currentUser, isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
@@ -26,22 +50,47 @@ const AdminDashboard = () => {
     );
   }
 
-  console.log('Rendering AdminDashboard');
+  console.log("Rendering AdminDashboard");
   const opciones = [
-    { name: 'Gestión de Productos', path: '/admin/products', description: 'Administra el catálogo de productos, precios y disponibilidad.' },
-    { name: 'Gestión de Clientes', path: '/admin/customers', description: 'Administra clientes, direcciones de entrega y deudas.' },
-    { name: 'Gestión de Empleados', path: '/admin/employees', description: 'Administra el personal y sus asignaciones.' },
-    { name: 'Gestión de Camiones', path: '/admin/trucks', description: 'Administra la flota de camiones y su mantenimiento.' },
-    { name: 'Gestión de Gastos', path: '/admin/expenses', description: 'Controla y registra los gastos operativos.' },
-    { name: 'Finanzas', path: '/admin/finance', description: 'Gestiona la contabilidad y reportes financieros.' },
+    {
+      name: "Gestión de Productos",
+      path: "/admin/products",
+      description:
+        "Administra el catálogo de productos, precios y disponibilidad.",
+    },
+    {
+      name: "Gestión de Clientes",
+      path: "/admin/customers",
+      description: "Administra clientes, direcciones de entrega y deudas.",
+    },
+    {
+      name: "Gestión de Empleados",
+      path: "/admin/employees",
+      description: "Administra el personal y sus asignaciones.",
+    },
+    {
+      name: "Gestión de Camiones",
+      path: "/admin/trucks",
+      description: "Administra la flota de camiones y su mantenimiento.",
+    },
+    {
+      name: "Gestión de Gastos",
+      path: "/admin/expenses",
+      description: "Controla y registra los gastos operativos.",
+    },
+    {
+      name: "Finanzas",
+      path: "/admin/finance",
+      description: "Gestiona la contabilidad y reportes financieros.",
+    },
   ];
-  //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos 
+  //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos
   const detalles = [
-    { name: 'Total de Productos', value: '10', icon: Package },
-    { name: 'Clientes Activos', value: '145', icon: Users },
-    { name: 'Camiones Activos', value: '5', icon: Truck },
-    { name: 'Ingresos Este Mes', value: '$115.6k', icon: DollarSign },
-  ]
+    { name: "Total de Productos", value: "10", icon: Package },
+    { name: "Clientes Activos", value: "145", icon: Users },
+    { name: "Camiones Activos", value: "5", icon: Truck },
+    { name: "Ingresos Este Mes", value: "$115.6k", icon: DollarSign },
+  ];
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Helmet>
@@ -56,7 +105,10 @@ const AdminDashboard = () => {
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {detalles.map((detalle) => (
-              <Card key={detalle.name} className="border-2  border-accent shadow-sm bg-card">
+              <Card
+                key={detalle.name}
+                className="border-2  border-accent shadow-sm bg-card"
+              >
                 <CardHeader className="flex items-center space-x-3 flex-row-reverse justify-center gap-2">
                   <detalle.icon className="w-6 h-6 text-primary" />
                   <CardTitle className="text-lg font-semibold text-foreground">
@@ -64,7 +116,9 @@ const AdminDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold mr-1 text-center">{detalle.value}</p>
+                  <p className="text-2xl font-bold mr-1 text-center">
+                    {detalle.value}
+                  </p>
                 </CardContent>
               </Card>
             ))}

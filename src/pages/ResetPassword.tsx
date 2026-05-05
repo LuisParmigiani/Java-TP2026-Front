@@ -49,23 +49,32 @@ const ResetPasswordPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+
     try {
-      await resetPassword({ token: token, nuevaPassword: formData.password });
+      setIsSubmitting(true);
+      await resetPassword({
+        token: token as string,
+        nuevaPassword: formData.password,
+      });
+      toast.success("Contraseña restablecida correctamente", {
+        id: "reset-success",
+      });
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       toast.error("Error al restablecer la contraseña", { id: "reset-error" });
-      return;
+      setIsSubmitting(false);
     }
-    toast.success("Contraseña restablecida correctamente", {
-      id: "reset-success",
-    });
-    setTimeout(() => navigate("/login"), 1500);
   };
 
   const effectRan = useRef(false);
@@ -229,8 +238,8 @@ const ResetPasswordPage = () => {
               placeholder="••••••••"
               required
             />
-            <Button variant="primary" type="submit">
-              Restablecer contraseña
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Restableciendo..." : "Restablecer contraseña"}
             </Button>
           </form>
         </AuthCard>

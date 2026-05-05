@@ -87,7 +87,16 @@ export default function Dashboard() {
     SetAlert(orderId);
   };
 
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">

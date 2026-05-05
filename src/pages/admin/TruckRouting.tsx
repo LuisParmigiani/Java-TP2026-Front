@@ -1,25 +1,41 @@
-import { Helmet } from "../../components/Helmet.tsx"
-import NavBar from "../../components/NavBar.tsx"
-import Footer from "../../components/Footer.tsx"
+import { Helmet } from "../../components/Helmet.tsx";
+import NavBar from "../../components/NavBar.tsx";
+import Footer from "../../components/Footer.tsx";
 import { Link, useParams } from "react-router-dom";
-import { fetchTruckById, getDiaZonasByTruckAndDay, updateDiaZonaWithOrdenes } from "../../services/TruckService.ts";
+import {
+  fetchTruckById,
+  getDiaZonasByTruckAndDay,
+  updateDiaZonaWithOrdenes,
+} from "../../services/TruckService.ts";
 import { useEffect, useState } from "react";
 import { formatErrorResponse } from "../../lib/utils.ts";
-import type { CamionResponse, ErrorResponse } from "../../services/Interfaces.ts";
+import type {
+  CamionResponse,
+  ErrorResponse,
+} from "../../services/Interfaces.ts";
 import { Card, CardContent } from "../../components/Card.tsx";
-import DraggableTable, { type Domicilio } from "../../components/DraggableTable.tsx";
+import DraggableTable, {
+  type Domicilio,
+} from "../../components/DraggableTable.tsx";
 import { Button } from "../../components/Button.tsx";
-import { Alert, AlertTitle, AlertDescription } from "../../components/Alert.tsx";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from "../../components/Alert.tsx";
 import { toast } from "sonner";
 import { useAuth } from "../../hooks/useAuth.ts";
 
 // Etiquetas de los días de la semana (1 = Lunes, 6 = Sábado)
-const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const dayLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 const TruckRouting = () => {
   const { truckId } = useParams<{ truckId: string }>();
   const [truck, setTruck] = useState<CamionResponse | null>(null);
-  const [error, setError] = useState<{ errorTitle: string; errorMessage: string } | null>(null);
+  const [error, setError] = useState<{
+    errorTitle: string;
+    errorMessage: string;
+  } | null>(null);
   const [selectedDay, setSelectedDay] = useState<number>(1); // 1 = Lunes, 6 = Sábado
   const [domiciliosDelDia, setDomiciliosDelDia] = useState<Domicilio[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -27,7 +43,9 @@ const TruckRouting = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentDiaId, setCurrentDiaId] = useState<number | null>(null);
   // Mapa de zona -> {diaZonaId, zonaId} para manejar múltiples zonas
-  const [zonaIdMap, setZonaIdMap] = useState<Map<string, { diaZonaId: number; zonaId: number }>>(new Map());
+  const [zonaIdMap, setZonaIdMap] = useState<
+    Map<string, { diaZonaId: number; zonaId: number }>
+  >(new Map());
 
   // Cargar el camión al montar el componente
   useEffect(() => {
@@ -46,23 +64,42 @@ const TruckRouting = () => {
         const errorResponse = error as ErrorResponse;
         const formattedError = formatErrorResponse(errorResponse);
         setError(formattedError);
-        console.error('Error fetching truck data:', error);
+        console.error("Error fetching truck data:", error);
       }
     };
     loadTruck();
   }, [truckId]);
-  const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  const { currentUser, isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
@@ -85,7 +122,10 @@ const TruckRouting = () => {
       const domicilios: Domicilio[] = [];
 
       // Construir mapa de zona -> IDs
-      const newZonaIdMap = new Map<string, { diaZonaId: number; zonaId: number }>();
+      const newZonaIdMap = new Map<
+        string,
+        { diaZonaId: number; zonaId: number }
+      >();
 
       diaZonas.forEach((diaZona, index) => {
         // Guardar el diaId del primer elemento
@@ -129,12 +169,14 @@ const TruckRouting = () => {
       setZonaIdMap(newZonaIdMap);
       setDomiciliosDelDia(domicilios);
     } catch (error) {
-      console.error('Error loading domicilios for day:', error);
+      console.error("Error loading domicilios for day:", error);
       const errorResponse = error as ErrorResponse;
       const formattedError = formatErrorResponse(errorResponse);
       setError(formattedError);
       setShowAlert(true);
-      toast.error(errorResponse.mensaje || 'No se pudieron cargar los domicilios');
+      toast.error(
+        errorResponse.mensaje || "No se pudieron cargar los domicilios",
+      );
       setDomiciliosDelDia([]);
     } finally {
       setIsLoading(false);
@@ -182,7 +224,7 @@ const TruckRouting = () => {
     setIsSaving(true);
     try {
       if (!currentDiaId || zonaIdMap.size === 0) {
-        throw new Error('No se encontraron los datos necesarios del dia-zona');
+        throw new Error("No se encontraron los datos necesarios del dia-zona");
       }
 
       // Agrupar domicilios por zona para enviar al backend
@@ -215,15 +257,17 @@ const TruckRouting = () => {
         });
       }
 
-      toast.success('Orden de ruta guardado correctamente');
+      toast.success("Orden de ruta guardado correctamente");
       setShowAlert(false);
     } catch (error) {
-      console.error('Error saving route order:', error);
+      console.error("Error saving route order:", error);
       const errorResponse = error as ErrorResponse;
       const formattedError = formatErrorResponse(errorResponse);
       setError(formattedError);
       setShowAlert(true);
-      toast.error(errorResponse.mensaje || 'Error al guardar el orden de la ruta');
+      toast.error(
+        errorResponse.mensaje || "Error al guardar el orden de la ruta",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -266,13 +310,16 @@ const TruckRouting = () => {
           <Card className="mb-6">
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">
-                Camión {truck?.id}: {truck?.marca} {truck?.modelo} ({truck?.patente})
+                Camión {truck?.id}: {truck?.marca} {truck?.modelo} (
+                {truck?.patente})
               </h2>
 
               {/* Selector de días - Similar a DirectionCard */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Selecciona un día para ver su ruta:</span>
+                  <span className="text-sm font-medium text-gray-600">
+                    Selecciona un día para ver su ruta:
+                  </span>
                   <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
                     {domiciliosDelDia.length} domicilios
                   </span>
@@ -286,10 +333,11 @@ const TruckRouting = () => {
                       type="button"
                       onClick={() => handleDayChange(index + 1)}
                       disabled={isLoading}
-                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${selectedDay === index + 1
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
+                        selectedDay === index + 1
+                          ? "bg-primary text-white shadow-sm"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {label}
                     </button>
@@ -307,7 +355,10 @@ const TruckRouting = () => {
                   Cargando domicilios...
                 </div>
               ) : (
-                <DraggableTable data={domiciliosDelDia} onReorder={handleReorder} />
+                <DraggableTable
+                  data={domiciliosDelDia}
+                  onReorder={handleReorder}
+                />
               )}
             </CardContent>
           </Card>
@@ -315,13 +366,20 @@ const TruckRouting = () => {
           {/* Botón de guardar */}
           <div className="flex justify-end gap-3">
             {showAlert && (
-              <Alert variant="danger" autoClose={true} onClose={() => setShowAlert(false)}>
+              <Alert
+                variant="danger"
+                autoClose={true}
+                onClose={() => setShowAlert(false)}
+              >
                 <AlertTitle>{error?.errorTitle}</AlertTitle>
                 <AlertDescription>{error?.errorMessage}</AlertDescription>
               </Alert>
             )}
-            <Button onClick={handleSaveOrder} disabled={isSaving || domiciliosDelDia.length === 0 || isLoading}>
-              {isSaving ? 'Guardando...' : 'Guardar Orden'}
+            <Button
+              onClick={handleSaveOrder}
+              disabled={isSaving || domiciliosDelDia.length === 0 || isLoading}
+            >
+              {isSaving ? "Guardando..." : "Guardar Orden"}
             </Button>
           </div>
         </div>

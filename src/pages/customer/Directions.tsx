@@ -15,29 +15,19 @@ import { Alert, AlertTitle, AlertDescription } from "../../components/Alert";
 import { Link } from "react-router-dom";
 import { Helmet } from "../../components/Helmet";
 
-
-
 export default function Directions() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [filter, setFilter] = useState({ status: "", deliveryDay: "" });
   const [open, setOpen] = useState(false);
-<<<<<<< HEAD
-  const [showSuccessAlert, setShowSuccessAlert] = useState<'created' | 'edited' | 'false' | null>(null);
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [orderBy, setOrderBy] = useState('Nombre A-Z');
-  const [enabledStatus, setEnabledStatus] = useState('Todos');
-=======
   const [showSuccessAlert, setShowSuccessAlert] = useState<
-    "created" | "edited" | null
+    "created" | "edited" | "false" | null
   >(null);
   const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("Nombre A-Z");
-  const [enabledStatus, setEnabledStatus] = useState("Habilitados");
->>>>>>> pepi
+  const [enabledStatus, setEnabledStatus] = useState("Todos");
   const [page, setPage] = useState(1);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const size = 5;
   const { token } = useAuth();
@@ -60,8 +50,8 @@ export default function Directions() {
         setShowSuccessAlert("created");
       } catch (error) {
         setShowSuccessAlert(null);
-        setShowSuccessAlert('false');
-        setError((error as Error).message || 'Error al crear la dirección');
+        setShowSuccessAlert("false");
+        setError((error as Error).message || "Error al crear la dirección");
       }
       setOpen(false);
     };
@@ -72,10 +62,6 @@ export default function Directions() {
     if (!token) return;
     const fetchDirections = async () => {
       try {
-<<<<<<< HEAD
-        const result = await getAllByUserId(token, filter.status, null, orderBy, appliedSearchTerm, enabledStatus, ['diaDomicilio'], page - 1, size);
-        console.log(result.content);
-=======
         const result = await getAllByUserId(
           token,
           filter.status,
@@ -87,7 +73,7 @@ export default function Directions() {
           page - 1,
           size,
         );
->>>>>>> pepi
+        console.log(result.content);
         setDirections(result.content);
         setTotalItems(result.totalElements);
         console.log(result);
@@ -116,7 +102,15 @@ export default function Directions() {
       document.body.style.overflow = "auto";
     };
   }, [open]);
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (
@@ -154,33 +148,25 @@ export default function Directions() {
       )}
       <div className="p-4 sm:p-6 lg:p-8 gap-4 felx flex-col">
         {showSuccessAlert && (
-<<<<<<< HEAD
-          <Alert variant={showSuccessAlert === 'false' ? 'danger' : 'success'} autoClose={true} onClose={() => setShowSuccessAlert(null)}>
-            <AlertTitle>
-              {showSuccessAlert === 'created' ? '¡Dirección creada correctamente!' : showSuccessAlert === 'false' ? 'Error al crear la dirección' : '¡Dirección actualizada correctamente!'}
-            </AlertTitle>
-            <AlertDescription>
-              {showSuccessAlert === 'created'
-                ? 'Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite.'
-                : showSuccessAlert === 'false'
-                  ? error || 'Ocurrió un error al guardar tu dirección. Por favor, intenta nuevamente.'
-                  : 'Los cambios en tu dirección fueron guardados exitosamente.'}
-=======
           <Alert
-            variant="success"
+            variant={showSuccessAlert === "false" ? "danger" : "success"}
             autoClose={true}
             onClose={() => setShowSuccessAlert(null)}
           >
             <AlertTitle>
               {showSuccessAlert === "created"
                 ? "¡Dirección creada correctamente!"
-                : "¡Dirección actualizada correctamente!"}
+                : showSuccessAlert === "false"
+                  ? "Error al crear la dirección"
+                  : "¡Dirección actualizada correctamente!"}
             </AlertTitle>
             <AlertDescription>
               {showSuccessAlert === "created"
                 ? "Tu nueva dirección fue agregada. Estará desactivada hasta que el administrador la habilite."
-                : "Los cambios en tu dirección fueron guardados exitosamente."}
->>>>>>> pepi
+                : showSuccessAlert === "false"
+                  ? error ||
+                    "Ocurrió un error al guardar tu dirección. Por favor, intenta nuevamente."
+                  : "Los cambios en tu dirección fueron guardados exitosamente."}
             </AlertDescription>
           </Alert>
         )}

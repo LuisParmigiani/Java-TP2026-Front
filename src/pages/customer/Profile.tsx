@@ -114,7 +114,13 @@ const UserLevel = {
 };
 
 export default function Profile() {
-  const { token, currentUser, isAuthenticated, setUserProfilePic } = useAuth();
+  const {
+    token,
+    currentUser,
+    isAuthenticated,
+    setUserProfilePic,
+    loading: authLoading,
+  } = useAuth();
   const [user, setUser] = useState<UserResponse | null>(null);
   const [editing, setEditing] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -168,6 +174,14 @@ export default function Profile() {
     }
     if (token) fetchUserData();
   }, [token]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !currentUser || currentUser.role !== "Usuario") {
     return (

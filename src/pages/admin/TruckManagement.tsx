@@ -1,28 +1,28 @@
-import { useState, useEffect } from 'react';
-import { Helmet } from '../../components/Helmet.tsx';
-import NavBar from '../../components/NavBar.tsx';
-import Footer from '../../components/Footer.tsx';
-import { Card, CardContent } from '../../components/Card.tsx';
-import { Button } from '../../components/Button.tsx';
-import Input from '../../components/Input.tsx';
-import { Label } from '../../components/Label.tsx';
-import type { ErrorResponse } from '../../services/Interfaces.ts';
-import { formatErrorResponse } from '../../lib/utils.ts';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth.ts';
+import { useState, useEffect } from "react";
+import { Helmet } from "../../components/Helmet.tsx";
+import NavBar from "../../components/NavBar.tsx";
+import Footer from "../../components/Footer.tsx";
+import { Card, CardContent } from "../../components/Card.tsx";
+import { Button } from "../../components/Button.tsx";
+import Input from "../../components/Input.tsx";
+import { Label } from "../../components/Label.tsx";
+import type { ErrorResponse } from "../../services/Interfaces.ts";
+import { formatErrorResponse } from "../../lib/utils.ts";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth.ts";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../components/Select.tsx';
+} from "../../components/Select.tsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../components/Dialog.tsx';
+} from "../../components/Dialog.tsx";
 import {
   Table,
   TableBody,
@@ -30,13 +30,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../components/Table.tsx';
-import { Badge } from '../../components/Badge.tsx';
-import { Plus, Edit, Trash2, Route, Link } from 'lucide-react';
-import { toast } from 'sonner';
-import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../services/TruckService.ts';
-import type { CamionResponse } from '../../services/Interfaces.ts';
-import { Alert, AlertTitle, AlertDescription } from '../../components/Alert.tsx';
+} from "../../components/Table.tsx";
+import { Badge } from "../../components/Badge.tsx";
+import { Plus, Edit, Trash2, Route, Link } from "lucide-react";
+import { toast } from "sonner";
+import {
+  addTruck,
+  disableTruck,
+  fetchTrucks,
+  updateTruck,
+} from "../../services/TruckService.ts";
+import type { CamionResponse } from "../../services/Interfaces.ts";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from "../../components/Alert.tsx";
 
 const TrucksManagement = () => {
   const navigate = useNavigate();
@@ -45,23 +54,26 @@ const TrucksManagement = () => {
   const [editingTruck, setEditingTruck] = useState<CamionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [error, setError] = useState<{ errorTitle: string, errorMessage: string } | null>(null);
+  const [error, setError] = useState<{
+    errorTitle: string;
+    errorMessage: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchTrucks()
-      .then(data => setTrucks(data))
-      .catch(error => console.error('Failed to fetch products:', error));
+      .then((data) => setTrucks(data))
+      .catch((error) => console.error("Failed to fetch products:", error));
   }, []);
   const [formData, setFormData] = useState({
-    modelo: '',
-    patente: '',
-    kilometraje: '',
-    estado: '1',
-    marca: ''
+    modelo: "",
+    patente: "",
+    kilometraje: "",
+    estado: "1",
+    marca: "",
   });
   const rutaDeReparto = (truckId: number) => {
     navigate(`/admin/trucks/routes/${truckId}`);
-  }
+  };
   const handleOpenDialog = (truck: CamionResponse | null = null) => {
     if (truck) {
       setEditingTruck(truck);
@@ -69,29 +81,34 @@ const TrucksManagement = () => {
         modelo: truck.modelo,
         patente: truck.patente,
         kilometraje: truck.kilometraje.toString(),
-        estado: truck.estado ? '1' : '0',
-        marca: truck.marca
+        estado: truck.estado ? "1" : "0",
+        marca: truck.marca,
       });
     } else {
       setEditingTruck(null);
       setFormData({
-        modelo: '',
-        patente: '',
-        kilometraje: '',
-        estado: '1',
-        marca: ''
+        modelo: "",
+        patente: "",
+        kilometraje: "",
+        estado: "1",
+        marca: "",
       });
     }
     setIsDialogOpen(true);
   };
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.modelo || !formData.marca || !formData.patente || !formData.kilometraje) {
-      toast.error('Por favor completa todos los campos requeridos.');
+    if (
+      !formData.modelo ||
+      !formData.marca ||
+      !formData.patente ||
+      !formData.kilometraje
+    ) {
+      toast.error("Por favor completa todos los campos requeridos.");
       return;
     }
     if (Number(formData.kilometraje) < 0) {
-      toast.error('El kilometraje debe ser un valor válido.');
+      toast.error("El kilometraje debe ser un valor válido.");
       return;
     }
 
@@ -102,17 +119,17 @@ const TrucksManagement = () => {
         modelo: formData.modelo,
         patente: formData.patente,
         kilometraje: Number(formData.kilometraje),
-        estado: formData.estado === '1',
-        marca: formData.marca
+        estado: formData.estado === "1",
+        marca: formData.marca,
       };
       if (editingTruck) {
-        console.log("updateando camion")
+        console.log("updateando camion");
         await updateTruck(editingTruck.id, truckData);
-        toast.success('Camion actualizado correctamente.');
+        toast.success("Camion actualizado correctamente.");
       } else {
-        console.log("guardando camion")
+        console.log("guardando camion");
         await addTruck(truckData);
-        toast.success('Camion agregado correctamente.');
+        toast.success("Camion agregado correctamente.");
       }
 
       const updatedTrucks = await fetchTrucks();
@@ -123,37 +140,56 @@ const TrucksManagement = () => {
       const formattedError = formatErrorResponse(errorResponse);
       setError(formattedError);
       setShowAlert(true);
-      toast.error(errorResponse.mensaje)
+      toast.error(errorResponse.mensaje);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm('¿Estás seguro de eliminar este camion?')) {
+    if (window.confirm("¿Estás seguro de eliminar este camion?")) {
       disableTruck(id)
         .then(() => {
           setTrucks((prev) => prev.filter((truck) => truck.id !== id));
         })
         .catch((error) => {
-          console.error('Error deshabilitando camion:', error);
-          toast.error('Ocurrió un error al eliminar el camion.');
+          console.error("Error deshabilitando camion:", error);
+          toast.error("Ocurrió un error al eliminar el camion.");
         });
-      toast.success('Truck dado de baja.');
+      toast.success("Truck dado de baja.");
     }
   };
-  const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  const { currentUser, isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
           <title>Acceso Denegado - Sodas Rojas</title>
-          <meta name="description" content="Acceso denegado al panel de administración" />
+          <meta
+            name="description"
+            content="Acceso denegado al panel de administración"
+          />
         </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Acceso Denegado</h1>
-          <p className="text-lg mb-6">No tienes permiso para acceder a esta página.</p>
-          <Link to="/" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
+          <p className="text-lg mb-6">
+            No tienes permiso para acceder a esta página.
+          </p>
+          <Link
+            to="/"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+          >
             Volver al Inicio
           </Link>
         </div>
@@ -200,13 +236,18 @@ const TrucksManagement = () => {
                       <TableCell>{truck.patente}</TableCell>
                       <TableCell>{truck.kilometraje}</TableCell>
                       <TableCell>
-                        <Badge variant={truck.estado ? 'default' : 'secondary'}>
-                          {truck.estado ? 'Activo' : 'Inactivo'}
+                        <Badge variant={truck.estado ? "default" : "secondary"}>
+                          {truck.estado ? "Activo" : "Inactivo"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="secondary" size="icon" className="mr-1" onClick={() => rutaDeReparto(truck.id)}>
-                          <Route className='w-4 h-4' />
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="mr-1"
+                          onClick={() => rutaDeReparto(truck.id)}
+                        >
+                          <Route className="w-4 h-4" />
                         </Button>
                         <Button
                           className="mr-1"
@@ -248,7 +289,7 @@ const TrucksManagement = () => {
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
             <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
-              {editingTruck ? 'Editar Camión' : 'Agregar Camión'}
+              {editingTruck ? "Editar Camión" : "Agregar Camión"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
@@ -337,7 +378,7 @@ const TrucksManagement = () => {
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Guardando...' : 'Guardar'}
+                {isLoading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </form>
