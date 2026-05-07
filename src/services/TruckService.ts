@@ -4,8 +4,6 @@ import type { CamionRequest, CamionResponse, ErrorResponse, DiaZonaResponse, Dia
 export async function fetchTrucks(): Promise<CamionResponse[]> {
   try {
     const response = await apiGet<CamionResponse[]>('/camion');
-    console.log('Fetched trucks:', response);
-
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;

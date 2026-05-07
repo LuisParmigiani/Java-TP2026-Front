@@ -1,7 +1,7 @@
 // src/pages/admin/CustomersManagement/hooks/useCustomersFilterOptions.ts
 
 import { useState, useEffect, useMemo } from 'react';
-import { getZonas } from '../../../../services/ZoneService';
+import { fetchZones } from '../../../../services/ZoneService';
 import { fetchTrucks } from '../../../../services/TruckService';
 import { getDias } from '../../../../services/DiaService';
 import type {
@@ -28,7 +28,7 @@ export const useCustomersFilterOptions = () => {
         setLoading(true);
 
         // Traer zonas
-        const zonasData = await getZonas();
+        const zonasData = await fetchZones();
         setZones(
           zonasData.map((zona: ZonaResponse) => ({
             id: zona.id,

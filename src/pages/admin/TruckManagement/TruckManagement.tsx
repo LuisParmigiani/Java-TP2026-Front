@@ -1,28 +1,28 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from '../../components/Helmet.tsx';
-import NavBar from '../../components/NavBar.tsx';
-import Footer from '../../components/Footer.tsx';
-import { Card, CardContent } from '../../components/Card.tsx';
-import { Button } from '../../components/Button.tsx';
-import Input from '../../components/Input.tsx';
-import { Label } from '../../components/Label.tsx';
-import type { ErrorResponse } from '../../services/Interfaces.ts';
-import { formatErrorResponse } from '../../lib/utils.ts';
+import { Helmet } from '../../../components/Helmet.tsx';
+import NavBar from '../../../components/NavBar.tsx';
+import Footer from '../../../components/Footer.tsx';
+import { Card, CardContent } from '../../../components/Card.tsx';
+import { Button } from '../../../components/Button.tsx';
+import Input from '../../../components/Input.tsx';
+import { Label } from '../../../components/Label.tsx';
+import type { ErrorResponse } from '../../../services/Interfaces.ts';
+import { formatErrorResponse } from '../../../lib/utils.ts';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth.ts';
+import { useAuth } from '../../../hooks/useAuth.ts';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../components/Select.tsx';
+} from '../../../components/Select.tsx';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../components/Dialog.tsx';
+} from '../../../components/Dialog.tsx';
 import {
   Table,
   TableBody,
@@ -30,13 +30,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../components/Table.tsx';
-import { Badge } from '../../components/Badge.tsx';
+} from '../../../components/Table.tsx';
+import { Badge } from '../../../components/Badge.tsx';
 import { Plus, Edit, Trash2, Route, Link } from 'lucide-react';
 import { toast } from 'sonner';
-import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../services/TruckService.ts';
-import type { CamionResponse } from '../../services/Interfaces.ts';
-import { Alert, AlertTitle, AlertDescription } from '../../components/Alert.tsx';
+import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../../services/TruckService.ts';
+import type { CamionResponse } from '../../../services/Interfaces.ts';
+import { Alert, AlertTitle, AlertDescription } from '../../../components/Alert.tsx';
 
 const TrucksManagement = () => {
   const navigate = useNavigate();

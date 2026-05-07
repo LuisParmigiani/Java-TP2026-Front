@@ -209,6 +209,7 @@ const CustomersManagementPage = () => {
                   <CustomersTable
                     customers={customers.customers}
                     onEdit={customerDialog.handleOpenDialog}
+                    onDetails={customers.handleDetails}
                     onDelete={customers.handleDelete}
                     onNotify={notifyDialog.handleOpenDialog}
                   />

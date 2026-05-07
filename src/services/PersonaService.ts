@@ -120,3 +120,18 @@ export async function deletePersona(id: number): Promise<void> {
     throw errorResponse;
   }
 }
+
+export async function getPersona(id:number, populate?: string[]): Promise<PersonaResponse> {
+  try {
+    let query = "";
+    if (populate) {
+      query = "?populate=" + populate.join(",");
+    }
+    const response = await apiGet<PersonaResponse>(`/persona/${id}${query}`);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(`Error fetching persona with ID ${id}:`, errorResponse);
+    throw errorResponse;
+  }
+}

@@ -52,7 +52,6 @@ export default function Directions() {
         setShowSuccessAlert("created");
       } catch (error) {
         setShowSuccessAlert(null);
-        setShowSuccessAlert('false');
         setError((error as Error).message || 'Error al crear la dirección');
       }
       setOpen(false);

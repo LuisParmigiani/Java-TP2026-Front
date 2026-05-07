@@ -15,6 +15,7 @@ import { Edit, Trash2, Bell, Ellipsis } from 'lucide-react';
 interface CustomersTableProps {
   customers: PersonaResponse[];
   onEdit: (customer: PersonaResponse) => void;
+  onDetails: (customer: PersonaResponse) => void;
   onNotify: (customer: PersonaResponse) => void;
   onDelete: (id: number) => void;
 }
@@ -22,6 +23,7 @@ interface CustomersTableProps {
 export const CustomersTable = ({
   customers,
   onEdit,
+  onDetails,
   onNotify,
   onDelete,
 }: CustomersTableProps) => {
@@ -58,7 +60,7 @@ export const CustomersTable = ({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onEdit(customer)}
+                  onClick={() => onDetails(customer)}
                   title="Más opciones"
                 >
                   <Ellipsis className="w-4 h-4" />

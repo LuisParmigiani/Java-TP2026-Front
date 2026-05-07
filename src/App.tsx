@@ -14,11 +14,12 @@ import ProductsManagement from "./pages/admin/ProductsManagement.tsx";
 import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
-import TrucksManagement from "./pages/admin/TruckManagement.tsx";
+import TrucksManagement from "./pages/admin/TruckManagement/TruckManagement.tsx";
+import ZoneManagement from "./pages/admin/ZoneManagement/ZoneManagement.tsx";
 import EditWeeklyOrder from "./pages/customer/EditWeeklyOrder.tsx";
 import Pay from "./pages/customer/Pay.tsx";
-
-import TruckRouting from "./pages/admin/TruckRouting.tsx";
+import CustomerDirections from "./pages/admin/CustomersManagement/CustomerDirections.tsx";
+import TruckRouting from "./pages/admin/TruckManagement/TruckRouting.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -73,9 +74,14 @@ function App() {
           <Route path="/admin/products" element={<ProductsManagement />} />
           <Route path="/admin/customers" element={<CustomersManagement />} />
           <Route path="/admin/trucks" element={<TrucksManagement />} />
+          <Route path="/admin/zones" element={<ZoneManagement />} />
           <Route
             path="/admin/trucks/routes/:truckId"
             element={<TruckRouting />}
+          />
+          <Route
+            path="/admin/customers/:customerId/directions"
+            element={<CustomerDirections  />}
           />
 
           {/*</Route>*/}

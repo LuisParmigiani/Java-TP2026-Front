@@ -1,17 +1,17 @@
-import { Helmet } from "../../components/Helmet.tsx"
-import NavBar from "../../components/NavBar.tsx"
-import Footer from "../../components/Footer.tsx"
+import { Helmet } from "../../../components/Helmet.tsx"
+import NavBar from "../../../components/NavBar.tsx"
+import Footer from "../../../components/Footer.tsx"
 import { Link, useParams } from "react-router-dom";
-import { fetchTruckById, getDiaZonasByTruckAndDay, updateDiaZonaWithOrdenes } from "../../services/TruckService.ts";
+import { fetchTruckById, getDiaZonasByTruckAndDay, updateDiaZonaWithOrdenes } from "../../../services/TruckService.ts";
 import { useEffect, useState } from "react";
-import { formatErrorResponse } from "../../lib/utils.ts";
-import type { CamionResponse, ErrorResponse } from "../../services/Interfaces.ts";
-import { Card, CardContent } from "../../components/Card.tsx";
-import DraggableTable, { type Domicilio } from "../../components/DraggableTable.tsx";
-import { Button } from "../../components/Button.tsx";
-import { Alert, AlertTitle, AlertDescription } from "../../components/Alert.tsx";
+import { formatErrorResponse } from "../../../lib/utils.ts";
+import type { CamionResponse, ErrorResponse } from "../../../services/Interfaces.ts";
+import { Card, CardContent } from "../../../components/Card.tsx";
+import DraggableTable, { type Domicilio } from "../../../components/DraggableTable.tsx";
+import { Button } from "../../../components/Button.tsx";
+import { Alert, AlertTitle, AlertDescription } from "../../../components/Alert.tsx";
 import { toast } from "sonner";
-import { useAuth } from "../../hooks/useAuth.ts";
+import { useAuth } from "../../../hooks/useAuth.ts";
 
 // Etiquetas de los días de la semana (1 = Lunes, 6 = Sábado)
 const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
