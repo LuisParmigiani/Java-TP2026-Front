@@ -13,6 +13,7 @@ import type {
 } from '../../../../services/Interfaces';
 import { formatErrorResponse } from '../../../../lib/utils';
 import type { ClientesFilters } from './useClientesFilters.ts';
+import { useNavigate } from 'react-router-dom';
 
 export const useCustomers = (
   onError?: (error: { errorTitle: string; errorMessage: string }) => void,
@@ -23,6 +24,7 @@ export const useCustomers = (
   const [customers, setCustomers] = useState<PersonaResponse[]>([]);
   const [search, setSearch] = useState('');
   const [totalItems, setTotalItems] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -82,7 +84,9 @@ export const useCustomers = (
       return false;
     }
   };
-
+  const handleDetails = (customer: PersonaResponse) => {
+    navigate(`/admin/customers/${customer.id}/directions`);
+  };
   const handleSaveCustomer = async (
     newCustomer: PersonaResponse,
     isEditing: boolean,
@@ -113,5 +117,6 @@ export const useCustomers = (
     totalItems,
     handleDelete,
     handleSaveCustomer,
+    handleDetails,
   };
 };

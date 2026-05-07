@@ -52,37 +52,12 @@ const AdminDashboard = () => {
 
   console.log("Rendering AdminDashboard");
   const opciones = [
-    {
-      name: "Gestión de Productos",
-      path: "/admin/products",
-      description:
-        "Administra el catálogo de productos, precios y disponibilidad.",
-    },
-    {
-      name: "Gestión de Clientes",
-      path: "/admin/customers",
-      description: "Administra clientes, direcciones de entrega y deudas.",
-    },
-    {
-      name: "Gestión de Empleados",
-      path: "/admin/employees",
-      description: "Administra el personal y sus asignaciones.",
-    },
-    {
-      name: "Gestión de Camiones",
-      path: "/admin/trucks",
-      description: "Administra la flota de camiones y su mantenimiento.",
-    },
-    {
-      name: "Gestión de Gastos",
-      path: "/admin/expenses",
-      description: "Controla y registra los gastos operativos.",
-    },
-    {
-      name: "Finanzas",
-      path: "/admin/finance",
-      description: "Gestiona la contabilidad y reportes financieros.",
-    },
+    { name: 'Gestión de Productos', path: '/admin/products', description: 'Administra el catálogo de productos, precios y disponibilidad.' },
+    { name: 'Gestión de Clientes', path: '/admin/customers', description: 'Administra clientes, direcciones de entrega y deudas.' },
+    { name: 'Gestión de Empleados', path: '/admin/employees', description: 'Administra el personal y sus asignaciones.' },
+    { name: 'Gestión de Camiones', path: '/admin/trucks', description: 'Administra la flota de camiones y su mantenimiento.' },
+    { name: 'Gestión de Gastos', path: '/admin/expenses', description: 'Controla y registra los gastos operativos.' },
+    { name: 'Gestión de Zonas', path: '/admin/zones', description: 'Gestiona las zonas de reparto y sus camiones' },
   ];
   //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos
   const detalles = [

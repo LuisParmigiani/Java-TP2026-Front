@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { ZonaResponse, domicilioRequest } from "../services/Interfaces";
 import { Button } from "./Button";
 import Input from "./Input";
-import { getZonas } from "../services/ZoneService";
+import { fetchZones } from "../services/ZoneService";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./Select";
 import { z } from "zod";
 
@@ -26,7 +26,7 @@ export default function NewDirection({ close, setDirection }: Props) {
     useEffect(() => {
         const fetchZonas = async () => {
             try {
-                const response = await getZonas();
+                const response = await fetchZones();
                 setZonas(response);
             } catch (error) {
                 console.error("Error fetching zonas:", error);

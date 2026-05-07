@@ -154,11 +154,12 @@ export interface ZonaResponse {
   id: number;
   nombre: string;
   detalle: string;
-  dia?: number[];
+  diasZona: DiaZonaBaseResponse[];
   productoZonas?: ProductoZonaResponse[];
   productoZonaIds?: number[];
   domicilios?: DomicilioResponse[];
   domicilioIds?: number[];
+  camion?: CamionResponse;
 }
 
 export interface CamionResponse {
@@ -401,6 +402,16 @@ export interface DiaZonaResponse {
   zona: ZonaResponse;
   dia?: DiaDTOResponse;
 }
+export interface DiaZonaBaseResponse{
+  id: number;
+  diaId: number;
+  zonaId: number;
+}
+export interface DiaZonaRequest {
+  id: number;
+  diaId: number;
+  zonaId: number;
+}
 
 // Interfaces para guardar órdenes
 export interface DiaZonaOrdenRequest {
@@ -425,4 +436,10 @@ export interface MailDTORequest {
   destino: string,
   asunto: string,
   cuerpo: string
+}
+
+export interface DiaDomicilioRequest {
+  diaId: number;
+  domicilioId:number;
+  estado:string;
 }

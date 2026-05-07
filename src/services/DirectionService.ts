@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from "./baseClient";
-import type { DomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
+import type { DomicilioRequest,DiaDomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
 
 export async function updateDirection(
   direction: DomicilioResponse,
@@ -126,4 +126,12 @@ export async function getById(
     console.error("Error fetching direction by ID:", error);
     throw error;
   }
+}
+export async function updateDays(
+  directionId: number,
+  dias: DiaDomicilioRequest[],
+): Promise<DomicilioResponse> {
+  return await apiPut(
+    `/domicilio/${directionId}/dias`,
+      dias );
 }

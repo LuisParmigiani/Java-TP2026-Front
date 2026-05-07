@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // 1. Cargar token del storage al montar
   useEffect(() => {
-    let storedToken =
+    const storedToken =
       localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
     setToken(storedToken || null);
 
@@ -52,13 +52,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         });
         setIsAuthenticated(true);
 
-        // Obtener foto del usuario
-        try {
-          const userData = await getUser(token);
-          setUserProfilePic(userData.imagenUrl || null);
-        } catch (error) {
-          console.error("Error fetching user profile pic:", error);
-          setUserProfilePic(null);
+        // Obtener foto del usuario solo si no es administrador
+        if (decoded.role !== "Administrador") {
+          try {
+            const userData = await getUser(token);
+            setUserProfilePic(userData.imagenUrl || null);
+          } catch (error) {
+            console.error("Error fetching user profile pic:", error);
+            setUserProfilePic(null);
+          }
         }
       })
       .catch(() => {
