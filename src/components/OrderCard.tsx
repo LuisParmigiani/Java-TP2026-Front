@@ -25,11 +25,11 @@ export default function OrderCard({ prop, setAlert }: OrderCardProps) {
         if (open) {
             document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
         }
 
         return () => {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
         };
     }, [open]);
 
@@ -51,11 +51,11 @@ export default function OrderCard({ prop, setAlert }: OrderCardProps) {
         <>
             {open && (
                 <div
-                    className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm p-4 sm:p-6"
+                    className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm overflow-y-auto sm:p-6"
                     onClick={() => setOpen(false)}
                 >
                     <div
-                        className="mx-auto w-full max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-2xl"
+                        className="w-full min-h-screen sm:min-h-0 sm:mx-auto sm:max-w-3xl sm:rounded-2xl sm:my-6 sm:border sm:border-gray-200 bg-white p-6 sm:p-8 shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mb-6 flex items-start justify-between gap-4">

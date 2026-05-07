@@ -17,8 +17,9 @@ import RegisterPage from "./pages/Register.tsx";
 import TrucksManagement from "./pages/admin/TruckManagement.tsx";
 import EditWeeklyOrder from "./pages/customer/EditWeeklyOrder.tsx";
 import Pay from "./pages/customer/Pay.tsx";
-
+import DriverDashboard from "./pages/driver/DriverDashboard.tsx"
 import TruckRouting from "./pages/admin/TruckRouting.tsx";
+import Client from "./pages/driver/Client.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -56,6 +57,10 @@ function App() {
           <Route path="/products" element={<Products />} />
           {/*Rutas para el driver*/}
           <Route path="/driver/route" element={<DailyRoutePage />} />
+          <Route path="/driver/dashboard" element={<DriverDashboard />} />
+          <Route path="/driver/client" element={<Client />} />
+
+
           {/*Rutas para el Admin*/}
 
           {/*<Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>*/}

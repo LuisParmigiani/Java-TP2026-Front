@@ -104,3 +104,17 @@ export async function getById(
     throw error;
   }
 }
+
+export async function getAll(populate?: string[]): Promise<DomicilioResponse[]> {
+
+  try {
+    const query = populate ? "populate=" + populate.join(",") : "";
+    const response = await apiGet<DomicilioResponse[]>(
+      `/domicilio?${query}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching direction by ID:", error);
+    throw error;
+  }
+}

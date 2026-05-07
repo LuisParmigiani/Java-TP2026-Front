@@ -12,7 +12,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const authLogin = useAuth().login;
   const authLogout = useAuth().logout;
-  const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",

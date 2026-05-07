@@ -403,3 +403,6 @@ export interface DiaDTOResponse {
   id: number;
   nombre: string;
 }
+
+
+

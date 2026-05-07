@@ -109,6 +109,39 @@ export async function getDiaZonasByTruckAndDay(
     throw errorResponse;
   }
 }
+export async function getDiaZonasByTruckAndMe(
+  token: string,
+  day: string,
+  zona?: string,
+  venta?: string,
+  direccion?: string,
+  populate?: string[]
+): Promise<DiaZonaResponse[]> {
+  try {
+    let query = ''
+    if (zona) {
+      query += `&zona=${zona}`;
+    }
+    if (venta) {
+      query += `&venta=${venta}`;
+    }
+    if (direccion) {
+      query += `&direccion=${direccion}`;
+    }
+    const url = `dia-zona/camion/me/dia/${day}?${populate ? `populate=${populate.join(',')}` : ''}${query}`;
+    console.log(url)
+
+    const response = await apiGet<DiaZonaResponse[]>(url, token);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(
+      `Error fetching dia-zona for truck, day ${day}:`,
+      errorResponse,
+    );
+    throw errorResponse;
+  }
+}
 
 /**
  * Actualiza el orden de los domicilios en una dia-zona
