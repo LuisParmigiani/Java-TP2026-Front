@@ -16,6 +16,7 @@ export async function fetchTrucks(): Promise<CamionResponse[]> {
 export async function fetchTruckById(truckId: number): Promise<CamionResponse> {
   try {
     const response = await apiGet<CamionResponse>(`/camion/${truckId}`);
+
     console.log(`Fetched truck with ID ${truckId}:`, response);
     return response;
   } catch (error) {
@@ -96,9 +97,9 @@ export async function getDiaZonasByTruckAndDay(
 ): Promise<DiaZonaResponse[]> {
   try {
     const response = await apiGet<DiaZonaResponse[]>(
-      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden`,
+      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`,
     );
-    console.log(`Fetched dia-zona for truck ${truckId}, day ${day}:`, response);
+
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;

@@ -1,14 +1,13 @@
-import type { DiaZonaResponse } from "../services/Interfaces";
+import type { DiaZonaOrdenResponse, DiaZonaResponse } from "../services/Interfaces";
 import { useState } from "react";
-
+import { Button } from "./Button";
 
 interface Props {
     directions: DiaZonaResponse[] | null | undefined
+    onRealizarVenta?: (delivery: DiaZonaOrdenResponse) => void
 }
 
-export default function DirectionTable(
-    prop: Props
-) {
+export default function DirectionTable({ directions, onRealizarVenta }: Props) {
     const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
 
     const toggleRow = (key: string) => {
@@ -23,8 +22,8 @@ export default function DirectionTable(
                     <p className="text-center">Numero</p>
                     <p className="text-right">Casa:</p>
                 </div>
-                {prop.directions && prop.directions.length > 0 ? (
-                    prop.directions.map((diaZona) =>
+                {directions && directions.length > 0 ? (
+                    directions.map((diaZona) =>
                         diaZona.diaZonaOrdenes && diaZona.diaZonaOrdenes.length > 0 ? (
                             diaZona.diaZonaOrdenes.map((orden) => {
                                 const key = `${diaZona.id}-${orden.id}`;
@@ -71,6 +70,20 @@ export default function DirectionTable(
                                                             </p>
                                                         </div>
                                                     </div>
+                                                    {(onRealizarVenta) && (
+                                                        <div className="flex gap-2 pt-2 border-t border-gray-200">
+
+                                                            {onRealizarVenta && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                                                                    onClick={(e) => { e.stopPropagation(); onRealizarVenta(orden); }}
+                                                                >
+                                                                    Realizar Venta
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
