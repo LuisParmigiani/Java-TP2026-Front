@@ -121,3 +121,15 @@ export async function getActiveProducts(
     throw error;
   }
 }
+
+export async function getZonaProducts(zona: number): Promise<ProductoResponse[]> {
+  try {
+    const response = await apiGet<ProductoResponse[]>(`/producto/Zona/${zona}`);
+    console.log("Fetched products:", response);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+}

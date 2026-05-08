@@ -53,8 +53,8 @@ const Header = () => {
 
   const driverLinks: NavLink[] = [
     { path: "/driver/dashboard", label: "Panel", icon: LayoutDashboard },
-    { path: "/driver/daily-route", label: "Ruta Diaria", icon: Truck },
-    { path: "/driver/stock-control", label: "Inventario", icon: Package },
+    { path: "/driver/route", label: "Ruta Diaria", icon: Truck },
+    { path: "/driver/client", label: "Clientes", icon: Package },
   ];
 
   const adminLinks: NavLink[] = [

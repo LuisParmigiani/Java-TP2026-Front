@@ -57,7 +57,7 @@ export interface PersonaResponse {
   domicilioIds?: number[];
   usuario?: UserResponse;
   usuarioId?: number;
-  estado?: 'Habilitado' | 'Deshabilitado'| 'Pendiente';
+  estado?: 'Habilitado' | 'Deshabilitado' | 'Pendiente';
 }
 
 export interface PagoResponse {
@@ -402,7 +402,7 @@ export interface DiaZonaResponse {
   zona: ZonaResponse;
   dia?: DiaDTOResponse;
 }
-export interface DiaZonaBaseResponse{
+export interface DiaZonaBaseResponse {
   id: number;
   diaId: number;
   zonaId: number;
@@ -440,6 +440,6 @@ export interface MailDTORequest {
 
 export interface DiaDomicilioRequest {
   diaId: number;
-  domicilioId:number;
-  estado:string;
+  domicilioId: number;
+  estado: string;
 }

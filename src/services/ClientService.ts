@@ -44,3 +44,12 @@ export async function UpdateUserAPersona(
     throw error;
   }
 }
+
+
+export async function getDriverInfo(token: string, populate?: string[]): Promise<UserResponse> {
+  let query = "";
+  if (populate.length > 0) {
+    query = "?populate=" + populate.join(",");
+  }
+  return await apiGet<UserResponse>(`/usuario/driver${query}`, token);
+}

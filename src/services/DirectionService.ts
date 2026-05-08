@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut } from "./baseClient";
-import type { DomicilioRequest,DiaDomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
+import type { DomicilioRequest, DiaDomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
 
 export async function updateDirection(
   direction: DomicilioResponse,
@@ -86,16 +86,16 @@ export async function getAllByUserId(
 }
 export async function fetchDomiciliosByCalleAndNumero(
   populate?: string[],
-  calleYNumero ?: string,
-  ): Promise<DomicilioResponse[]> {
+  calleYNumero?: string,
+): Promise<DomicilioResponse[]> {
   try {
     let query = "";
     if (populate) {
       query = "populate=" + populate.join(",") + "&";
     }
     if (calleYNumero) {
-      
-      query = query + "calleNumero=" + calleYNumero ;
+
+      query = query + "calleNumero=" + calleYNumero;
     }
     console.log(`domicilio/search?${query}`);
     const response = await apiGet<DomicilioResponse[]>(
@@ -133,5 +133,19 @@ export async function updateDays(
 ): Promise<DomicilioResponse> {
   return await apiPut(
     `/domicilio/${directionId}/dias`,
-      dias );
+    dias);
+}
+
+export async function getAll(populate?: string[]): Promise<DomicilioResponse[]> {
+
+  try {
+    const query = populate ? "populate=" + populate.join(",") : "";
+    const response = await apiGet<DomicilioResponse[]>(
+      `/domicilio?${query}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching direction by ID:", error);
+    throw error;
+  }
 }

@@ -44,6 +44,7 @@ const TruckRouting = () => {
       try {
         // Obtener datos del camión para mostrar info
         const truckData = await fetchTruckById(id);
+
         setTruck(truckData);
         // Cargar domicilios del primer día (lunes = 1)
         await loadDomiciliosForDay(id, 1);
@@ -103,7 +104,11 @@ const TruckRouting = () => {
     try {
       // Llamar al endpoint que devuelve dia-zona con domicilios ordenados
       const diaZonas = await getDiaZonasByTruckAndDay(truckIdParam, day);
-
+      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
+      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
+      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
+      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
+      console.log('Dia-zonas obtenidos para el día:', diaZonas);
       // Transformar la respuesta a array de Domicilios
       // Iteramos cada dia-zona y sus domicilios ordenados
       const domicilios: Domicilio[] = [];
