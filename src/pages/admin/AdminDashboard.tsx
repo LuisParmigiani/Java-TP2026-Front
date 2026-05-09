@@ -10,9 +10,11 @@ import {
 } from "./../../components/Card";
 import { Package, Users, Truck, DollarSign } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { PendingDomiciliosTable } from "../../components/PendingDomiciliosTable";
 
 const AdminDashboard = () => {
   const { currentUser, isAuthenticated, loading } = useAuth();
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
@@ -50,14 +52,13 @@ const AdminDashboard = () => {
     );
   }
 
-  console.log("Rendering AdminDashboard");
   const opciones = [
-    { name: 'Gestión de Productos', path: '/admin/products', description: 'Administra el catálogo de productos, precios y disponibilidad.' },
-    { name: 'Gestión de Clientes', path: '/admin/customers', description: 'Administra clientes, direcciones de entrega y deudas.' },
-    { name: 'Gestión de Empleados', path: '/admin/employees', description: 'Administra el personal y sus asignaciones.' },
-    { name: 'Gestión de Camiones', path: '/admin/trucks', description: 'Administra la flota de camiones y su mantenimiento.' },
-    { name: 'Gestión de Gastos', path: '/admin/expenses', description: 'Controla y registra los gastos operativos.' },
-    { name: 'Gestión de Zonas', path: '/admin/zones', description: 'Gestiona las zonas de reparto y sus camiones' },
+    { name: "Gestión de Productos", path: "/admin/products", description: "Administra el catálogo de productos, precios y disponibilidad." },
+    { name: "Gestión de Clientes", path: "/admin/customers", description: "Administra clientes, direcciones de entrega y deudas." },
+    { name: "Gestión de Empleados", path: "/admin/employees", description: "Administra el personal y sus asignaciones." },
+    { name: "Gestión de Camiones", path: "/admin/trucks", description: "Administra la flota de camiones y su mantenimiento." },
+    { name: "Gestión de Gastos", path: "/admin/expenses", description: "Controla y registra los gastos operativos." },
+    { name: "Gestión de Zonas", path: "/admin/zones", description: "Gestiona las zonas de reparto y sus camiones" },
   ];
   //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos
   const detalles = [
@@ -66,6 +67,7 @@ const AdminDashboard = () => {
     { name: "Camiones Activos", value: "5", icon: Truck },
     { name: "Ingresos Este Mes", value: "$115.6k", icon: DollarSign },
   ];
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Helmet>
@@ -78,11 +80,12 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground mb-8 tracking-tight">
             Panel de Administración
           </h1>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {detalles.map((detalle) => (
               <Card
                 key={detalle.name}
-                className="border-2  border-accent shadow-sm bg-card"
+                className="border-2 border-accent shadow-sm bg-card"
               >
                 <CardHeader className="flex items-center space-x-3 flex-row-reverse justify-center gap-2">
                   <detalle.icon className="w-6 h-6 text-primary" />
@@ -102,10 +105,10 @@ const AdminDashboard = () => {
           <h2 className="text-xl font-semibold text-foreground mb-6">
             Gestión del Sistema
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             {opciones.map((opcion) => (
               <Link key={opcion.path} to={opcion.path} className="block group">
-                <Card className=" mx-1 bg-card text-card-foreground border-2 border-primary/70 shadow-sm group-hover:shadow-md  group-hover:border-primary transition-all h-full">
+                <Card className="mx-1 bg-card text-card-foreground border-2 border-primary/70 shadow-sm group-hover:shadow-md group-hover:border-primary transition-all h-full">
                   <CardHeader>
                     <CardTitle className="text-lg group-hover:text-primary group-hover:font-bold transition-all">
                       {opcion.name}
@@ -120,6 +123,15 @@ const AdminDashboard = () => {
               </Link>
             ))}
           </div>
+
+          <h2 className="text-xl font-semibold text-foreground mb-4">
+            Domicilios Pendientes de Habilitación
+          </h2>
+          <Card className="border-2 border-accent shadow-sm bg-card mb-10">
+            <CardContent className="pt-4">
+              <PendingDomiciliosTable />
+            </CardContent>
+          </Card>
         </div>
       </main>
       <Footer />

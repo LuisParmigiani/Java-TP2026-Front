@@ -170,3 +170,18 @@ export async function postDirectionAdmin(
     throw errorResponse;
   }
 }
+
+export async function getPending(
+  populate?: string[],
+): Promise<DomicilioResponse[]> {
+  try {
+    const query = populate ? "populate=" + populate.join(",") : "";
+    const response = await apiGet<DomicilioResponse[]>(
+      `/domicilio/pendientes?${query}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching pending directions:", error);
+    throw error;
+  }
+}
