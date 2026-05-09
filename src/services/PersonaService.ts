@@ -86,9 +86,9 @@ export async function searchPersonas(
 }
 
 
-export async function updatePersona(id: number, updatedData: Partial<Omit<PersonaRequest, 'id'>>): Promise<PersonaResponse> {
+export async function updatePersona(id: number, updatedData: Partial<Omit<PersonaRequest, 'id'>>, token?: string): Promise<PersonaResponse> {
   try {
-    const response = await apiPut<PersonaResponse>(`/persona/${id}`, updatedData);
+    const response = await apiPut<PersonaResponse>(`/persona/${id}`, updatedData, token);
     console.log('Updated persona:', response);
     return response;
   } catch (error) {
@@ -98,18 +98,17 @@ export async function updatePersona(id: number, updatedData: Partial<Omit<Person
   }
 }
 
-export async function addPersona(personaData: Omit<PersonaRequest, 'id'>): Promise<PersonaResponse> {
+export async function addPersona(personaData: Omit<PersonaRequest, 'id'>, token?: string): Promise<PersonaResponse> {
   try {
-    const response = await apiPost<PersonaResponse>('/persona', personaData);
+    const response = await apiPost<PersonaResponse>('/persona', personaData, token);
     console.log('Created persona:', response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
     console.error('Error creating persona:', errorResponse);
     throw errorResponse;
-  
-  
-  }}
+  }
+}
 export async function deletePersona(id: number): Promise<void> {
   try {
     await apiDelete(`/persona/${id}/disable`);

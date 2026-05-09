@@ -50,19 +50,23 @@ function DirectionCard(props: Props) {
   };
 
   const isPending = direction.habilitado === "Pendiente";
+  const isDeshabilitado = direction.habilitado === "Deshabilitado";
+  const canEdit = !isPending && !isDeshabilitado;
 
   const headerBg = isPending
     ? "bg-yellow-100"
-    : direction.activo === "Activa"
-      ? "bg-green-100"
-      : "bg-red-100";
+    : isDeshabilitado
+      ? "bg-orange-100"
+      : direction.activo === "Activa"
+        ? "bg-green-100"
+        : "bg-red-100";
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <button
         type="button"
-        onClick={() => setOpen((current) => !current)}
-        className={`group flex w-full items-start justify-between gap-4 ${headerBg} px-5 py-4 text-left transition-colors hover:from-gray-50 hover:to-gray-100`}
+        onClick={() => canEdit && setOpen((current) => !current)}
+        className={`group flex w-full items-start justify-between gap-4 ${headerBg} px-5 py-4 text-left transition-colors ${canEdit ? "hover:from-gray-50 hover:to-gray-100" : "cursor-default"}`}
       >
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -79,12 +83,23 @@ function DirectionCard(props: Props) {
                   Pendiente de aprobación
                 </span>
               )}
+              {isDeshabilitado && (
+                <span className="mt-1 inline-block rounded-full bg-orange-400 px-2 py-0.5 text-xs font-semibold text-orange-900">
+                  Deshabilitado. Contactese con nosoptros para mas información.
+                </span>
+              )}
             </div>
           </div>
         </div>
-        <span className="mt-1 rounded-full border bg-gray-50 border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-tertiary-300 group-hover:border-tertiary-400 group-hover:text-tertiary-900">
-          {open ? "Cerrar edición" : "Editar"}
-        </span>
+        {canEdit ? (
+          <span className="mt-1 rounded-full border bg-gray-50 border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-tertiary-300 group-hover:border-tertiary-400 group-hover:text-tertiary-900">
+            {open ? "Cerrar edición" : "Editar"}
+          </span>
+        ) : (
+          <span className="mt-1 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-400 cursor-default">
+            No editable
+          </span>
+        )}
       </button>
 
       <div className="px-5 pb-5">
@@ -114,7 +129,7 @@ function DirectionCard(props: Props) {
           </div>
         </div>
 
-        {open && (
+        {open && canEdit && (
           <div className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-inner">
             <h2 className="text-lg font-semibold text-gray-900">
               Editar Dirección

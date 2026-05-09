@@ -33,6 +33,7 @@ export default function EditWeeklyOrder() {
   const [sortOption, setSortOption] = useState<string>("Mas Recientes");
   const [directionName, setDirectionName] = useState<string>("");
   const [alert, setAlert] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!domicilioId) return;
@@ -121,8 +122,8 @@ export default function EditWeeklyOrder() {
     setSelectedProducts(initialProducts);
   };
   const postNewSemanalOrder = async () => {
+    setSaving(true);
     try {
-      // Clear array first and build new orders
       const newOrders = selectedProducts.map((item) => ({
         cantidad: item.quantity,
         productoId: item.product.id,
@@ -133,6 +134,8 @@ export default function EditWeeklyOrder() {
     } catch (error) {
       console.error("Error al enviar el pedido semanal modificado:", error);
       setAlert(-1);
+    } finally {
+      setSaving(false);
     }
   };
   const { currentUser, isAuthenticated, loading } = useAuth();
@@ -184,7 +187,7 @@ export default function EditWeeklyOrder() {
                 <div className="flex flex-col items-center gap-2">
                   Muchas gracias por modificar el pedido semanal.
                   <LinkButton
-                    url="/customer/semanalOrder"
+                    url="/customer/editWeeklyOrder"
                     variant="outline"
                     size="sm"
                     name="Finalizar."
@@ -217,11 +220,14 @@ export default function EditWeeklyOrder() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           <button
-            disabled={!hasChanges}
-            className="my-6 w-full px-6 py-3 rounded-md bg-primary text-white hover:bg-primary-hover text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!hasChanges || saving}
+            className="my-6 w-full px-6 py-3 rounded-md bg-primary text-white hover:bg-primary-hover text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             onClick={postNewSemanalOrder}
           >
-            Modificar
+            {saving && (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            )}
+            {saving ? "Guardando..." : "Modificar"}
           </button>
           <button
             disabled={!hasChanges}

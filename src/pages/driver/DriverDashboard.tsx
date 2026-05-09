@@ -11,12 +11,14 @@ import { getDriverInfo } from '../../services/ClientService';
 import { useAuth } from '../../hooks/useAuth';
 import type { PersonaResponse } from '../../services/Interfaces';
 import AddCustomerDialog from './AddCustomerDialog';
+import NewDirection from '../../components/CreateDirection';
 
 export default function DriverDashboard() {
     const { token } = useAuth();
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDirectionOpen, setIsDirectionOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<PersonaResponse | null>(null);
 
     useEffect(() => {
@@ -87,6 +89,9 @@ export default function DriverDashboard() {
                             <Button onClick={() => handleOpenDialog()}>
                                 <Plus className="w-4 h-4 mr-2" /> Agregar Cliente
                             </Button>
+                            <Button onClick={() => setIsDirectionOpen(true)}>
+                                <Plus className="w-4 h-4 mr-2" /> Agregar Domicilio
+                            </Button>
                         </div>
                     </div>
                 </>
@@ -104,6 +109,7 @@ export default function DriverDashboard() {
                 editingCustomer={editingCustomer}
                 onSave={handleSave}
             />
+            <NewDirection open={isDirectionOpen} onClose={() => setIsDirectionOpen(false)} />
         </div>
     );
 }

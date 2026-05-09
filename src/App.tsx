@@ -22,6 +22,7 @@ import CustomerDirections from "./pages/admin/CustomersManagement/CustomerDirect
 import TruckRouting from "./pages/admin/TruckManagement/TruckRouting.tsx";
 import DriverDashboard from "./pages/driver/DriverDashboard.tsx"
 import Client from "./pages/driver/Client.tsx";
+import Expenses from "./pages/admin/expenses.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
 }
@@ -81,6 +82,7 @@ function App() {
           <Route path="/admin/customers" element={<CustomersManagement />} />
           <Route path="/admin/trucks" element={<TrucksManagement />} />
           <Route path="/admin/zones" element={<ZoneManagement />} />
+          <Route path="/admin/expenses" element={<Expenses />} />
           <Route
             path="/admin/trucks/routes/:truckId"
             element={<TruckRouting />}

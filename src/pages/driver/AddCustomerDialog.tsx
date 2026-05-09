@@ -79,8 +79,8 @@ export default function AddCustomerDialog({ open, onOpenChange, editingCustomer,
     const set = (field: keyof FormData) => (value: string) =>
         setFormData(prev => ({ ...prev, [field]: value }) as FormData);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = () => {
+
         const result = customerSchema.safeParse(formData);
         if (!result.success) {
             const fieldErrors: Record<string, string> = {};

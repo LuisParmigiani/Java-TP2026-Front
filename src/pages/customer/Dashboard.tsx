@@ -47,6 +47,7 @@ export default function Dashboard() {
             setContainers((current) => current + producto.cantVaciosActuales);
           });
         });
+
         const result2 = await getAllByUserId(
           token,
           null,
@@ -59,7 +60,7 @@ export default function Dashboard() {
           3,
         );
         setDirections(result2.content);
-
+        console.log(result2.content);
         const response = await getByUserId(
           token,
           ["lineaPedido", "productoZona", "producto", "domicilio"],
@@ -179,12 +180,12 @@ export default function Dashboard() {
                   (user?.persona?.saldo ?? 0) < 0
                     ? "Poseés una deuda pendiente de pago."
                     : (user?.persona?.saldo ?? 0) >=
-                          (user?.precioPedidosSemanales ?? 0) &&
-                        (user?.precioPedidosSemanales ?? 0) > 0
+                      (user?.precioPedidosSemanales ?? 0) &&
+                      (user?.precioPedidosSemanales ?? 0) > 0
                       ? "Tu saldo cubre tu próximo pedido semanal."
                       : user?.persona?.saldo === 0 &&
-                          (user?.precioPedidosSemanales === 0 ||
-                            !user?.precioPedidosSemanales)
+                        (user?.precioPedidosSemanales === 0 ||
+                          !user?.precioPedidosSemanales)
                         ? "Tu saldo está al día y no tienes pedidos pendientes."
                         : "Tu saldo no alcanza para tu próximo pedido semanal."
                 }
@@ -192,11 +193,11 @@ export default function Dashboard() {
                   (user?.persona?.saldo ?? 0) < 0
                     ? "redCard"
                     : ((user?.persona?.saldo ?? 0) >=
-                          (user?.precioPedidosSemanales ?? 0) &&
-                          (user?.precioPedidosSemanales ?? 0) > 0) ||
-                        (user?.persona?.saldo === 0 &&
-                          (user?.precioPedidosSemanales === 0 ||
-                            !user?.precioPedidosSemanales))
+                      (user?.precioPedidosSemanales ?? 0) &&
+                      (user?.precioPedidosSemanales ?? 0) > 0) ||
+                      (user?.persona?.saldo === 0 &&
+                        (user?.precioPedidosSemanales === 0 ||
+                          !user?.precioPedidosSemanales))
                       ? "greenCard"
                       : "yellowCard"
                 }

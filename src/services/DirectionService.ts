@@ -21,7 +21,7 @@ export async function updateDirection(
 
 export async function postDirection(
   direction: DomicilioRequest,
-  token?: string,
+  token: string,
 ): Promise<DomicilioResponse> {
   try {
     console.log("Posting new direction with data:", direction);
@@ -147,5 +147,26 @@ export async function getAll(populate?: string[]): Promise<DomicilioResponse[]> 
   } catch (error) {
     console.error("Error fetching direction by ID:", error);
     throw error;
+  }
+
+
+
+}
+
+
+export async function postDirectionAdmin(
+  direction: DomicilioRequest,
+): Promise<DomicilioResponse> {
+  try {
+    console.log("Posting new direction with data:", direction);
+    const response = await apiPost<DomicilioResponse>(
+      "/domicilio/admin",
+      direction
+    );
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error("Error posting new direction:", errorResponse);
+    throw errorResponse;
   }
 }

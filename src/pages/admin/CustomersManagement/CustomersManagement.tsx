@@ -24,6 +24,7 @@ import { useDomicilios } from './hooks/useDomicilios';
 import { useNotifyDialog } from './hooks/useNotifyDialog';
 import { customerSchema } from './customerSchema';
 import { useCustomerDialog } from './hooks/useCustomerDialog';
+import NewDirection from '../../../components/CreateDirection';
 import { ClientesFilter } from './components/ClientesFilter';
 import Pagination from '../../../components/Pagination.tsx';
 import { useClientesFilters } from './hooks/useClientesFilters'; 
@@ -50,6 +51,7 @@ const CustomersManagementPage = () => {
     errorMessage: string;
   } | null>(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [isDirectionOpen, setIsDirectionOpen] = useState(false);
 
   // Proteger ruta
   useEffect(() => {
@@ -246,7 +248,7 @@ const CustomersManagementPage = () => {
                   }
                 />
               </div>
-              <Button onClick={() => customerDialog.handleOpenDialog()}>
+              <Button onClick={() => setIsDirectionOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" /> Agregar Domicilio
               </Button>
             </div>
@@ -279,6 +281,8 @@ const CustomersManagementPage = () => {
         notificationMsg={notifyDialog.message}
         setNotificationMsg={notifyDialog.setMessage}
       />
+
+      <NewDirection open={isDirectionOpen} onClose={() => setIsDirectionOpen(false)} />
 
       <Footer />
     </div>

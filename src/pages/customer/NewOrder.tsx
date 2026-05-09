@@ -115,6 +115,7 @@ export default function NewOrder() {
     };
     const response = await createSale(orderDetails);
     console.log("Respuesta del servidor:", response);
+    setOpen(false);
   };
 
   const changeDirection = (value: string) => {

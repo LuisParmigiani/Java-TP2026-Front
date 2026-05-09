@@ -80,8 +80,6 @@ const DailyRoutePage = () => {
         setLoading(true);
         const dayName = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
         const response = await getDiaZonasByTruckAndMe(token, dayName, zona, 'true', null, ['diaZonaOrden', 'venta', 'domicilio', 'persona', 'productosDomicilio']);
-
-
         setDeliveries(response);
         setError(null);
       } catch (err) {
