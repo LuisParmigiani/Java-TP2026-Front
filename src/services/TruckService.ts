@@ -163,3 +163,14 @@ export async function updateDiaZonaWithOrdenes(
     throw errorResponse;
   }
 }
+
+export async function active(): Promise<CamionResponse[]> {
+  try {
+    const response = await apiGet<CamionResponse[]>('/camion/active');
+    console.log('Activated truck:', response);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error('Error activating truck:', errorResponse);
+  }
+}

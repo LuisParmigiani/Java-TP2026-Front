@@ -12,3 +12,8 @@ export async function getPagos(token: string, populate?: string[]): Promise<Pago
 export async function createPago(token: string, pago: PagoRequest): Promise<PagoResponse> {
     return await apiPost<PagoResponse>('/pago/me', pago, token);
 }
+
+export async function getPagoById(): Promise<number> {
+
+    return await apiGet<number>(`/pago/ingressos`);
+}   

@@ -1,6 +1,6 @@
 
 import { apiDelete, apiGet, apiPost, apiPut } from './baseClient.ts';
-import type {PersonaResponse,ErrorResponse,PersonaRequest, PaginationResponse} from './Interfaces.ts';
+import type { PersonaResponse, ErrorResponse, PersonaRequest, PaginationResponse } from './Interfaces.ts';
 
 export async function fetchPersonas(
   currentPage: number = 0,
@@ -120,7 +120,7 @@ export async function deletePersona(id: number): Promise<void> {
   }
 }
 
-export async function getPersona(id:number, populate?: string[]): Promise<PersonaResponse> {
+export async function getPersona(id: number, populate?: string[]): Promise<PersonaResponse> {
   try {
     let query = "";
     if (populate) {
@@ -131,6 +131,17 @@ export async function getPersona(id:number, populate?: string[]): Promise<Person
   } catch (error) {
     const errorResponse = error as ErrorResponse;
     console.error(`Error fetching persona with ID ${id}:`, errorResponse);
+    throw errorResponse;
+  }
+}
+
+export async function getActiveClients(): Promise<PersonaResponse[]> {
+  try {
+    const response = await apiGet<PersonaResponse[]>(`/persona/client/active`);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error(`Error fetching active clients:`, errorResponse);
     throw errorResponse;
   }
 }

@@ -11,9 +11,40 @@ import {
 import { Package, Users, Truck, DollarSign } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { PendingDomiciliosTable } from "../../components/PendingDomiciliosTable";
+import { useEffect, useState } from "react";
+import { getActiveClients } from "../../services/PersonaService";
+import { active } from "../../services/TruckService";
+import { getAllProducts } from "../../services/ProductService";
+import { getPagoById } from "../../services/payService";
+
 
 const AdminDashboard = () => {
   const { currentUser, isAuthenticated, loading } = useAuth();
+  const [cantProductos, setCantProductos] = useState(0);
+  const [cantClientes, setCantClientes] = useState(0);
+  const [cantTrucks, setCantTrucks] = useState(0);
+  const [ingresos, setIngresos] = useState(0);
+
+  useEffect(() => {
+    const searchInformation = async () => {
+      try {
+        const response = await getActiveClients();
+        setCantClientes(response.length);
+        const cantTrucksResponse = await active();
+        setCantTrucks(cantTrucksResponse.length);
+        const responseProducts = await getAllProducts();
+        setCantProductos(responseProducts.length);
+        const returningresos = await getPagoById();
+        setIngresos(returningresos);
+
+      } catch (error) {
+        console.error("Error al obtener la información de búsqueda:", error);
+      }
+    };
+
+    searchInformation();
+  }, []);
+
 
   if (loading) {
     return (
@@ -59,14 +90,14 @@ const AdminDashboard = () => {
     { name: 'Gestión de Camiones', path: '/admin/trucks', description: 'Administra la flota de camiones ' },
     { name: 'Gestión de Gastos', path: '/admin/expenses', description: 'Controla y registra los gastos operativos.' },
     { name: 'Gestión de Zonas', path: '/admin/zones', description: 'Gestiona las zonas de reparto y sus camiones' },
-    { name: 'Gestión de Cargas', path: '/admin/loads', description: 'Gestiona las cargas para repartir'}
+    { name: 'Gestión de Cargas', path: '/admin/loads', description: 'Gestiona las cargas para repartir' }
   ];
   //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos
   const detalles = [
-    { name: "Total de Productos", value: "10", icon: Package },
-    { name: "Clientes Activos", value: "145", icon: Users },
-    { name: "Camiones Activos", value: "5", icon: Truck },
-    { name: "Ingresos Este Mes", value: "$115.6k", icon: DollarSign },
+    { name: "Total de Productos", value: cantProductos.toString(), icon: Package },
+    { name: "Clientes Activos", value: cantClientes.toString(), icon: Users },
+    { name: "Camiones Activos", value: cantTrucks.toString(), icon: Truck },
+    { name: "Ingresos Este Mes", value: `$${ingresos.toFixed(2)}`, icon: DollarSign },
   ];
 
   return (

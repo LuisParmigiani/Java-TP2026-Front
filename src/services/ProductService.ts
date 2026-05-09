@@ -133,3 +133,16 @@ export async function getZonaProducts(zona: number): Promise<ProductoResponse[]>
     throw error;
   }
 }
+
+
+
+export async function getAllProducts(): Promise<ProductoResponse[]> {
+  try {
+    const response = await apiGet<ProductoResponse[]>("/producto");
+    console.log("Fetched all products:", response);
+    return response;
+  } catch (error) {
+    console.error("Error fetching all products:", error);
+    throw error;
+  }
+}
