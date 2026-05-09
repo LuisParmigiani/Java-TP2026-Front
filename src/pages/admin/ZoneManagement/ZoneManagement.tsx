@@ -260,6 +260,7 @@ const handleDelete = (id: number) => {
             <Button onClick={() => handleOpenDialog()}>
               <Plus className="w-4 h-4 mr-2" /> Agregar Zona
             </Button>
+
           </div>
 
           <Card>
@@ -442,6 +443,7 @@ const handleDelete = (id: number) => {
               >
                 Cancelar
               </Button>
+
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? 'Guardando...' : 'Guardar'}
               </Button>

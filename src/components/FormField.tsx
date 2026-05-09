@@ -36,7 +36,7 @@ export const FormField: React.FC<InputFieldProps> = ({
   ...props
 }) => (
   <div className="flex flex-col gap-2">
-    <label htmlFor={name} className="font-semibold text-lg">
+    <label htmlFor={name} className="font-semibold text-md">
       {label}
       {required && <span className="text-primary ml-1">*</span>}
     </label>

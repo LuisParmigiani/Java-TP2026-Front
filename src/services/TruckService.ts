@@ -1,9 +1,9 @@
 import { apiGet, apiPost, apiPut, apiPatch } from './baseClient.ts';
 import type { CamionRequest, CamionResponse, ErrorResponse, DiaZonaResponse, DiaZonaDTORequestWithOrdenes } from './Interfaces.ts';
 
-export async function fetchTrucks(): Promise<CamionResponse[]> {
+export async function fetchTrucks(token: string): Promise<CamionResponse[]> {
   try {
-    const response = await apiGet<CamionResponse[]>('/camion');
+    const response = await apiGet<CamionResponse[]>('/camion', token);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
