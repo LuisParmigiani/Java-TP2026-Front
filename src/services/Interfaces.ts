@@ -203,8 +203,9 @@ export interface CargaResponse {
   usuarioId?: number;
   camion?: CamionResponse;
   camionId?: number;
-  cargaProductos?: CargaProductoResponse[];
+  cargasProducto?: CargaProductoResponse[];
   cargaProductoIds?: number[];
+  estado?: string;
 }
 
 export interface CargaProductoResponse {
@@ -232,6 +233,46 @@ export interface DiaResponse {
   nombre: string;
 }
 
+export interface DiaZonaOrdenResponse {
+  id: number;
+  orden: number;
+  domicilio: DomicilioResponse;
+  diaZonaId: number;
+  domicilioId?: number;
+  diaZonaOrdenes?: DiaZonaOrdenResponse[];
+}
+
+export interface DiaZonaResponse {
+  id: number;
+  diaId: number;
+  zonaId: number;
+  diaZonaOrdenes: DiaZonaOrdenResponse[];
+  zona: ZonaResponse;
+  dia?: DiaDTOResponse;
+}
+export interface DiaZonaBaseResponse{
+  id: number;
+  diaId: number;
+  zonaId: number;
+}
+export interface ErrorResponse {
+  mensaje: string;
+  errores?: Record<string, string>;
+  codigo: number;
+}
+export interface DiaDTOResponse {
+  id: number;
+  nombre: string;
+}
+export interface PaginationResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+}
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------- REQUESTS --------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -360,13 +401,10 @@ export interface CargaRequest {
   fechaHora?: Date;
   idUsuario?: number;
   idCamion?: number;
+  cargaProductos?: CargaProductoRequest[];
+
 }
 
-export interface ErrorResponse {
-  mensaje: string;
-  errores?: Record<string, string>;
-  codigo: number;
-}
 
 
 export interface PedidoSemanalRequest {
@@ -375,15 +413,6 @@ export interface PedidoSemanalRequest {
   productoZonaId?: number;
 }
 
-export interface PaginationResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
-}
 // Interfaces para DiaZona y DiaZonaOrden
 export interface DiaZonaOrdenResponse {
   id: number;
@@ -427,10 +456,6 @@ export interface DiaZonaDTORequestWithOrdenes {
   diaZonaOrdenes: DiaZonaOrdenRequest[];
 }
 
-export interface DiaDTOResponse {
-  id: number;
-  nombre: string;
-}
 
 export interface MailDTORequest {
   destino: string,
@@ -440,6 +465,6 @@ export interface MailDTORequest {
 
 export interface DiaDomicilioRequest {
   diaId: number;
-  domicilioId: number;
-  estado: string;
+  domicilioId:number;
+  estado:string;
 }

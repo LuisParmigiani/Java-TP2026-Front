@@ -11,6 +11,7 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 import DailyRoutePage from "./pages/driver/DailyRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import ProductsManagement from "./pages/admin/ProductsManagement.tsx";
+import { LoadManagement } from "./pages/admin/LoadManagement/LoadManagement.tsx";
 import Components from "./pages/Components.tsx";
 import Products from "./pages/Products.tsx";
 import RegisterPage from "./pages/Register.tsx";
@@ -31,6 +32,7 @@ import WeeklyOrder from "./pages/customer/WeeklyOrder.tsx";
 import ForgotPasswordPage from "./pages/ForgotPassword.tsx";
 import ResetPasswordPage from "./pages/ResetPassword";
 import CustomersManagement from "./pages/admin/CustomersManagement/CustomersManagement.tsx";
+import EmployeeManagement from "./pages/admin/EmployeeManagement/EmployeeManagement.tsx";
 
 function App() {
   return (
@@ -83,6 +85,7 @@ function App() {
           <Route path="/admin/trucks" element={<TrucksManagement />} />
           <Route path="/admin/zones" element={<ZoneManagement />} />
           <Route path="/admin/expenses" element={<Expenses />} />
+          <Route path="/admin/employees" element={<EmployeeManagement />} />
           <Route
             path="/admin/trucks/routes/:truckId"
             element={<TruckRouting />}
@@ -91,6 +94,7 @@ function App() {
             path="/admin/customers/:customerId/directions"
             element={<CustomerDirections />}
           />
+          <Route path="/admin/loads" element={<LoadManagement />} />
 
           {/*</Route>*/}
         </Routes>
