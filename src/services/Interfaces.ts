@@ -212,6 +212,8 @@ export interface CargaProductoResponse {
   id: number;
   cantLleno: number;
   cantVacio: number;
+  cantVendidos: number;
+  cantDevueltos: number;
   carga?: CargaResponse;
   cargaId?: number;
   producto?: ProductoResponse;

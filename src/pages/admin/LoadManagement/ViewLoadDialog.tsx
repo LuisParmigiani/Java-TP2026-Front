@@ -30,7 +30,6 @@ interface ViewLoadDialogProps {
   cargaLlegada: CargaResponse | null; // Puede ser null si aún está "En curso"
   empleado: PersonaResponse | undefined;
   products: ProductoResponse[];
-  backendStats?: BackendCargaStat[]; // Lo dejamos opcional por ahora
   isDialogOpen: boolean;
   setIsDialogOpen: (val: boolean) => void;
 }
@@ -40,7 +39,6 @@ export const ViewLoadDialog = ({
   cargaLlegada,
   empleado,
   products,
-  backendStats = [],
   isDialogOpen,
   setIsDialogOpen,
 }: ViewLoadDialogProps) => {
@@ -49,7 +47,6 @@ export const ViewLoadDialog = ({
   const productIds = new Set<number>();
   cargaPartida.cargasProducto?.forEach((cp) => productIds.add(cp.productoId));
   cargaLlegada?.cargasProducto?.forEach((cp) => productIds.add(cp.productoId));
-  backendStats?.forEach((stat) => productIds.add(stat.productoId));
 
   // Armamos las filas cruzando toda la información
   const filasResumen = Array.from(productIds).map((id) => {
@@ -57,29 +54,44 @@ export const ViewLoadDialog = ({
     const llevado =
       cargaPartida.cargasProducto?.find((cp) => cp.productoId === id)
         ?.cantLleno || 0;
+
+    const cantVendidos =
+      cargaPartida.cargasProducto?.find((cp) => cp.productoId === id)
+        ?.cantVendidos || 0;
     const traidoLleno =
       cargaLlegada?.cargasProducto?.find((cp) => cp.productoId === id)
         ?.cantLleno || 0;
     const vacioTraido =
       cargaLlegada?.cargasProducto?.find((cp) => cp.productoId === id)
         ?.cantVacio || 0;
-
-    // Datos del backend (vendidos y vacíos juntados)
-    const stats = backendStats.find((s) => s.productoId === id);
-    const vendidos = stats?.vendidos || 0;
-    const vaciosJuntados = stats?.vaciosJuntados || 0;
+    const vacioJuntado =
+      cargaLlegada?.cargasProducto?.find((cp) => cp.productoId === id)
+        ?.cantDevueltos || 0;
 
     return {
       productoId: id,
       nombre: producto?.nombre || `Producto #${id}`,
       llevado,
-      vendidos,
+      vendidos: cantVendidos,
       traidoLleno,
-      vaciosJuntados,
+      vaciosJuntados: vacioJuntado,
       vacioTraido,
     };
   });
+  // Helper para determinar el color de los Envases Llenos (Reconciliación)
+  const getLlenoStyle = (llevado: number, vendidos: number, traido: number) => {
+    const saldoTeorico = llevado - vendidos;
+    if (saldoTeorico === traido) return 'bg-[#22c55e] text-black'; // OK
+    if (saldoTeorico < traido) return 'bg-[#3b82f6] text-black'; // SOBRAN
+    return 'bg-[#ef4444] text-black'; // FALTAN (ROBO)
+  };
 
+  // Helper para determinar el color de los Envases Vacíos
+  const getVacioStyle = (juntados: number, traido: number) => {
+    if (juntados === traido) return 'bg-[#22c55e] text-black'; // OK
+    if (juntados > traido) return 'bg-[#3b82f6] text-black'; // SOBRAN
+    return 'bg-[#ef4444] text-black'; // SE PERDIERON
+  };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-4xl">
@@ -150,13 +162,22 @@ export const ViewLoadDialog = ({
                       <TableCell className="text-center font-semibold text-blue-600">
                         {fila.vendidos}
                       </TableCell>
-                      <TableCell className="text-center">
+
+                      {/* Columna Envases Traídos con lógica condicional */}
+                      <TableCell
+                        className={`text-center font-bold ${getLlenoStyle(fila.llevado, fila.vendidos, fila.traidoLleno)}`}
+                      >
                         {fila.traidoLleno}
                       </TableCell>
+
                       <TableCell className="text-center font-semibold text-green-600">
                         {fila.vaciosJuntados}
                       </TableCell>
-                      <TableCell className="text-center">
+
+                      {/* Columna Vacíos Traídos con lógica condicional */}
+                      <TableCell
+                        className={`text-center font-bold ${getVacioStyle(fila.vaciosJuntados, fila.vacioTraido)}`}
+                      >
                         {fila.vacioTraido}
                       </TableCell>
                     </TableRow>
@@ -175,4 +196,4 @@ export const ViewLoadDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
+};;

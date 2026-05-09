@@ -21,7 +21,7 @@ import { Plus, Edit, Info, Link, CheckCheck } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth.ts';
 import { useEffect, useState } from 'react';
 import { fetchTrucks } from '../../../services/TruckService.ts';
-import type { CargaResponse, ErrorResponse,CamionResponse,ProductoResponse, PersonaResponse,UserResponse, CargaProductoResponse, CargaRequest} from '../../../services/Interfaces.ts';
+import type { CargaResponse, ErrorResponse,CamionResponse,ProductoResponse, PersonaResponse,UserResponse, CargaRequest} from '../../../services/Interfaces.ts';
 import { toast } from 'sonner';
 import { fetchEmployees } from '../../../services/EmployeeService.ts';
 import { CloseLoadDialog } from './CloseLoadDialog.tsx';

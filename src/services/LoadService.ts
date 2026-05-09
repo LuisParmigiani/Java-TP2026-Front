@@ -1,5 +1,5 @@
 
-import { apiGet,apiPut,apiPost,apiDelete } from "./baseClient";
+import { apiGet,apiPut,apiPost } from "./baseClient";
 import type { CargaRequest, CargaResponse,ErrorResponse } from "./Interfaces";
 import { formatErrorResponse } from "../lib/utils.ts";
 
