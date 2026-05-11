@@ -1,5 +1,5 @@
 import { apiGet, apiPutFormData } from "./baseClient";
-import type { UserResponse, UserRequest, PersonaResponse } from "./Interfaces";
+import type { UserResponse, UserRequest } from "./Interfaces";
 
 export async function getUser(
   token: string,

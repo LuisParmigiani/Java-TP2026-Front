@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  fetchPersonas,
   searchPersonas,
   addPersona,
   updatePersona,
@@ -70,6 +69,7 @@ export const useCustomers = (
     pageSize,
     loading,
     token, // Dependencias actualizadas
+
   ]);
 
   const handleDelete = async (id: number): Promise<boolean> => {

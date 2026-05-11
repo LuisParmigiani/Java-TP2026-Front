@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getPersona } from '../../../../services/PersonaService.ts';
-import { type PersonaResponse, type DomicilioResponse,  } from '../../../../services/Interfaces';
-
+import { type PersonaResponse, type DomicilioResponse, } from '../../../../services/Interfaces';
+import { useAuth } from '../../../../hooks/useAuth.ts';
 export const useCustomerDirections = (customerId: string) => {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
-  const [persona,setPersona] = useState<PersonaResponse | null>(null);
+  const [persona, setPersona] = useState<PersonaResponse | null>(null);
   // const [filter, setFilter] = useState({ status: '', deliveryDay: '' });
   // const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
   // const [searchTerm, setSearchTerm] = useState('');
@@ -12,13 +12,14 @@ export const useCustomerDirections = (customerId: string) => {
   // const [enabledStatus, setEnabledStatus] = useState('Habilitados');
   // const [page, setPage] = useState(1);
   const [error, setError] = useState('');
+  const { token } = useAuth();
   // const [totalItems, setTotalItems] = useState(0);
   // const size = 5;
 
   useEffect(() => {
     const fetchPersona = async () => {
       try {
-        const persona = await getPersona(parseInt(customerId), ['domicilioCompleto']);
+        const persona = await getPersona(token, parseInt(customerId), ['domicilioCompleto']);
         setDirections(persona.domicilios || []);
         setPersona(persona);
       } catch (error) {
@@ -30,26 +31,26 @@ export const useCustomerDirections = (customerId: string) => {
       fetchPersona();
     }
 
-  },[customerId])
+  }, [customerId, token]);
 
-    const handleSaveDirection = (updatedDirection: DomicilioResponse) => {
-      // Validar que el ID coincida
-      if (!updatedDirection?.id) {
-        console.error('Invalid direction response');
-        setError('Error al actualizar la dirección');
-        return;
-      }
+  const handleSaveDirection = (updatedDirection: DomicilioResponse) => {
+    // Validar que el ID coincida
+    if (!updatedDirection?.id) {
+      console.error('Invalid direction response');
+      setError('Error al actualizar la dirección');
+      return;
+    }
 
-      setDirections((current) =>
-        current.map((direction) =>
-          direction.id === updatedDirection.id
-            ? { ...updatedDirection }
-            : direction,
-        ),
-      );
-      // Limpiar error si la actualización fue exitosa
-      setError('');
-    };
+    setDirections((current) =>
+      current.map((direction) =>
+        direction.id === updatedDirection.id
+          ? { ...updatedDirection }
+          : direction,
+      ),
+    );
+    // Limpiar error si la actualización fue exitosa
+    setError('');
+  };
 
 
 

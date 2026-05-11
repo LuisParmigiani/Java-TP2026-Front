@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from '../../../components/Helmet';
 import NavBar from '../../../components/NavBar';
 import Footer from '../../../components/Footer';
-import  {useCustomerDirections}  from './hooks/useCustomerDomicilios';
+import { useCustomerDirections } from './hooks/useCustomerDomicilios';
 import { useAuth } from '../../../hooks/useAuth.ts';
 import DirectionAdminCard from './components/DirectionAdminCard.tsx';
 import { useEffect, useState } from 'react';
@@ -23,11 +23,11 @@ export default function CustomerDirections() {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-  
+
   useEffect(() => {
     const fetchAndSetTrucks = async () => {
       try {
-        const camionesData = await fetchTrucks();
+        const camionesData = await fetchTrucks(token);
         setTrucks(
           camionesData.map((camion: CamionResponse) => ({
             id: camion.id,
@@ -40,7 +40,7 @@ export default function CustomerDirections() {
     };
 
     fetchAndSetTrucks();
-  }, []);
+  }, [token]);
 
   console.log(customerData.directions);
   return (

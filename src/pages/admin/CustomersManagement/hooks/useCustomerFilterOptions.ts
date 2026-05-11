@@ -49,7 +49,7 @@ export const useCustomersFilterOptions = () => {
         );
 
         // Traer días
-        const diasData = await getDias();
+        const diasData = await getDias(token);
         setDays(
           diasData.map((dia: DiaResponse) => ({
             id: dia.id,

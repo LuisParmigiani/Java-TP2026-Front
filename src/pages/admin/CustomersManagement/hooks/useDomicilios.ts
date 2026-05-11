@@ -14,7 +14,7 @@ export const useDomicilios = (
     null,
   );
   const [searchDomicilio, setSearchDomicilio] = useState("");
-  const { loading } = useAuth();
+  const { loading, token } = useAuth();
 
   useEffect(() => {
     if (loading) return;
@@ -25,6 +25,7 @@ export const useDomicilios = (
             setDomicilios(null);
           } else {
             const results = await fetchDomiciliosByCalleAndNumero(
+              token,
               ["persona"],
               searchDomicilio,
             );
@@ -42,7 +43,7 @@ export const useDomicilios = (
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchDomicilio, loading]);
+  }, [searchDomicilio, loading, token, onError]);
 
   return {
     domicilios,

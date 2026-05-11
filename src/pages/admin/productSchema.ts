@@ -15,7 +15,8 @@ export const productSchema = z.object({
       return Number(val);
     },
     z
-      .number({ invalid_type_error: 'El precio debe ser numérico' })
+      .number()
+      .refine((val) => !isNaN(val), 'El precio debe ser numérico')
       .min(1, 'El precio no puede ser menor o igual a 1'),
   ),
   stock: z.preprocess(
@@ -24,7 +25,8 @@ export const productSchema = z.object({
       return Number(val);
     },
     z
-      .number({ invalid_type_error: 'El stock debe ser numérico' })
+      .number()
+      .refine((val) => !isNaN(val), 'El stock debe ser numérico')
       .int('El stock debe ser un número entero')
       .min(0, 'El stock no puede ser negativo'),
   ),
