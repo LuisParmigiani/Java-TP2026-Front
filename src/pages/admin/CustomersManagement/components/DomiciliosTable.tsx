@@ -1,22 +1,25 @@
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "../../../../components/Table";
+import type { DomicilioResponse } from "../../../../services/Interfaces.ts";
+import { Badge } from "../../../../components/Badge.tsx";
+import { Button } from "../../../../components/Button.tsx";
 
-import {Table, TableHeader,TableRow,TableHead,TableBody,TableCell} from '../../../../components/Table'
-import type { DomicilioResponse } from '../../../../services/Interfaces.ts';
-import { Badge } from '../../../../components/Badge.tsx';
-import { Button } from '../../../../components/Button.tsx';
+import { Edit, Trash2 } from "lucide-react";
 
-import {  Edit, Trash2 } from 'lucide-react';
-
-interface TableDomicilioProps{
-  domicilios: DomicilioResponse[]|null,
+interface TableDomicilioProps {
+  domicilios: DomicilioResponse[] | null;
 }
-export function DomiciliosTable(
-{domicilios}:TableDomicilioProps
-){
+export function DomiciliosTable({ domicilios }: TableDomicilioProps) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>id</TableHead>
           <TableHead>Direccion</TableHead>
           <TableHead>Estado</TableHead>
           <TableHead>Persona</TableHead>
@@ -27,11 +30,10 @@ export function DomiciliosTable(
         {domicilios && domicilios.length > 0 ? (
           domicilios.map((dom) => (
             <TableRow key={dom.id}>
-              <TableCell className="font-medium">{dom.id}</TableCell>
-              <TableCell>{dom.calle + ' ' + dom.numero}</TableCell>
+              <TableCell>{dom.calle + " " + dom.numero}</TableCell>
               <TableCell>
                 <Badge className="w-25">
-                  {dom.activo ? 'Activo' : 'Inactivo'}
+                  {dom.activo ? "Activo" : "Inactivo"}
                 </Badge>
               </TableCell>
               <TableCell>

@@ -1,35 +1,34 @@
-import  { useEffect, useState, useMemo } from 'react';
-import { Helmet } from '../../../components/Helmet';
-import NavBar from '../../../components/NavBar';
-import Footer from '../../../components/Footer';
-import { Card, CardContent } from '../../../components/Card';
-import { Button } from '../../../components/Button';
-import  Input  from '../../../components/Input';
-import { CustomersTable } from './components/CustomersTable';
-import { DomiciliosTable } from './components/DomiciliosTable';
-import { CustomerDialog } from './components/CustomerDialog';
-import { NotifyDialog } from './components/NotifyDialog';
-import { Plus,  Search } from 'lucide-react';
-import type { PersonaResponse } from '../../../services/Interfaces.ts';
-import { useAuth } from '../../../hooks/useAuth.ts';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo } from "react";
+import { Helmet } from "../../../components/Helmet";
+import NavBar from "../../../components/NavBar";
+import Footer from "../../../components/Footer";
+import { Card, CardContent } from "../../../components/Card";
+import { Button } from "../../../components/Button";
+import Input from "../../../components/Input";
+import { CustomersTable } from "./components/CustomersTable";
+import { DomiciliosTable } from "./components/DomiciliosTable";
+import { CustomerDialog } from "./components/CustomerDialog";
+import { NotifyDialog } from "./components/NotifyDialog";
+import { Plus, Search } from "lucide-react";
+import type { PersonaResponse } from "../../../services/Interfaces.ts";
+import { useAuth } from "../../../hooks/useAuth.ts";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
   AlertDescription,
-} from '../../../components/Alert.tsx';
+} from "../../../components/Alert.tsx";
 // Esquema Zod para validar FormData
-import { useCustomers } from './hooks/useCustomers';
-import { useDomicilios } from './hooks/useDomicilios';
-import { useNotifyDialog } from './hooks/useNotifyDialog';
-import { customerSchema } from './customerSchema';
-import { useCustomerDialog } from './hooks/useCustomerDialog';
-import NewDirection from '../../../components/CreateDirection';
-import { ClientesFilter } from './components/ClientesFilter';
-import Pagination from '../../../components/Pagination.tsx';
-import { useClientesFilters } from './hooks/useClientesFilters'; 
-import { useCustomersFilterOptions } from './hooks/useCustomerFilterOptions';
-
+import { useCustomers } from "./hooks/useCustomers";
+import { useDomicilios } from "./hooks/useDomicilios";
+import { useNotifyDialog } from "./hooks/useNotifyDialog";
+import { customerSchema } from "./customerSchema";
+import { useCustomerDialog } from "./hooks/useCustomerDialog";
+import NewDirection from "../../../components/CreateDirection";
+import { ClientesFilter } from "./components/ClientesFilter";
+import Pagination from "../../../components/Pagination.tsx";
+import { useClientesFilters } from "./hooks/useClientesFilters";
+import { useCustomersFilterOptions } from "./hooks/useCustomerFilterOptions";
 
 const CustomersManagementPage = () => {
   const navigate = useNavigate();
@@ -52,15 +51,14 @@ const CustomersManagementPage = () => {
   } | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [isDirectionOpen, setIsDirectionOpen] = useState(false);
+  const [isSubmittingCustomer, setIsSubmittingCustomer] = useState(false);
 
   // Proteger ruta
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [isAuthenticated, navigate]);
-
-  
 
   // Hooks
   const customers = useCustomers(
@@ -98,28 +96,36 @@ const CustomersManagementPage = () => {
       return;
     }
 
-    // Crear objeto de cliente
-    const newCustomer: PersonaResponse = {
-      id: customerDialog.editingCustomer
-        ? customerDialog.editingCustomer.id
-        : Math.floor(Math.random() * 10000),
-      tipoDoc: customerDialog.formData.tipoDoc,
-      nroDocumento: customerDialog.formData.nroDocumento,
-      nombre: customerDialog.formData.nombre,
-      apellido: customerDialog.formData.apellido,
-      email: customerDialog.formData.email,
-      telefono: customerDialog.formData.telefono,
-      saldo: Number(customerDialog.formData.saldo),
-      estado: customerDialog.formData.estado as 'Habilitado' | 'Deshabilitado' | 'Pendiente',
-    };
+    setIsSubmittingCustomer(true);
+    try {
+      // Crear objeto de cliente
+      const newCustomer: PersonaResponse = {
+        id: customerDialog.editingCustomer
+          ? customerDialog.editingCustomer.id
+          : Math.floor(Math.random() * 10000),
+        tipoDoc: customerDialog.formData.tipoDoc,
+        nroDocumento: customerDialog.formData.nroDocumento,
+        nombre: customerDialog.formData.nombre,
+        apellido: customerDialog.formData.apellido,
+        email: customerDialog.formData.email,
+        telefono: customerDialog.formData.telefono,
+        saldo: Number(customerDialog.formData.saldo),
+        estado: customerDialog.formData.estado as
+          | "Habilitado"
+          | "Deshabilitado"
+          | "Pendiente",
+      };
 
-    const success = await customers.handleSaveCustomer(
-      newCustomer,
-      !!customerDialog.editingCustomer,
-    );
+      const success = await customers.handleSaveCustomer(
+        newCustomer,
+        !!customerDialog.editingCustomer,
+      );
 
-    if (success) {
-      customerDialog.handleCloseDialog();
+      if (success) {
+        customerDialog.handleCloseDialog();
+      }
+    } finally {
+      setIsSubmittingCustomer(false);
     }
   };
 
@@ -182,20 +188,20 @@ const CustomersManagementPage = () => {
                 zones={filterOptions.zones}
                 trucks={filterOptions.trucks}
                 days={filterOptions.days}
-                saldoRanges={['Ascendente', 'Descendente']}
+                saldoRanges={["Ascendente", "Descendente"]}
                 selectedZone={clientesFilters.filters.zone}
                 selectedTruck={clientesFilters.filters.truck}
                 selectedDay={clientesFilters.filters.day}
                 selectedSaldo={clientesFilters.filters.saldo}
                 onApplyFilters={(filters) => {
                   if (filters.zone !== clientesFilters.filters.zone)
-                    clientesFilters.handleZoneChange(filters.zone || '');
+                    clientesFilters.handleZoneChange(filters.zone || "");
                   if (filters.truck !== clientesFilters.filters.truck)
-                    clientesFilters.handleTruckChange(filters.truck || '');
+                    clientesFilters.handleTruckChange(filters.truck || "");
                   if (filters.day !== clientesFilters.filters.day)
-                    clientesFilters.handleDayChange(filters.day || '');
+                    clientesFilters.handleDayChange(filters.day || "");
                   if (filters.saldo !== clientesFilters.filters.saldo)
-                    clientesFilters.handleSaldoChange(filters.saldo || '');
+                    clientesFilters.handleSaldoChange(filters.saldo || "");
                   setPage(1);
                 }}
                 onReset={() => {
@@ -271,6 +277,7 @@ const CustomersManagementPage = () => {
         formData={customerDialog.formData}
         setFormData={customerDialog.setFormData}
         errors={customerDialog.errors}
+        isSubmitting={isSubmittingCustomer}
       />
 
       <NotifyDialog
@@ -282,7 +289,10 @@ const CustomersManagementPage = () => {
         setNotificationMsg={notifyDialog.setMessage}
       />
 
-      <NewDirection open={isDirectionOpen} onClose={() => setIsDirectionOpen(false)} />
+      <NewDirection
+        open={isDirectionOpen}
+        onClose={() => setIsDirectionOpen(false)}
+      />
 
       <Footer />
     </div>

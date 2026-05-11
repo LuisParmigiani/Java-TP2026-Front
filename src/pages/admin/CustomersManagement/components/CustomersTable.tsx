@@ -5,12 +5,12 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '../../../../components/Table';
-import type { PersonaResponse } from '../../../../services/Interfaces';
-import { stylesFromSaldo } from '../../../../lib/utils';
-import { Badge } from '../../../../components/Badge';
-import { Button } from '../../../../components/Button';
-import { Edit, Trash2, Bell, Ellipsis } from 'lucide-react';
+} from "../../../../components/Table";
+import type { PersonaResponse } from "../../../../services/Interfaces";
+import { stylesFromSaldo } from "../../../../lib/utils";
+import { Badge } from "../../../../components/Badge";
+import { Button } from "../../../../components/Button";
+import { Edit, Trash2, Bell, Ellipsis } from "lucide-react";
 
 interface CustomersTableProps {
   customers: PersonaResponse[];
@@ -31,7 +31,6 @@ export const CustomersTable = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>id</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Teléfono</TableHead>
           <TableHead>Saldo</TableHead>
@@ -43,7 +42,6 @@ export const CustomersTable = ({
         {customers && customers.length > 0 ? (
           customers.map((customer) => (
             <TableRow key={customer.id}>
-              <TableCell className="font-medium">{customer.id}</TableCell>
               <TableCell className="font-medium">
                 {customer.nombre} {customer.apellido}
               </TableCell>

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { fetchDomiciliosByCalleAndNumero } from '../../../../services/DirectionService';
+import { useState, useEffect } from "react";
+import { fetchDomiciliosByCalleAndNumero } from "../../../../services/DirectionService";
 import type {
   DomicilioResponse,
   ErrorResponse,
-} from '../../../../services/Interfaces';
-import { formatErrorResponse } from '../../../../lib/utils';
+} from "../../../../services/Interfaces";
+import { formatErrorResponse } from "../../../../lib/utils";
+import { useAuth } from "../../../../hooks/useAuth.ts";
 
 export const useDomicilios = (
   onError?: (error: { errorTitle: string; errorMessage: string }) => void,
@@ -12,23 +13,25 @@ export const useDomicilios = (
   const [domicilios, setDomicilios] = useState<DomicilioResponse[] | null>(
     null,
   );
-  const [searchDomicilio, setSearchDomicilio] = useState('');
+  const [searchDomicilio, setSearchDomicilio] = useState("");
+  const { loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     const timer = setTimeout(() => {
       const loadData = async () => {
         try {
-          if (searchDomicilio.trim() === '') {
+          if (searchDomicilio.trim() === "") {
             setDomicilios(null);
           } else {
             const results = await fetchDomiciliosByCalleAndNumero(
-              ['persona'],
+              ["persona"],
               searchDomicilio,
             );
             setDomicilios(results);
           }
         } catch (error) {
-          console.error('Error:', error);
+          console.error("Error:", error);
           const errorResponse = error as ErrorResponse;
           const formattedError = formatErrorResponse(errorResponse);
           onError?.(formattedError);
@@ -39,7 +42,7 @@ export const useDomicilios = (
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchDomicilio]);
+  }, [searchDomicilio, loading]);
 
   return {
     domicilios,

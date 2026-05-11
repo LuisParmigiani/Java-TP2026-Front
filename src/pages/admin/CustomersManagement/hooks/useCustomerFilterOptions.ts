@@ -22,9 +22,10 @@ export const useCustomersFilterOptions = () => {
   const [days, setDays] = useState<FilterOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    if (authLoading || !token) return;
     const loadFilterOptions = async () => {
       try {
         setLoading(true);
@@ -69,8 +70,10 @@ export const useCustomersFilterOptions = () => {
       }
     };
 
-    loadFilterOptions();
-  }, []);
+    if (token) {
+      loadFilterOptions();
+    }
+  }, [token, authLoading]);
 
   // Memoizar para evitar recrear arrays en cada render
   const memoizedZones = useMemo(() => zones, [zones]);
