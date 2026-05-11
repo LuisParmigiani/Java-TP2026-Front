@@ -20,6 +20,8 @@ import { createSale } from "../../services/SalesService.ts";
 import Pagination from "../../components/Pagination.tsx";
 import { Helmet } from "../../components/Helmet.tsx";
 import { Link } from "react-router-dom";
+import { Alert, AlertTitle, AlertDescription } from "../../components/Alert.tsx";
+import LinkButton from "../../components/LinkButton.tsx";
 
 export default function NewOrder() {
   const [products, setProducts] = useState<ProductoResponse[]>([]);
@@ -30,6 +32,7 @@ export default function NewOrder() {
   const [directions, setDirections] = useState<DomicilioResponse[]>([]);
   const [selectedDirection, setSelectedDirection] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   // Calcula el total basado en los productos seleccionados
   const total = selectedProducts.reduce(
     (tot, item) => tot + item.quantity * (item.product.precio || 0),
@@ -45,8 +48,8 @@ export default function NewOrder() {
     selectedProducts.length > 0 &&
     selectedProducts.some((item) => item.quantity > 0);
   const { currentUser } = useAuth();
-  const { token,loading:loadingAuth } = useAuth();
-  
+  const { token, loading: loadingAuth } = useAuth();
+
   const size = 12;
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -106,7 +109,7 @@ export default function NewOrder() {
       }
     };
     fetchDirections();
-  }, [token,loadingAuth]);
+  }, [token, loadingAuth]);
 
   const SaveOrder = async () => {
     const orderDetails = {
@@ -116,9 +119,9 @@ export default function NewOrder() {
         cantidad: item.quantity,
       })),
     };
-    const response = await createSale(orderDetails,token);
-    console.log("Respuesta del servidor:", response);
+    await createSale(orderDetails, token);
     setOpen(false);
+    setShowSuccess(true);
   };
 
   const changeDirection = (value: string) => {
@@ -198,6 +201,22 @@ export default function NewOrder() {
         </div>
       )}
       <NavBar />
+
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md">
+            <Alert variant="success" onClose={() => setShowSuccess(false)}>
+              <AlertTitle>¡Pedido realizado!</AlertTitle>
+              <AlertDescription>
+                <p>Tu pedido fue enviado correctamente.</p>
+                <div className="mt-3">
+                  <LinkButton name="Ver mis pedidos" size="sm" variant="green" url="/customer/orders" />
+                </div>
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
 
       <NewOrderCard
         open={open}

@@ -24,6 +24,7 @@ import CustomerDirections from "./pages/admin/CustomersManagement/CustomerDirect
 import TruckRouting from "./pages/admin/TruckManagement/TruckRouting.tsx";
 import DriverDashboard from "./pages/driver/DriverDashboard.tsx"
 import Client from "./pages/driver/Client.tsx";
+import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import Expenses from "./pages/admin/expenses.tsx";
 {
   /*import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";*/
@@ -55,17 +56,17 @@ function App() {
           {/*Rutas para el cliente*/}
 
           <Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>
-          <Route path="/customer/dashboard" element={<Dashboard />} />
-          <Route path="/customer/orders" element={<Orders />} />
-          <Route path="/customer/newOrder" element={<NewOrder />} />
-          <Route path="/customer/directions" element={<Directions />} />
-          <Route
-            path="/customer/editWeeklyOrder"
-            element={<EditWeeklyOrder />}
-          />
-          <Route path="/customer/weeklyOrder" element={<WeeklyOrder />} />
-          <Route path="/customer/profile" element={<Profile />} />
-          <Route path="/customer/pay" element={<Pay />} />
+            <Route path="/customer/dashboard" element={<Dashboard />} />
+            <Route path="/customer/orders" element={<Orders />} />
+            <Route path="/customer/newOrder" element={<NewOrder />} />
+            <Route path="/customer/directions" element={<Directions />} />
+            <Route
+              path="/customer/editWeeklyOrder"
+              element={<EditWeeklyOrder />}
+            />
+            <Route path="/customer/weeklyOrder" element={<WeeklyOrder />} />
+            <Route path="/customer/profile" element={<Profile />} />
+            <Route path="/customer/pay" element={<Pay />} />
 
           </Route>
 
@@ -73,30 +74,31 @@ function App() {
           <Route path="/products" element={<Products />} />
           {/*Rutas para el driver*/}
           <Route element={<ProtectedRoute allowedRoles={["Empleado"]} />}>
-          <Route path="/driver/route" element={<DailyRoutePage />} />
-          <Route path="/driver/dashboard" element={<DriverDashboard />} />
-          <Route path="/driver/client" element={<Client />} />
+            <Route path="/driver/route" element={<DailyRoutePage />} />
+            <Route path="/driver/dashboard" element={<DriverDashboard />} />
+            <Route path="/driver/client" element={<Client />} />
           </Route>
 
           {/*Rutas para el Admin*/}
 
           <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<ProductsManagement />} />
-          <Route path="/admin/customers" element={<CustomersManagement />} />
-          <Route path="/admin/trucks" element={<TrucksManagement />} />
-          <Route path="/admin/zones" element={<ZoneManagement />} />
-          <Route path="/admin/expenses" element={<Expenses />} />
-          <Route path="/admin/employees" element={<EmployeeManagement />} />
-          <Route
-            path="/admin/trucks/routes/:truckId"
-            element={<TruckRouting />}
-          />
-          <Route
-            path="/admin/customers/:customerId/directions"
-            element={<CustomerDirections />}
-          />
-          <Route path="/admin/loads" element={<LoadManagement />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<ProductsManagement />} />
+            <Route path="/admin/customers" element={<CustomersManagement />} />
+            <Route path="/admin/trucks" element={<TrucksManagement />} />
+            <Route path="/admin/zones" element={<ZoneManagement />} />
+            <Route path="/admin/expenses" element={<Expenses />} />
+            <Route path="/admin/employees" element={<EmployeeManagement />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route
+              path="/admin/trucks/routes/:truckId"
+              element={<TruckRouting />}
+            />
+            <Route
+              path="/admin/customers/:customerId/directions"
+              element={<CustomerDirections />}
+            />
+            <Route path="/admin/loads" element={<LoadManagement />} />
 
           </Route>
         </Routes>

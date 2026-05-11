@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { DomicilioResponse, ProductoResponse } from '../services/Interfaces';
 
 
@@ -16,6 +16,16 @@ interface Props {
 
 
 export default function NewOrderCard(prop: Props) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleComplete = async () => {
+        setIsLoading(true);
+        try {
+            await prop.complete();
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (prop.open) {
@@ -43,6 +53,11 @@ export default function NewOrderCard(prop: Props) {
         });
         return merged;
     }, [prop.selectedProducts, prop.direction]);
+
+    const totalCompleto = useMemo(() =>
+        displayProducts.reduce((tot, item) => tot + item.quantity * (item.product.precio || 0), 0),
+        [displayProducts]
+    );
 
     return (
         <>
@@ -76,7 +91,7 @@ export default function NewOrderCard(prop: Props) {
                             </div>
                             <div className="rounded-lg border border-gray-200 p-4">
                                 <p className="text-sm text-gray-500">Total</p>
-                                <p className="mt-1 font-medium text-gray-900">$ {prop.total}</p>
+                                <p className="mt-1 font-medium text-gray-900">$ {totalCompleto.toFixed(2)}</p>
                             </div>
                         </div>
                         <div>
@@ -104,18 +119,18 @@ export default function NewOrderCard(prop: Props) {
 
                             <div className="mt-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2">
                                 <p className="text-sm text-gray-500">Total final</p>
-                                <p className="text-base font-semibold text-gray-900">$ {prop.total}</p>
+                                <p className="text-base font-semibold text-gray-900">$ {totalCompleto.toFixed(2)}</p>
                             </div>
 
                         </div>
 
                         <div className="mt-6 flex justify-end">
                             <button
-                                className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-primary hover:bg-primary-hover`}
-
-                                onClick={prop.complete}
+                                className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={handleComplete}
+                                disabled={isLoading}
                             >
-                                Realizar Pedido
+                                {isLoading ? "Procesando..." : "Realizar Pedido"}
                             </button>
                         </div>
 

@@ -11,9 +11,9 @@ export async function fetchTrucks(token: string): Promise<CamionResponse[]> {
     throw errorResponse;
   }
 }
-export async function fetchTruckById(truckId: number): Promise<CamionResponse> {
+export async function fetchTruckById(truckId: number, token: string): Promise<CamionResponse> {
   try {
-    const response = await apiGet<CamionResponse>(`/camion/${truckId}`);
+    const response = await apiGet<CamionResponse>(`/camion/${truckId}`, token);
 
     console.log(`Fetched truck with ID ${truckId}:`, response);
     return response;
@@ -30,7 +30,7 @@ export async function addTruck(
 ): Promise<CamionResponse> {
   try {
     console.log('guardadno camion:', camion);
-    const response = await apiPost<CamionResponse>('/camion', camion,token);
+    const response = await apiPost<CamionResponse>('/camion', camion, token);
     console.log('Added camion:', response);
     return response;
   } catch (error) {
@@ -103,7 +103,7 @@ export async function getDiaZonasByTruckAndDay(
 ): Promise<DiaZonaResponse[]> {
   try {
     const response = await apiGet<DiaZonaResponse[]>(
-      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`,token
+      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`, token
     );
 
     return response;
@@ -174,7 +174,7 @@ export async function updateDiaZonaWithOrdenes(
 
 export async function active(token: string): Promise<CamionResponse[]> {
   try {
-    const response = await apiGet<CamionResponse[]>('/camion/active',token);
+    const response = await apiGet<CamionResponse[]>('/camion/active', token);
     console.log('Activated truck:', response);
     return response;
   } catch (error) {

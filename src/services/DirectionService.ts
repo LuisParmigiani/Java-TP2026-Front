@@ -123,7 +123,7 @@ export async function getById(
       query = "populate=" + populate.join(",");
     }
     const response = await apiGet<DomicilioResponse>(
-      `/domicilio/${id}?${query}`,token
+      `/domicilio/${id}?${query}`, token
     );
     return response;
   } catch (error) {
@@ -140,12 +140,12 @@ export async function updateDays(
     dias);
 }
 
-export async function getAll(token:string,populate?: string[]): Promise<DomicilioResponse[]> {
+export async function getAll(token: string, populate?: string[]): Promise<DomicilioResponse[]> {
 
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio?${query}`,token,
+      `/domicilio?${query}`, token,
     );
     return response;
   } catch (error) {
@@ -183,7 +183,7 @@ export async function getPending(
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio/pendientes?${query}`,token
+      `/domicilio/pendientes?${query}`, token
     );
     return response;
   } catch (error) {

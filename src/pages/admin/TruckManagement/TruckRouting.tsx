@@ -18,6 +18,7 @@ const dayLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 const TruckRouting = () => {
   const { truckId } = useParams<{ truckId: string }>();
+  const { token, loading: loadingAuth } = useAuth();
   const [truck, setTruck] = useState<CamionResponse | null>(null);
   const [error, setError] = useState<{
     errorTitle: string;
@@ -37,13 +38,13 @@ const TruckRouting = () => {
   // Cargar el camión al montar el componente
   useEffect(() => {
     if (!truckId) return;
-
+    if (loadingAuth) return; // Esperar a que se cargue el estado de autenticación
     const id = parseInt(truckId, 10);
 
     const loadTruck = async () => {
       try {
         // Obtener datos del camión para mostrar info
-        const truckData = await fetchTruckById(id);
+        const truckData = await fetchTruckById(id, token);
 
         setTruck(truckData);
         // Cargar domicilios del primer día (lunes = 1)
@@ -56,7 +57,7 @@ const TruckRouting = () => {
       }
     };
     loadTruck();
-  }, [truckId]);
+  }, [truckId, token, loadingAuth, loadingAuth]);
   const { currentUser, isAuthenticated, loading } = useAuth();
   if (loading) {
     return (
@@ -103,12 +104,8 @@ const TruckRouting = () => {
     setIsLoading(true);
     try {
       // Llamar al endpoint que devuelve dia-zona con domicilios ordenados
-      const diaZonas = await getDiaZonasByTruckAndDay(truckIdParam, day);
-      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
-      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
-      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
-      console.log('=-=-=-=-=-=--=-==-=--=-=-=')
-      console.log('Dia-zonas obtenidos para el día:', diaZonas);
+      const diaZonas = await getDiaZonasByTruckAndDay(truckIdParam, day, token);
+
       // Transformar la respuesta a array de Domicilios
       // Iteramos cada dia-zona y sus domicilios ordenados
       const domicilios: Domicilio[] = [];
@@ -325,11 +322,10 @@ const TruckRouting = () => {
                       type="button"
                       onClick={() => handleDayChange(index + 1)}
                       disabled={isLoading}
-                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
-                        selectedDay === index + 1
-                          ? "bg-primary text-white shadow-sm"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`rounded-lg px-4 py-3 text-sm font-medium transition ${selectedDay === index + 1
+                        ? "bg-primary text-white shadow-sm"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {label}
                     </button>

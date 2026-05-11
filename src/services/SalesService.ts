@@ -11,7 +11,7 @@ export async function updateSale(
   sales: VentaRequest,
   token: string
 ): Promise<VentaResponse> {
-  return await apiPut<VentaResponse>(`/venta/${id}`, sales,token);
+  return await apiPut<VentaResponse>(`/venta/${id}`, sales, token);
 }
 
 export async function createSale(
@@ -30,7 +30,20 @@ export async function getVentasHoyByDomicilioId(
   const params = populate && populate.length > 0
     ? '?' + populate.map(p => `populate=${p}`).join('&')
     : '';
-  return await apiGet<VentaResponse>(`/venta/ventaHoy/${domicilioId}${params}`,token);
+  return await apiGet<VentaResponse>(`/venta/ventaHoy/${domicilioId}${params}`, token);
+}
+
+
+export async function getPending(
+  token: string,
+  zona: string,
+  ordenBy: string = "Mas Recientes",
+  populate: string[],
+  page: number = 0,
+  size: number = 10
+) {
+  const query = `?ordenBy=${ordenBy}&zona=${zona}&populate=${populate.join(',')}&page=${page}&size=${size}`;
+  return await apiGet<PaginationResponse<VentaResponse>>(`/venta/pending${query}`, token);
 }
 
 export async function createDriverSale(

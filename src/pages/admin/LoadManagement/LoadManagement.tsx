@@ -295,7 +295,7 @@ export function LoadManagement() {
       toast.success('Carga agregada exitosamente');
 
       // Asegúrate de actualizar fetchCargas para recibir el token
-      const updatedCargas = await fetchCargas( ['camion', 'usuario'],token);
+      const updatedCargas = await fetchCargas(['camion', 'usuario', 'cargasProducto'], token);
       setCargas(updatedCargas);
       setIsDialogOpen(false);
       setIsCloseLoadDialogOpen(false);

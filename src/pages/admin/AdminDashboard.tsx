@@ -19,7 +19,7 @@ import { getPagoById } from "../../services/payService";
 
 
 const AdminDashboard = () => {
-  const { currentUser, isAuthenticated, loading ,token} = useAuth();
+  const { currentUser, isAuthenticated, loading, token } = useAuth();
   const [cantProductos, setCantProductos] = useState(0);
   const [cantClientes, setCantClientes] = useState(0);
   const [cantTrucks, setCantTrucks] = useState(0);
@@ -91,7 +91,8 @@ const AdminDashboard = () => {
     { name: 'Gestión de Camiones', path: '/admin/trucks', description: 'Administra la flota de camiones ' },
     { name: 'Gestión de Gastos', path: '/admin/expenses', description: 'Controla y registra los gastos operativos.' },
     { name: 'Gestión de Zonas', path: '/admin/zones', description: 'Gestiona las zonas de reparto y sus camiones' },
-    { name: 'Gestión de Cargas', path: '/admin/loads', description: 'Gestiona las cargas para repartir' }
+    { name: 'Gestión de Cargas', path: '/admin/loads', description: 'Gestiona las cargas para repartir' },
+    { name: 'Gestión de Pedidos', path: '/admin/orders', description: 'Administra los pedidos y sus estados' },
   ];
   //! Estos datos son estáticos por ahora pero en realidad van a ser dinámicos
   const detalles = [

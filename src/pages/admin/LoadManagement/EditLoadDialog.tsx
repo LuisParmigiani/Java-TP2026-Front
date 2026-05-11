@@ -52,10 +52,11 @@ interface EditLoadDialogProps {
 }
 
 interface LineaProducto {
-  id: number; // ID temporal para manejo de UI
+  id: number;
   productoId: string;
   llenos: number;
   vacios: number;
+  originalLlenos: number; // llenos al momento de abrir el diálogo
 }
 
 export const EditLoadDialog = ({
@@ -85,9 +86,10 @@ export const EditLoadDialog = ({
     if (initialData.cargasProducto && initialData.cargasProducto.length > 0) {
       return initialData.cargasProducto.map((cp, index) => ({
         id: index + 1,
-        productoId: cp.productoId.toString(),
+        productoId: (cp.productoId ?? cp.producto?.id)?.toString() ?? '',
         llenos: cp.cantLleno,
         vacios: cp.cantVacio,
+        originalLlenos: cp.cantLleno,
       }));
     }
     return [];
@@ -97,7 +99,7 @@ export const EditLoadDialog = ({
   const handleAddProducto = () => {
     setLineas([
       ...lineas,
-      { id: Date.now(), productoId: '', llenos: 0, vacios: 0 },
+      { id: Date.now(), productoId: '', llenos: 0, vacios: 0, originalLlenos: 0 },
     ]);
   };
 
@@ -105,7 +107,7 @@ export const EditLoadDialog = ({
     setLineas(lineas.filter((linea) => linea.id !== idToRemove));
   };
 
-  const updateLinea = (id: number, field: keyof LineaProducto, value: any) => {
+  const updateLinea = (id: number, field: keyof LineaProducto, value) => {
     setLineas(
       lineas.map((linea) =>
         linea.id === id ? { ...linea, [field]: value } : linea,
@@ -207,69 +209,80 @@ export const EditLoadDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lineas.map((linea) => (
-                  <TableRow key={linea.id}>
-                    <TableCell>
-                      <Select
-                        value={linea.productoId}
-                        onValueChange={(val) =>
-                          updateLinea(linea.id, 'productoId', val)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Producto..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((p) => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.nombre}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <input
-                        type="number"
-                        min="0"
-                        value={linea.llenos}
-                        onChange={(e) =>
-                          updateLinea(
-                            linea.id,
-                            'llenos',
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                        className="w-full border rounded-md px-2 py-1 text-center"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <input
-                        type="number"
-                        min="0"
-                        value={linea.vacios}
-                        onChange={(e) =>
-                          updateLinea(
-                            linea.id,
-                            'vacios',
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                        className="w-full border rounded-md px-2 py-1 text-center"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="icon"
-                        onClick={() => handleRemoveProducto(linea.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {lineas.map((linea) => {
+                  const selectedProduct = products.find(p => p.id.toString() === linea.productoId);
+                  const isPartida = tipo === 'Carga';
+                  const maxLlenos = isPartida && selectedProduct
+                    ? linea.originalLlenos + selectedProduct.stock
+                    : undefined;
+                  return (
+                    <TableRow key={linea.id}>
+                      <TableCell>
+                        <Select
+                          value={linea.productoId}
+                          onValueChange={(val) => {
+                            const newProduct = products.find(p => p.id.toString() === val);
+                            const newMax = isPartida && newProduct ? linea.originalLlenos + newProduct.stock : undefined;
+                            const clampedLlenos = newMax !== undefined && linea.llenos > newMax ? newMax : linea.llenos;
+                            setLineas(prev => prev.map(l =>
+                              l.id === linea.id ? { ...l, productoId: val, llenos: clampedLlenos } : l
+                            ));
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Producto..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map((p) => (
+                              <SelectItem key={p.id} value={p.id.toString()}>
+                                {p.nombre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          min="0"
+                          max={maxLlenos}
+                          value={linea.llenos}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            const clamped = maxLlenos !== undefined ? Math.min(val, maxLlenos) : val;
+                            updateLinea(linea.id, 'llenos', clamped);
+                          }}
+                          className="w-full border rounded-md px-2 py-1 text-center"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          min="0"
+                          value={linea.vacios}
+                          onChange={(e) =>
+                            updateLinea(
+                              linea.id,
+                              'vacios',
+                              parseInt(e.target.value) || 0,
+                            )
+                          }
+                          className="w-full border rounded-md px-2 py-1 text-center"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="icon"
+                          onClick={() => handleRemoveProducto(linea.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {lineas.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-4">
