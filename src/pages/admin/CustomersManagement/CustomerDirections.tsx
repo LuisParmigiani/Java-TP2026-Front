@@ -20,7 +20,7 @@ export default function CustomerDirections() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -35,7 +35,7 @@ export default function CustomerDirections() {
           })),
         );
       } catch (error) {
-        console.error('Error fetching trucks:', error);
+        console.error("Error fetching trucks:", error);
       }
     };
 
@@ -52,10 +52,10 @@ export default function CustomerDirections() {
       <main className="flex-1 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight mb-8">
-            Gestión de Domicilios -{' '}
+            Gestión de Domicilios -{" "}
             {customerData.persona
               ? `${customerData.persona.nombre} ${customerData.persona.apellido}`
-              : 'Cargando...'}
+              : "Cargando..."}
           </h1>
           {customerData.error && (
             <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
