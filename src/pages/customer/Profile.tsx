@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { z } from "zod";
 import Footer from "../../components/Footer";
 import NavBar from "../../components/NavBar";
 import { Button } from "../../components/Button";
@@ -22,6 +23,7 @@ import {
 import InfoRow from "../../components/InfoRow.tsx";
 import { Link } from "react-router-dom";
 import { Helmet } from "../../components/Helmet.tsx";
+import { toast } from "sonner";
 
 interface FormData {
   nombre: string;
@@ -40,6 +42,69 @@ const DocOption = [
   { value: "Cédula", label: "Cédula" },
   { value: "Pasaporte", label: "Pasaporte" },
 ];
+
+const profileSchema = z.object({
+  nombreUsuario: z
+    .string()
+    .min(
+      3,
+      "El nombre de usuario debe tener al menos 3 caracteres y solo puede contener letras, números y guiones bajos.",
+    )
+    .regex(
+      /^[a-zA-Z0-9_]{3,}$/,
+      "El nombre de usuario debe tener al menos 3 caracteres y solo puede contener letras, números y guiones bajos.",
+    ),
+  email: z
+    .string()
+    .regex(
+      /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+      "El mail debe ser válido",
+    ),
+  password: z
+    .string()
+    .optional()
+    .refine(
+      (val) =>
+        !val ||
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+          val,
+        ),
+      {
+        message:
+          "La contraseña debe tener al menos 8 caracteres, incluir al menos una letra mayúscula, una letra minúscula, un número y un carácter especial",
+      },
+    ),
+  tipoDoc: z
+    .string()
+    .regex(
+      /^(DNI|Pasaporte|Cédula)$/,
+      "El tipo de documento debe ser DNI, Pasaporte o Cédula",
+    ),
+  nroDocumento: z
+    .string()
+    .regex(
+      /^\d{7,10}$/,
+      "El número de documento debe tener entre 7 y 10 dígitos",
+    ),
+  nombre: z
+    .string()
+    .min(3, "El nombre debe tener entre 3 y 50 caracteres")
+    .max(50, "El nombre debe tener entre 3 y 50 caracteres")
+    .regex(
+      /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,50}$/,
+      "El nombre solo puede contener letras y espacios",
+    ),
+  apellido: z
+    .string()
+    .min(3, "El apellido debe tener entre 3 y 50 caracteres")
+    .max(50, "El apellido debe tener entre 3 y 50 caracteres")
+    .regex(
+      /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,50}$/,
+      "El apellido solo puede contener letras y espacios",
+    ),
+  telefono: z.string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
+  precioUltPedidoSem: z.number(),
+});
 
 const UserLevel = {
   Administrador: "bg-red-100 text-red-700 border border-red-200",
@@ -72,6 +137,9 @@ export default function Profile() {
     precioUltPedidoSem: 0,
     password: "",
   });
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof FormData, string>>
+  >({});
 
   useEffect(() => {
     async function fetchUserData() {
@@ -163,10 +231,41 @@ export default function Profile() {
   };
 
   const handleSave = async () => {
+    // Validar con Zod
+    const result = profileSchema.safeParse(formData);
+
+    const errors: Partial<Record<keyof FormData, string>> = {};
+    let hasErrors = false;
+
+    if (!result.success) {
+      result.error.issues.forEach((err) => {
+        const field = err.path[0] as keyof FormData;
+        errors[field] = err.message;
+      });
+      hasErrors = true;
+    }
+
+    if (changePassword) {
+      if (!formData.password) {
+        errors.password = "Debe ingresar una nueva contraseña";
+        hasErrors = true;
+      } else if (formData.password !== confirmPassword) {
+        setPasswordError("Las contraseñas no coinciden");
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      setFormErrors(errors);
+      return;
+    } else {
+      setFormErrors({});
+      setPasswordError(null);
+    }
+
+    const toastId = toast.loading("Actualizando datos...");
     try {
       setUploading(true);
-      // password will be included only if user provided one and confirmed it
-      setPasswordError(null);
       const payload: UserRequest = {
         nombreUsuario: formData.nombreUsuario,
         persona: {
@@ -178,16 +277,11 @@ export default function Profile() {
           nroDocumento: formData.nroDocumento,
         },
       };
-      // handle password inclusion
-      if (changePassword && formData.password && formData.password.length > 0) {
-        if (formData.password !== confirmPassword) {
-          setPasswordError("Las contraseñas no coinciden");
-          setUploading(false);
-          return;
-        }
-        // include password in payload
+
+      if (changePassword && formData.password) {
         (payload as any).password = formData.password;
       }
+
       const response = await UpdateUserAPersona(
         token,
         payload,
@@ -200,13 +294,15 @@ export default function Profile() {
       }
       setSelectedFile(null);
       setProfilePreview("");
-      setImageLoadError(false); // Reset error después de guardar
-      // reset password inputs after successful save
+      setImageLoadError(false);
       setChangePassword(false);
       setConfirmPassword("");
       setFormData((prev) => ({ ...prev, password: "" }));
+
+      toast.success("Datos actualizados correctamente", { id: toastId });
     } catch (error) {
       console.error("Error updating user data:", error);
+      toast.error("Error al actualizar los datos", { id: toastId });
     } finally {
       setUploading(false);
       setEditing(false);
@@ -217,6 +313,7 @@ export default function Profile() {
     (field: keyof FormData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
   const saldo = user?.persona?.saldo ?? 0;
@@ -401,12 +498,14 @@ export default function Profile() {
                     name="nombre"
                     value={formData.nombre}
                     onChange={update("nombre")}
+                    error={formErrors.nombre}
                   />
                   <FormField
                     label="Apellido"
                     name="apellido"
                     value={formData.apellido}
                     onChange={update("apellido")}
+                    error={formErrors.apellido}
                   />
                 </div>
                 <FormField
@@ -415,6 +514,7 @@ export default function Profile() {
                   type="email"
                   value={formData.email}
                   onChange={update("email")}
+                  error={formErrors.email}
                 />
                 <FormField
                   label="Teléfono"
@@ -422,6 +522,7 @@ export default function Profile() {
                   type="tel"
                   value={formData.telefono}
                   onChange={update("telefono")}
+                  error={formErrors.telefono}
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
@@ -431,12 +532,14 @@ export default function Profile() {
                     value={formData.tipoDoc}
                     onChange={update("tipoDoc")}
                     options={DocOption}
+                    error={formErrors.tipoDoc}
                   />
                   <FormField
                     label="Nro. Documento"
                     name="nroDocumento"
                     value={formData.nroDocumento}
                     onChange={update("nroDocumento")}
+                    error={formErrors.nroDocumento}
                   />
                 </div>
               </div>
@@ -483,6 +586,7 @@ export default function Profile() {
                     name="nombreUsuario"
                     value={formData.nombreUsuario}
                     onChange={update("nombreUsuario")}
+                    error={formErrors.nombreUsuario}
                   />
 
                   <div>
@@ -491,10 +595,13 @@ export default function Profile() {
                       variant="outline"
                       onClick={() => {
                         if (changePassword) {
-                          // Si está activo, al hacer clic se cancela y se limpian los campos
                           setFormData((prev) => ({ ...prev, password: "" }));
                           setConfirmPassword("");
                           setPasswordError(null);
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            password: undefined,
+                          }));
                         }
                         setChangePassword((s) => !s);
                       }}
@@ -514,6 +621,7 @@ export default function Profile() {
                           placeholder="*******"
                           value={formData.password}
                           onChange={update("password")}
+                          error={formErrors.password}
                         />
                         <FormField
                           label="Repetir contraseña"
@@ -566,13 +674,16 @@ export default function Profile() {
                   : saldo >= formData.precioUltPedidoSem &&
                       formData.precioUltPedidoSem > 0
                     ? "Tu saldo cubre tu próximo pedido semanal."
-                    : "Tu saldo no alcanza para tu próximo pedido semanal."
+                    : saldo === 0 && formData.precioUltPedidoSem === 0
+                      ? "Tu saldo está al día y no tienes pedidos pendientes."
+                      : "Tu saldo no alcanza para tu próximo pedido semanal."
               }
               cardColor={
                 saldo < 0
                   ? "redCard"
-                  : saldo >= formData.precioUltPedidoSem &&
-                      formData.precioUltPedidoSem > 0
+                  : (saldo >= formData.precioUltPedidoSem &&
+                        formData.precioUltPedidoSem > 0) ||
+                      (saldo === 0 && formData.precioUltPedidoSem === 0)
                     ? "greenCard"
                     : "yellowCard"
               }
