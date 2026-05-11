@@ -5,17 +5,13 @@ import Footer from '../../../components/Footer';
 import { useCustomerDirections } from './hooks/useCustomerDomicilios';
 import { useAuth } from '../../../hooks/useAuth.ts';
 import DirectionAdminCard from './components/DirectionAdminCard.tsx';
-import { useEffect, useState } from 'react';
-import type { CamionResponse } from '../../../services/Interfaces.ts';
-import { fetchTrucks } from '../../../services/TruckService.ts';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function CustomerDirections() {
   const { customerId } = useParams<{ customerId: string }>();
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const customerData = useCustomerDirections(customerId);
-  //Defino useState para traer los camiones para asignar a los domicilios en el back
-  const [trucks, setTrucks] = useState<{ id: number; nombre: string }[]>([]);
   // Proteger ruta
   const navigate = useNavigate();
   useEffect(() => {
@@ -23,24 +19,6 @@ export default function CustomerDirections() {
       navigate("/login");
     }
   }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
-    const fetchAndSetTrucks = async () => {
-      try {
-        const camionesData = await fetchTrucks(token);
-        setTrucks(
-          camionesData.map((camion: CamionResponse) => ({
-            id: camion.id,
-            nombre: camion.patente,
-          })),
-        );
-      } catch (error) {
-        console.error("Error fetching trucks:", error);
-      }
-    };
-
-    fetchAndSetTrucks();
-  }, [token]);
 
   console.log(customerData.directions);
   return (
