@@ -1,28 +1,28 @@
-import { useState, useEffect } from 'react';
-import { Helmet } from '../../../components/Helmet.tsx';
-import NavBar from '../../../components/NavBar.tsx';
-import Footer from '../../../components/Footer.tsx';
-import { Card, CardContent } from '../../../components/Card.tsx';
-import { Button } from '../../../components/Button.tsx';
-import Input from '../../../components/Input.tsx';
-import { Label } from '../../../components/Label.tsx';
-import type { ErrorResponse } from '../../../services/Interfaces.ts';
-import { formatErrorResponse } from '../../../lib/utils.ts';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../hooks/useAuth.ts';
+import { useState, useEffect } from "react";
+import { Helmet } from "../../../components/Helmet.tsx";
+import NavBar from "../../../components/NavBar.tsx";
+import Footer from "../../../components/Footer.tsx";
+import { Card, CardContent } from "../../../components/Card.tsx";
+import { Button } from "../../../components/Button.tsx";
+import Input from "../../../components/Input.tsx";
+import { Label } from "../../../components/Label.tsx";
+import type { ErrorResponse } from "../../../services/Interfaces.ts";
+import { formatErrorResponse } from "../../../lib/utils.ts";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth.ts";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/Select.tsx';
+} from "../../../components/Select.tsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../../components/Dialog.tsx';
+} from "../../../components/Dialog.tsx";
 import {
   Table,
   TableBody,
@@ -30,16 +30,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../components/Table.tsx';
-import { Badge } from '../../../components/Badge.tsx';
-import { Plus, Edit, Trash2, Route, Link } from 'lucide-react';
-import { toast } from 'sonner';
-import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../../services/TruckService.ts';
-import type { CamionResponse } from '../../../services/Interfaces.ts';
-import { Alert, AlertTitle, AlertDescription } from '../../../components/Alert.tsx';
+} from "../../../components/Table.tsx";
+import { Badge } from "../../../components/Badge.tsx";
+import { Plus, Edit, Trash2, Route, Link } from "lucide-react";
+import { toast } from "sonner";
+import {
+  addTruck,
+  disableTruck,
+  fetchTrucks,
+  updateTruck,
+} from "../../../services/TruckService.ts";
+import type { CamionResponse } from "../../../services/Interfaces.ts";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from "../../../components/Alert.tsx";
 
 const TrucksManagement = () => {
-  const {token} = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [trucks, setTrucks] = useState<CamionResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -116,11 +125,11 @@ const TrucksManagement = () => {
       };
       if (editingTruck) {
         console.log("updateando camion");
-        await updateTruck(editingTruck.id, truckData,token);
+        await updateTruck(editingTruck.id, truckData, token);
         toast.success("Camion actualizado correctamente.");
       } else {
         console.log("guardando camion");
-        await addTruck(truckData,token);
+        await addTruck(truckData, token);
         toast.success("Camion agregado correctamente.");
       }
 
@@ -140,15 +149,15 @@ const TrucksManagement = () => {
 
   const handleDelete = (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar este camion?")) {
-      disableTruck(id,token)
+      disableTruck(id, token)
         .then(() => {
           setTrucks((prev) => prev.filter((truck) => truck.id !== id));
+          toast.success("Truck dado de baja.");
         })
         .catch((error) => {
           console.error("Error deshabilitando camion:", error);
           toast.error("Ocurrió un error al eliminar el camion.");
         });
-      toast.success("Truck dado de baja.");
     }
   };
   const { currentUser, isAuthenticated, loading } = useAuth();
