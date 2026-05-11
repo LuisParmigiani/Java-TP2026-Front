@@ -21,7 +21,7 @@ export default function Counter(props: Props) {
                 type="number"
                 placeholder="0"
                 value={count.toString()}
-                onChange={(value) => props.onChange(Math.max(0, parseInt(value) || 0))}
+                onChange={(value) => props.onChange(Math.max(0, parseInt(value as string) || 0))}
                 color="gray"
                 size="xs" />
 

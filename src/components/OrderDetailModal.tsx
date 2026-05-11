@@ -15,7 +15,7 @@ import {
 } from "./Dialog";
 import { Button } from "./Button";
 import { getById } from "../services/DirectionService";
-
+import { useAuth } from "../hooks/useAuth.ts";
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -39,7 +39,7 @@ export default function OrderDetailModal({
   const [montoPagado, setMontoPagado] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [directionProducts, setDirectionProducts] = useState<ProductosDomicilio[] | null>(null);
-
+  const { token } = useAuth();
   // linea.id comes as null from the API, so we key by productoZona.id
   const key = (l: LineaPedidoResponse) => l.productoZona?.id ?? 0;
 
@@ -51,12 +51,11 @@ export default function OrderDetailModal({
       setPagado(sale.pagado ?? false);
     }
     const searchDirectionProducts = async () => {
-      const results = await getById(delivery?.domicilio?.id ?? 0, ['productosDomicilio']);
+      const results = await getById(delivery?.domicilio?.id ?? 0, token, ['productosDomicilio']);
       setDirectionProducts(results.productosDomicilio ?? null);
     };
     searchDirectionProducts();
-  }, [sale, delivery]);
-
+  }, [sale, delivery, token]);
   const getPrice = (l: LineaPedidoResponse) =>
     l.productoZona?.producto?.precio ?? 0;
 
@@ -84,7 +83,7 @@ export default function OrderDetailModal({
             productoZonaId: linea.productoZona?.id,
           })),
       };
-      const response = await createDriverSale(ventaRequest, montoPagado, vaciosQty);
+      const response = await createDriverSale(ventaRequest, montoPagado, vaciosQty, token);
 
       console.log("Sale created for driver:", response);
       console.log("Monto pagado:", montoPagado);

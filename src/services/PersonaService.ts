@@ -42,13 +42,13 @@ export async function fetchPersonas(
 }
 export async function searchPersonasByNameOnly(
   query: string,
-  token:string,
+  token: string,
 ): Promise<PersonaResponse[]> {
   try {
     const params = new URLSearchParams();
     params.append('query', query);
 
-    const response = await apiGet<PersonaResponse[]>(`/persona/search/nameOnly?query=${query}`,token);
+    const response = await apiGet<PersonaResponse[]>(`/persona/search/nameOnly?query=${query}`, token);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
@@ -168,6 +168,7 @@ export async function deletePersona(id: number, token?: string): Promise<void> {
 }
 
 export async function getPersona(
+  token: string,
   id: number,
   populate?: string[],
 ): Promise<PersonaResponse> {
@@ -176,7 +177,7 @@ export async function getPersona(
     if (populate) {
       query = "?populate=" + populate.join(",");
     }
-    const response = await apiGet<PersonaResponse>(`/persona/${id}${query}`);
+    const response = await apiGet<PersonaResponse>(`/persona/${id}${query}`, token);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;

@@ -3,9 +3,9 @@
 import { apiGet } from './baseClient';
 import type { DiaResponse } from './Interfaces';
 
-export async function getDias(): Promise<DiaResponse[]> {
+export async function getDias(token: string): Promise<DiaResponse[]> {
   try {
-    const response = await apiGet<DiaResponse[]>('/dia');
+    const response = await apiGet<DiaResponse[]>('/dia', token);
     console.log('Fetched dias:', response);
     return response;
   } catch (error) {

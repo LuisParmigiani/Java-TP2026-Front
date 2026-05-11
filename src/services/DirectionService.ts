@@ -94,6 +94,7 @@ export async function getAllByUserId(
   }
 }
 export async function fetchDomiciliosByCalleAndNumero(
+  token: string,
   populate?: string[],
   calleYNumero?: string,
 ): Promise<DomicilioResponse[]> {
@@ -107,7 +108,7 @@ export async function fetchDomiciliosByCalleAndNumero(
     }
     console.log(`domicilio/search?${query}`);
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio/search?${query}`,
+      `/domicilio/search?${query}`, token
     );
     console.log("Domicilios fetched successfully:", response);
     return response;
