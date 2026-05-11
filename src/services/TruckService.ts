@@ -17,7 +17,10 @@ export async function fetchTrucks(token: string): Promise<CamionResponse[]> {
     throw errorResponse;
   }
 }
-export async function fetchTruckById(truckId: number, token: string): Promise<CamionResponse> {
+export async function fetchTruckById(
+  truckId: number,
+  token: string,
+): Promise<CamionResponse> {
   try {
     const response = await apiGet<CamionResponse>(`/camion/${truckId}`, token);
 
@@ -35,15 +38,9 @@ export async function addTruck(
   token: string,
 ): Promise<CamionResponse> {
   try {
-<<<<<<< HEAD
-    console.log('guardadno camion:', camion);
-    const response = await apiPost<CamionResponse>('/camion', camion, token);
-    console.log('Added camion:', response);
-=======
     console.log("guardadno camion:", camion);
     const response = await apiPost<CamionResponse>("/camion", camion, token);
     console.log("Added camion:", response);
->>>>>>> ad31866e2de97c7de9eb361ec0b05d7538160d11
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
@@ -115,12 +112,8 @@ export async function getDiaZonasByTruckAndDay(
 ): Promise<DiaZonaResponse[]> {
   try {
     const response = await apiGet<DiaZonaResponse[]>(
-<<<<<<< HEAD
-      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`, token
-=======
       `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`,
       token,
->>>>>>> ad31866e2de97c7de9eb361ec0b05d7538160d11
     );
 
     return response;
@@ -191,13 +184,8 @@ export async function updateDiaZonaWithOrdenes(
 
 export async function active(token: string): Promise<CamionResponse[]> {
   try {
-<<<<<<< HEAD
-    const response = await apiGet<CamionResponse[]>('/camion/active', token);
-    console.log('Activated truck:', response);
-=======
     const response = await apiGet<CamionResponse[]>("/camion/active", token);
     console.log("Activated truck:", response);
->>>>>>> ad31866e2de97c7de9eb361ec0b05d7538160d11
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
