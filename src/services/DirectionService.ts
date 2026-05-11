@@ -1,5 +1,11 @@
 import { apiGet, apiPost, apiPut } from "./baseClient";
-import type { DomicilioRequest, DiaDomicilioRequest, DomicilioResponse, PaginationResponse, ErrorResponse } from "./Interfaces";
+import type {
+  DomicilioRequest,
+  DiaDomicilioRequest,
+  DomicilioResponse,
+  PaginationResponse,
+  ErrorResponse,
+} from "./Interfaces";
 
 export async function updateDirection(
   direction: DomicilioResponse,
@@ -97,7 +103,6 @@ export async function fetchDomiciliosByCalleAndNumero(
       query = "populate=" + populate.join(",") + "&";
     }
     if (calleYNumero) {
-
       query = query + "calleNumero=" + calleYNumero;
     }
     console.log(`domicilio/search?${query}`);
@@ -123,7 +128,8 @@ export async function getById(
       query = "populate=" + populate.join(",");
     }
     const response = await apiGet<DomicilioResponse>(
-      `/domicilio/${id}?${query}`, token
+      `/domicilio/${id}?${query}`,
+      token,
     );
     return response;
   } catch (error) {
@@ -135,38 +141,36 @@ export async function updateDays(
   directionId: number,
   dias: DiaDomicilioRequest[],
 ): Promise<DomicilioResponse> {
-  return await apiPut(
-    `/domicilio/${directionId}/dias`,
-    dias);
+  return await apiPut(`/domicilio/${directionId}/dias`, dias);
 }
 
-export async function getAll(token: string, populate?: string[]): Promise<DomicilioResponse[]> {
-
+export async function getAll(
+  token: string,
+  populate?: string[],
+): Promise<DomicilioResponse[]> {
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio?${query}`, token,
+      `/domicilio?${query}`,
+      token,
     );
     return response;
   } catch (error) {
     console.error("Error fetching direction by ID:", error);
     throw error;
   }
-
-
-
 }
-
-
 
 export async function postDirectionAdmin(
   direction: DomicilioRequest,
+  token: string,
 ): Promise<DomicilioResponse> {
   try {
     console.log("Posting new direction with data:", direction);
     const response = await apiPost<DomicilioResponse>(
       "/domicilio/admin",
-      direction
+      direction,
+      token,
     );
     return response;
   } catch (error) {
@@ -183,7 +187,8 @@ export async function getPending(
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio/pendientes?${query}`, token
+      `/domicilio/pendientes?${query}`,
+      token,
     );
     return response;
   } catch (error) {

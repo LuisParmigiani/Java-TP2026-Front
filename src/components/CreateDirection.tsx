@@ -15,15 +15,15 @@ import {
   SelectItem,
 } from "./Select";
 import { z } from "zod";
-import {  searchPersonasByNameOnly } from "../services/PersonaService";
+import { searchPersonasByNameOnly } from "../services/PersonaService";
 import { postDirectionAdmin } from "../services/DirectionService";
 import { useAuth } from "../hooks/useAuth.ts";
 import { Loader2 } from "lucide-react";
 
 const initialForm: domicilioRequest = {
-  calle: '',
-  numero: '',
-  casa: '',
+  calle: "",
+  numero: "",
+  casa: "",
   zonaId: 0,
 };
 
@@ -37,16 +37,17 @@ export default function NewDirection({ open, onClose }: Props) {
     useState<domicilioRequest>(initialForm);
   const [zonas, setZonas] = useState<ZonaResponse[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   //Combobox
   // Estados para el Combobox de Clientes
   const [persons, setPersons] = useState<PersonaResponse[]>([]);
-  const [clientSearch, setClientSearch] = useState('');
+  const [clientSearch, setClientSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const { token, loading } = useAuth();
 
   // Función para buscar clientes por nombre en el backend
@@ -58,14 +59,14 @@ export default function NewDirection({ open, onClose }: Props) {
     const timeout = setTimeout(async () => {
       try {
         if (query.trim().length > 0) {
-            const search = query
+          const search = query;
           const results = await searchPersonasByNameOnly(search, token);
           setPersons(results);
         } else {
           setPersons([]); // Limpiar si está vacío
         }
       } catch (error) {
-        console.error('Error searching clients:', error);
+        console.error("Error searching clients:", error);
         setPersons([]); // Limpiar si hay error
       }
     }, 500);
@@ -81,7 +82,7 @@ export default function NewDirection({ open, onClose }: Props) {
     setClientSearch(`${person.nombre} ${person.apellido}`);
     setShowDropdown(false);
     // Limpiamos el error si existía al seleccionar
-    setErrors((prev) => ({ ...prev, personaId: '' }));
+    setErrors((prev) => ({ ...prev, personaId: "" }));
   };
   // Cerrar el dropdown al hacer clic fuera de él
   useEffect(() => {
@@ -93,9 +94,9 @@ export default function NewDirection({ open, onClose }: Props) {
         setShowDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
       // Limpiar timeout al desmontar
       if (searchTimeout) clearTimeout(searchTimeout);
     };
@@ -110,26 +111,34 @@ export default function NewDirection({ open, onClose }: Props) {
         setZonas(zonaResponse);
         // Ya no cargamos todas las personas aquí
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
     loadData();
   }, [open, loading, token]);
 
   const domicilioSchema = z.object({
-    personaId: z.number().min(1, 'El cliente no puede estar vacío'),
-    calle: z.string().min(1, 'La calle no puede estar vacía'),
+    personaId: z.number().min(1, "El cliente no puede estar vacío"),
+    calle: z.string().min(1, "La calle no puede estar vacía"),
     numero: z
       .string()
-      .min(1, 'El número no puede estar vacío')
-      .regex(/^\d{1,5}$/, 'El número debe tener entre 1 y 5 dígitos'),
+      .min(1, "El número no puede estar vacío")
+      .regex(/^\d{1,5}$/, "El número debe tener entre 1 y 5 dígitos"),
     casa: z
       .string()
-      .regex(/^\d{0,5}$/, 'El número de casa debe tener entre 0 y 5 dígitos')
+      .regex(/^\d{0,5}$/, "El número de casa debe tener entre 0 y 5 dígitos")
       .optional()
-      .or(z.literal('')),
-    zonaId: z.number().min(1, 'El id de la zona no puede estar vacío'),
+      .or(z.literal("")),
+    zonaId: z.number().min(1, "El id de la zona no puede estar vacío"),
   });
+
+  const saveDirection = async () => {
+    if (formInformation) {
+      const result = await postDirectionAdmin(formInformation, token);
+      console.log("Direction created successfully:", result);
+      setFormInformation(initialForm);
+    }
+  };
 
   // Lógica Unificada de Envío (Solución a la Condición de Carrera)
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,308 +160,347 @@ export default function NewDirection({ open, onClose }: Props) {
     setIsLoading(true);
 
     try {
-      const resultApi = await postDirectionAdmin(formInformation); // Asegúrate de pasar el token aquí si es necesario
-      console.log('Dirección creada exitosamente:', resultApi);
+      const resultApi = await postDirectionAdmin(formInformation, token); // Asegúrate de pasar el token aquí si es necesario
+      console.log("Dirección creada exitosamente:", resultApi);
 
       // 3. Resetear el estado y cerrar el modal
       setFormInformation(initialForm);
-      setClientSearch('');
+      setClientSearch("");
       onClose();
     } catch (error) {
-      console.error('Error al crear la dirección:', error);
+      console.error("Error al crear la dirección:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+        onClick={onClose}
+      >
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-            onClick={onClose}
+          className="relative"
+          ref={dropdownRef}
+          onFocusCapture={() => setShowDropdown(true)}
         >
-            <div
-              className="relative"
-              ref={dropdownRef}
-              onFocusCapture={() => setShowDropdown(true)}
-            >
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Agregar Dirección</h2>
-                
-                {/* Ahora usamos onSubmit en el formulario para todo el proceso */}
-                <form className="grid grid-cols-1 gap-6" onSubmit={handleSubmit}>
-                    
-                    {/* BUSCADOR DE CLIENTES (COMBOBOX) */}
-                    <label className="flex flex-col gap-2">
-                        <span className="text-sm font-semibold text-gray-700">Cliente</span>
-                        <div className="relative" ref={dropdownRef}>
-                            <Input
-                                type="text"
-                                name="clientSearch"
-                                placeholder="Escribe para buscar un cliente..."
-                                value={clientSearch}
-                                onChange={(value) => {
-                                    const searchValue = typeof value === "string" ? value : "";
-                                    setClientSearch(searchValue);
-                                    setFormInformation((current) => ({ ...current, personaId: undefined }));
-                                    
-                                    // Buscar en el backend
-                                    searchClientsByName(searchValue);
-                                    setShowDropdown(true);
-                                }}
-                                onFocus={() => setShowDropdown(true)}
-                            />
-                            
-                            {/* Menú Flotante de Resultados */}
-                            {showDropdown && (
-                                <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                                    {filteredPersons.length > 0 ? (
-                                        <ul className="py-1">
-                                            {filteredPersons.map((person) => (
-                                                <li
-                                                    key={person.id}
-                                                    className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex justify-between items-center transition-colors"
-                                                    // Usamos onMouseDown en lugar de onClick para que se dispare ANTES que el onBlur del input
-                                                    onMouseDown={(e) => {
-                                                        e.preventDefault(); // Evita que el input pierda el foco
-                                                        handleSelectPerson(person);
-                                                    }}
-                                                >
-                                                    <span className="font-medium">{person.nombre} {person.apellido}</span>
-                                                    <span className="text-xs text-gray-400">ID: {person.id}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                                            No se encontraron clientes.
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                        {errors.personaId && <span className="text-xs text-red-500">{errors.personaId}</span>}
-                    </label>
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+            Agregar Dirección
+          </h2>
 
-                    <label className="flex flex-col gap-2">
-                        <span className="text-sm font-semibold text-gray-700">Calle</span>
-                        <Input
-                            type="text"
-                            name="calle"
-                            placeholder="Ej: Av. Siempre Viva"
-                            value={formInformation.calle}
-                            onChange={(value) =>
-                                setFormInformation((current) => ({
-                                    ...current,
-                                    calle: typeof value === "string" ? value : "",
-                                }))
-                            }
-                        />
-                        {errors.calle && <span className="text-xs text-red-500">{errors.calle}</span>}
-                    </label>
+          {/* Ahora usamos onSubmit en el formulario para todo el proceso */}
+          <form className="grid grid-cols-1 gap-6" onSubmit={handleSubmit}>
+            {/* BUSCADOR DE CLIENTES (COMBOBOX) */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-gray-700">
+                Cliente
+              </span>
+              <div className="relative" ref={dropdownRef}>
+                <Input
+                  type="text"
+                  name="clientSearch"
+                  placeholder="Escribe para buscar un cliente..."
+                  value={clientSearch}
+                  onChange={(value) => {
+                    const searchValue = typeof value === "string" ? value : "";
+                    setClientSearch(searchValue);
+                    setFormInformation((current) => ({
+                      ...current,
+                      personaId: undefined,
+                    }));
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <label className="flex flex-col gap-2">
-                            <span className="text-sm font-semibold text-gray-700">Número</span>
-                            <Input
-                                type="text"
-                                name="numero"
-                                placeholder="Ej: 742"
-                                value={formInformation.numero}
-                                onChange={(value) =>
-                                    setFormInformation((current) => ({
-                                        ...current,
-                                        numero: typeof value === "string" ? value : "",
-                                    }))
-                                }
-                            />
-                            {errors.numero && <span className="text-xs text-red-500">{errors.numero}</span>}
-                        </label>
+                    // Buscar en el backend
+                    searchClientsByName(searchValue);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                />
 
-                        <label className="flex flex-col gap-2">
-                            <span className="text-sm font-semibold text-gray-700">Casa (opcional)</span>
-                            <Input
-                                type="text"
-                                name="casa"
-                                placeholder="Ej: B"
-                                value={formInformation.casa}
-                                onChange={(value) =>
-                                    setFormInformation((current) => ({
-                                        ...current,
-                                        casa: typeof value === "string" ? value : "",
-                                    }))
-                                }
-                            />
-                            {errors.casa && <span className="text-xs text-red-500">{errors.casa}</span>}
-                        </label>
+                {/* Menú Flotante de Resultados */}
+                {showDropdown && (
+                  <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                    {filteredPersons.length > 0 ? (
+                      <ul className="py-1">
+                        {filteredPersons.map((person) => (
+                          <li
+                            key={person.id}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex justify-between items-center transition-colors"
+                            // Usamos onMouseDown en lugar de onClick para que se dispare ANTES que el onBlur del input
+                            onMouseDown={(e) => {
+                              e.preventDefault(); // Evita que el input pierda el foco
+                              handleSelectPerson(person);
+                            }}
+                          >
+                            <span className="font-medium">
+                              {person.nombre} {person.apellido}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              ID: {person.id}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        No se encontraron clientes.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {errors.personaId && (
+                <span className="text-xs text-red-500">{errors.personaId}</span>
+              )}
+            </label>
 
-                        <label className="flex flex-col gap-2 md:col-span-2">
-                            <span className="text-sm font-semibold text-gray-700">Zona</span>
-                            <Select
-                                value={formInformation.zonaId ? formInformation.zonaId.toString() : ""}
-                                onValueChange={(value) =>
-                                    setFormInformation((current) => ({
-                                        ...current,
-                                        zonaId: parseInt(value),
-                                    }))
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar zona" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {zonas.map((zona) => (
-                                        <SelectItem key={zona.id} value={zona.id.toString()}>
-                                            {zona.nombre}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.zonaId && <span className="text-xs text-red-500">{errors.zonaId}</span>}
-                        </label>
-                    </div>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-gray-700">Calle</span>
+              <Input
+                type="text"
+                name="calle"
+                placeholder="Ej: Av. Siempre Viva"
+                value={formInformation.calle}
+                onChange={(value) =>
+                  setFormInformation((current) => ({
+                    ...current,
+                    calle: typeof value === "string" ? value : "",
+                  }))
+                }
+              />
+              {errors.calle && (
+                <span className="text-xs text-red-500">{errors.calle}</span>
+              )}
+            </label>
 
-                    <div className="flex justify-end gap-4 mt-8">
-                        <Button color="red" size="md" onClick={onClose} className="px-6" type="button" disabled={isLoading}>
-                            Cancelar
-                        </Button>
-                        <Button color="primary" size="md" className="px-6 min-w-30" type="submit" disabled={isLoading}>
-                            {isLoading ? (
-                                <span className="flex items-center justify-center">
-                                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                                    Creando...
-                                </span>
-                            ) : (
-                                "Crear Domicilio"
-                            )}
-                        </Button>
-                    </div>
-                </form>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  Número
+                </span>
+                <Input
+                  type="text"
+                  name="numero"
+                  placeholder="Ej: 742"
+                  value={formInformation.numero}
+                  onChange={(value) =>
+                    setFormInformation((current) => ({
+                      ...current,
+                      numero: typeof value === "string" ? value : "",
+                    }))
+                  }
+                />
+                {errors.numero && (
+                  <span className="text-xs text-red-500">{errors.numero}</span>
+                )}
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  Casa (opcional)
+                </span>
+                <Input
+                  type="text"
+                  name="casa"
+                  placeholder="Ej: B"
+                  value={formInformation.casa}
+                  onChange={(value) =>
+                    setFormInformation((current) => ({
+                      ...current,
+                      casa: typeof value === "string" ? value : "",
+                    }))
+                  }
+                />
+                {errors.casa && (
+                  <span className="text-xs text-red-500">{errors.casa}</span>
+                )}
+              </label>
+
+              <label className="flex flex-col gap-2 md:col-span-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  Zona
+                </span>
+                <Select
+                  value={
+                    formInformation.zonaId
+                      ? formInformation.zonaId.toString()
+                      : ""
+                  }
+                  onValueChange={(value) =>
+                    setFormInformation((current) => ({
+                      ...current,
+                      zonaId: parseInt(value),
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar zona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zonas.map((zona) => (
+                      <SelectItem key={zona.id} value={zona.id.toString()}>
+                        {zona.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.zonaId && (
+                  <span className="text-xs text-red-500">{errors.zonaId}</span>
+                )}
+              </label>
             </div>
-            {errors.personaId && (
-              <span className="text-xs text-red-500">{errors.personaId}</span>
+
+            <div className="flex justify-end gap-4 mt-8">
+              <Button
+                color="red"
+                size="md"
+                onClick={onClose}
+                className="px-6"
+                type="button"
+                disabled={isLoading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                color="primary"
+                size="md"
+                className="px-6 min-w-30"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    Creando...
+                  </span>
+                ) : (
+                  "Crear Domicilio"
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+        {errors.personaId && (
+          <span className="text-xs text-red-500">{errors.personaId}</span>
+        )}
+      </div>
+      <form>
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-semibold text-gray-700">Calle</span>
+          <Input
+            type="text"
+            name="calle"
+            placeholder="Ej: Av. Siempre Viva"
+            value={formInformation.calle}
+            onChange={(value) =>
+              setFormInformation((current) => ({
+                ...current,
+                calle: typeof value === "string" ? value : "",
+              }))
+            }
+          />
+          {errors.calle && (
+            <span className="text-xs text-red-500">{errors.calle}</span>
+          )}
+        </label>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-gray-700">Número</span>
+            <Input
+              type="text"
+              name="numero"
+              placeholder="Ej: 742"
+              value={formInformation.numero}
+              onChange={(value) =>
+                setFormInformation((current) => ({
+                  ...current,
+                  numero: typeof value === "string" ? value : "",
+                }))
+              }
+            />
+            {errors.numero && (
+              <span className="text-xs text-red-500">{errors.numero}</span>
             )}
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-700">Calle</span>
+            <span className="text-sm font-semibold text-gray-700">
+              Casa (opcional)
+            </span>
             <Input
               type="text"
-              name="calle"
-              placeholder="Ej: Av. Siempre Viva"
-              value={formInformation.calle}
+              name="casa"
+              placeholder="Ej: B"
+              value={formInformation.casa}
               onChange={(value) =>
                 setFormInformation((current) => ({
                   ...current,
-                  calle: typeof value === "string" ? value : "",
+                  casa: typeof value === "string" ? value : "",
                 }))
               }
             />
-            {errors.calle && (
-              <span className="text-xs text-red-500">{errors.calle}</span>
+            {errors.casa && (
+              <span className="text-xs text-red-500">{errors.casa}</span>
             )}
           </label>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-gray-700">
-                Número
-              </span>
-              <Input
-                type="text"
-                name="numero"
-                placeholder="Ej: 742"
-                value={formInformation.numero}
-                onChange={(value) =>
-                  setFormInformation((current) => ({
-                    ...current,
-                    numero: typeof value === "string" ? value : "",
-                  }))
-                }
-              />
-              {errors.numero && (
-                <span className="text-xs text-red-500">{errors.numero}</span>
-              )}
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-gray-700">
-                Casa (opcional)
-              </span>
-              <Input
-                type="text"
-                name="casa"
-                placeholder="Ej: B"
-                value={formInformation.casa}
-                onChange={(value) =>
-                  setFormInformation((current) => ({
-                    ...current,
-                    casa: typeof value === "string" ? value : "",
-                  }))
-                }
-              />
-              {errors.casa && (
-                <span className="text-xs text-red-500">{errors.casa}</span>
-              )}
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-gray-700">Zona</span>
-              <Select
-                value={
-                  formInformation.zonaId
-                    ? formInformation.zonaId.toString()
-                    : ""
-                }
-                onValueChange={(value) =>
-                  setFormInformation((current) => ({
-                    ...current,
-                    zonaId: parseInt(value),
-                  }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar zona" />
-                </SelectTrigger>
-                <SelectContent>
-                  {zonas.map((zona) => (
-                    <SelectItem key={zona.id} value={zona.id.toString()}>
-                      {zona.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.zonaId && (
-                <span className="text-xs text-red-500">{errors.zonaId}</span>
-              )}
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-4 mt-8">
-            <Button
-              variant="gray"
-              size="md"
-              onClick={onClose}
-              className="px-6"
-              type="button"
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-gray-700">Zona</span>
+            <Select
+              value={
+                formInformation.zonaId ? formInformation.zonaId.toString() : ""
+              }
+              onValueChange={(value) =>
+                setFormInformation((current) => ({
+                  ...current,
+                  zonaId: parseInt(value),
+                }))
+              }
             >
-              Cerrar
-            </Button>
-            <Button
-              color="primary"
-              size="md"
-              className="px-6"
-              type="submit"
-              onClick={saveDirection}
-            >
-              Crear
-            </Button>
-          </div>
-        </form>
-      </div>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar zona" />
+              </SelectTrigger>
+              <SelectContent>
+                {zonas.map((zona) => (
+                  <SelectItem key={zona.id} value={zona.id.toString()}>
+                    {zona.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.zonaId && (
+              <span className="text-xs text-red-500">{errors.zonaId}</span>
+            )}
+          </label>
+        </div>
+
+        <div className="flex justify-end gap-4 mt-8">
+          <Button
+            variant="gray"
+            size="md"
+            onClick={onClose}
+            className="px-6"
+            type="button"
+          >
+            Cerrar
+          </Button>
+          <Button
+            color="primary"
+            size="md"
+            className="px-6"
+            type="submit"
+            onClick={saveDirection}
+          >
+            Crear
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
-
