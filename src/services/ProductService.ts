@@ -14,8 +14,21 @@ export async function fetchProducts(
   token: string,
 ): Promise<ProductoResponse[]> {
   try {
-    const response = await apiGet<ProductoResponse[]>("/producto", token);
-    console.log("Fetched products:", response);
+    const response = await apiGet<ProductoResponse[]>('/producto', token);
+    console.log('Fetched products:', response);
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+export async function fetchProductsActivos(
+  token: string,
+): Promise<ProductoResponse[]> {
+  try {
+    const response = await apiGet<ProductoResponse[]>("/producto/activo/sinPag", token);
+    console.log("Fetched products activos:", response);
 
     return response;
   } catch (error) {

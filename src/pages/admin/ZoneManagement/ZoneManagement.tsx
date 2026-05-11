@@ -27,10 +27,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/Table.tsx";
-import { Plus, Edit, Trash2, Link } from "lucide-react";
-import { toast } from "sonner";
-import type { ZonaResponse } from "../../../services/Interfaces.ts";
+} from '../../../components/Table.tsx';
+import { Plus, Edit, Trash2, Link ,Loader2} from 'lucide-react';
+import { toast } from 'sonner';
+import type { ZonaResponse } from '../../../services/Interfaces.ts';
 import {
   Alert,
   AlertTitle,
@@ -129,6 +129,9 @@ const ZoneManagement = () => {
     });
   };
   const handleOpenDialog = (zone: ZonaResponse | null = null) => {
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     if (zone) {
       setEditingZone(zone);
       setFormData({
@@ -165,9 +168,7 @@ const ZoneManagement = () => {
       const issues = result.error.issues;
       const errors: Record<string, string> = {};
       for (const issue of issues) {
-        // first path segment as key
         const key = issue.path[0] ? String(issue.path[0]) : "_form";
-        // concisely append messages per field
         errors[key] = (errors[key] ? errors[key] + ". " : "") + issue.message;
       }
       setFieldErrors(errors);
@@ -177,12 +178,13 @@ const ZoneManagement = () => {
           Object.values(errors).join(" | ") ||
           "Por favor, revise los campos del formulario.",
       });
-      setShowAlert(true); // opcional: abrir alerta de UI
+      setShowAlert(true);
       return;
     }
 
-    // Clear previous field errors
     setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     setIsLoading(true);
 
     try {
@@ -479,8 +481,20 @@ const ZoneManagement = () => {
                 Cancelar
               </Button>
 
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : "Guardar"}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="min-w-30"
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    {/* Usamos el ícono de Lucide con la clase de animación de Tailwind */}
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    Guardando...
+                  </span>
+                ) : (
+                  'Guardar'
+                )}
               </Button>
             </div>
           </form>
