@@ -13,7 +13,7 @@ export async function createPago(token: string, pago: PagoRequest): Promise<Pago
     return await apiPost<PagoResponse>('/pago/me', pago, token);
 }
 
-export async function getPagoById(): Promise<number> {
+export async function getPagoById(token:string): Promise<number> {
 
-    return await apiGet<number>(`/pago/ingressos`);
+    return await apiGet<number>(`/pago/ingressos`,token);
 }   

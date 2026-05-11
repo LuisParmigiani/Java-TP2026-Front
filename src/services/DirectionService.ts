@@ -74,10 +74,13 @@ export async function getAllByUserId(
     if (enabledStatus) {
       query = "enabledStatus=" + enabledStatus + "&" + query;
     }
+    console.log(`domicilio/token/usuario?${query}`);
+
     const response = await apiGet<PaginationResponse<DomicilioResponse>>(
       `/domicilio/token/usuario?${query}`,
       token,
     );
+    console.log("Directions fetched successfully:", response);
     return response;
   } catch (error) {
     console.error("Error fetching directions:", error);
@@ -111,6 +114,7 @@ export async function fetchDomiciliosByCalleAndNumero(
 
 export async function getById(
   id: number,
+  token: string,
   populate?: string[],
 ): Promise<DomicilioResponse> {
   try {
@@ -119,7 +123,7 @@ export async function getById(
       query = "populate=" + populate.join(",");
     }
     const response = await apiGet<DomicilioResponse>(
-      `/domicilio/${id}?${query}`,
+      `/domicilio/${id}?${query}`,token
     );
     return response;
   } catch (error) {
@@ -136,12 +140,12 @@ export async function updateDays(
     dias);
 }
 
-export async function getAll(populate?: string[]): Promise<DomicilioResponse[]> {
+export async function getAll(token:string,populate?: string[]): Promise<DomicilioResponse[]> {
 
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio?${query}`,
+      `/domicilio?${query}`,token,
     );
     return response;
   } catch (error) {
@@ -152,6 +156,7 @@ export async function getAll(populate?: string[]): Promise<DomicilioResponse[]> 
 
 
 }
+
 
 
 export async function postDirectionAdmin(
@@ -172,12 +177,13 @@ export async function postDirectionAdmin(
 }
 
 export async function getPending(
+  token: string,
   populate?: string[],
 ): Promise<DomicilioResponse[]> {
   try {
     const query = populate ? "populate=" + populate.join(",") : "";
     const response = await apiGet<DomicilioResponse[]>(
-      `/domicilio/pendientes?${query}`,
+      `/domicilio/pendientes?${query}`,token
     );
     return response;
   } catch (error) {

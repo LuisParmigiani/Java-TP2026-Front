@@ -85,7 +85,7 @@ function DirectionCard(props: Props) {
               )}
               {isDeshabilitado && (
                 <span className="mt-1 inline-block rounded-full bg-orange-400 px-2 py-0.5 text-xs font-semibold text-orange-900">
-                  Deshabilitado. Contactese con nosoptros para mas información.
+                  Deshabilitado. Contactese con nosotros para mas información.
                 </span>
               )}
             </div>

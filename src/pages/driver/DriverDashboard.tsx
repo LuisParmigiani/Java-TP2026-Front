@@ -14,7 +14,7 @@ import AddCustomerDialog from './AddCustomerDialog';
 import NewDirection from '../../components/CreateDirection';
 
 export default function DriverDashboard() {
-    const { token } = useAuth();
+    const { token,loading } = useAuth();
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -22,7 +22,7 @@ export default function DriverDashboard() {
     const [editingCustomer, setEditingCustomer] = useState<PersonaResponse | null>(null);
 
     useEffect(() => {
-        if (!token) return;
+        if (!token && loading) return;
         const fetchData = async () => {
             try {
                 setError(null);
@@ -34,7 +34,7 @@ export default function DriverDashboard() {
             }
         };
         fetchData();
-    }, [token]);
+    }, [token,loading]);
 
     const handleOpenDialog = (customer: PersonaResponse | null = null) => {
         setEditingCustomer(customer);

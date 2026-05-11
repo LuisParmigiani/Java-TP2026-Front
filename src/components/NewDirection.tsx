@@ -5,6 +5,7 @@ import Input from "./Input";
 import { fetchZones } from "../services/ZoneService";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./Select";
 import { z } from "zod";
+import { useAuth } from "../hooks/useAuth.ts";
 
 interface Props {
     close: () => void;
@@ -19,21 +20,23 @@ const initialForm: domicilioRequest = {
 };
 
 export default function NewDirection({ close, setDirection }: Props) {
+    const {token  ,loading  } = useAuth();
     const [formInformation, setFormInformation] = useState<domicilioRequest>(initialForm);
     const [zonas, setZonas] = useState<ZonaResponse[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
+        if (loading) return; // Esperar a que se resuelva el estado de autenticación
         const fetchZonas = async () => {
             try {
-                const response = await fetchZones();
+                const response = await fetchZones(token);
                 setZonas(response);
             } catch (error) {
                 console.error("Error fetching zonas:", error);
             }
         };
         fetchZonas();
-    }, []);
+    }, [token, loading]);
 
 
 

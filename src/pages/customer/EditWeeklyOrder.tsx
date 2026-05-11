@@ -25,7 +25,7 @@ export default function EditWeeklyOrder() {
   const location = useLocation();
   const domicilioId = location.state?.domicilioId;
   const [products, setProducts] = useState([]);
-  const { token } = useAuth();
+  const { token ,loading:loadingAuth} = useAuth();
   const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [appliedMinPrice, setAppliedMinPrice] = useState<number | "">("");
   const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | "">("");
@@ -39,8 +39,9 @@ export default function EditWeeklyOrder() {
     if (!domicilioId) return;
 
     const fetchData = async () => {
+      if (loadingAuth) return; // Esperar a que se resuelva el estado de autenticación
       try {
-        const response = await getById(domicilioId, [
+        const response = await getById(domicilioId, token,[
           "pedidoSemanal",
           "productoZona",
           "producto",
@@ -85,6 +86,8 @@ export default function EditWeeklyOrder() {
     appliedMaxPrice,
     appliedDirection,
     sortOption,
+    loadingAuth
+
   ]);
 
   // Convierte selectedProducts al formato de tabla
@@ -129,7 +132,7 @@ export default function EditWeeklyOrder() {
         productoId: item.product.id,
       }));
 
-      await createWeeklyOrder(newOrders, domicilioId, []);
+      await createWeeklyOrder(newOrders, domicilioId, [],token);
       setAlert(1);
     } catch (error) {
       console.error("Error al enviar el pedido semanal modificado:", error);
@@ -181,16 +184,16 @@ export default function EditWeeklyOrder() {
           <div className="rounded-xl  p-4">
             <Alert variant="success">
               <AlertTitle>
-                ¡El pedido semanal se ha modificado con exito.!
+                ¡El pedido semanal se ha modificado con exito!
               </AlertTitle>
               <AlertDescription>
                 <div className="flex flex-col items-center gap-2">
-                  Muchas gracias por modificar el pedido semanal.
+                  Muchas gracias por modificar el pedido semanal
                   <LinkButton
-                    url="/customer/editWeeklyOrder"
+                    url="/customer/weeklyOrder"
                     variant="outline"
                     size="sm"
-                    name="Finalizar."
+                    name="Finalizar"
                   />
                 </div>
               </AlertDescription>

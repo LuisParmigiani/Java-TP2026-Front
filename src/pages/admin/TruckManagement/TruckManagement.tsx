@@ -39,6 +39,7 @@ import type { CamionResponse } from '../../../services/Interfaces.ts';
 import { Alert, AlertTitle, AlertDescription } from '../../../components/Alert.tsx';
 
 const TrucksManagement = () => {
+  const {token} = useAuth();
   const navigate = useNavigate();
   const [trucks, setTrucks] = useState<CamionResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -51,10 +52,10 @@ const TrucksManagement = () => {
   } | null>(null);
 
   useEffect(() => {
-    fetchTrucks()
+    fetchTrucks(token)
       .then((data) => setTrucks(data))
       .catch((error) => console.error("Failed to fetch products:", error));
-  }, []);
+  }, [token]);
   const [formData, setFormData] = useState({
     modelo: "",
     patente: "",
@@ -115,15 +116,15 @@ const TrucksManagement = () => {
       };
       if (editingTruck) {
         console.log("updateando camion");
-        await updateTruck(editingTruck.id, truckData);
+        await updateTruck(editingTruck.id, truckData,token);
         toast.success("Camion actualizado correctamente.");
       } else {
         console.log("guardando camion");
-        await addTruck(truckData);
+        await addTruck(truckData,token);
         toast.success("Camion agregado correctamente.");
       }
 
-      const updatedTrucks = await fetchTrucks();
+      const updatedTrucks = await fetchTrucks(token);
       setTrucks(updatedTrucks);
       setIsDialogOpen(false);
     } catch (error) {
@@ -139,7 +140,7 @@ const TrucksManagement = () => {
 
   const handleDelete = (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar este camion?")) {
-      disableTruck(id)
+      disableTruck(id,token)
         .then(() => {
           setTrucks((prev) => prev.filter((truck) => truck.id !== id));
         })

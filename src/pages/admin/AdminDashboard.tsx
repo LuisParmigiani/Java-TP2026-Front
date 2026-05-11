@@ -19,22 +19,23 @@ import { getPagoById } from "../../services/payService";
 
 
 const AdminDashboard = () => {
-  const { currentUser, isAuthenticated, loading } = useAuth();
+  const { currentUser, isAuthenticated, loading ,token} = useAuth();
   const [cantProductos, setCantProductos] = useState(0);
   const [cantClientes, setCantClientes] = useState(0);
   const [cantTrucks, setCantTrucks] = useState(0);
   const [ingresos, setIngresos] = useState(0);
 
   useEffect(() => {
+    if (loading) return; // Esperar a que se resuelva el estado de autenticación
     const searchInformation = async () => {
       try {
-        const response = await getActiveClients();
+        const response = await getActiveClients(token);
         setCantClientes(response.length);
-        const cantTrucksResponse = await active();
+        const cantTrucksResponse = await active(token);
         setCantTrucks(cantTrucksResponse.length);
-        const responseProducts = await getAllProducts();
+        const responseProducts = await getAllProducts(token);
         setCantProductos(responseProducts.length);
-        const returningresos = await getPagoById();
+        const returningresos = await getPagoById(token);
         setIngresos(returningresos);
 
       } catch (error) {
@@ -43,7 +44,7 @@ const AdminDashboard = () => {
     };
 
     searchInformation();
-  }, []);
+  }, [token, loading]);
 
 
   if (loading) {

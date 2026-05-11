@@ -286,7 +286,7 @@ export function LoadManagement() {
     }
   };
   // Agregar esta función fuera del return, antes del JSX
-  const handleSaveCarga = async (data: any) => {
+  const handleSaveCarga = async (data) => {
     console.log('Datos a guardar:', data);
     try {
       // Asegúrate de actualizar addCarga en LoadService para recibir el token

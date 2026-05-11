@@ -25,15 +25,17 @@ export async function fetchTruckById(truckId: number): Promise<CamionResponse> {
 }
 //! Método para agregar un nuevo camion
 export async function addTruck(
-  product: Omit<CamionRequest, 'id'>,
+  camion: Omit<CamionRequest, 'id'>,
+  token: string,
 ): Promise<CamionResponse> {
   try {
-    const response = await apiPost<CamionResponse>('/camion', product);
-    console.log('Added product:', response);
+    console.log('guardadno camion:', camion);
+    const response = await apiPost<CamionResponse>('/camion', camion,token);
+    console.log('Added camion:', response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error adding product:', errorResponse);
+    console.error('Error adding camion:', errorResponse);
     throw errorResponse;
   }
 }
@@ -42,27 +44,32 @@ export async function addTruck(
 export async function updateTruck(
   productId: number,
   updatedData: Partial<Omit<CamionRequest, 'id'>>,
+  token: string,
 ): Promise<CamionResponse> {
   try {
     const response = await apiPut<CamionResponse>(
       `/camion/${productId}`,
       updatedData,
+      token
     );
-    console.log('Updated product:', response);
+    console.log('Updated camion:', response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error updating product:', errorResponse);
+    console.error('Error updating camion:', errorResponse);
     throw errorResponse;
   }
 }
 
 export async function disableTruck(
   truckId: number,
+  token: string,
 ): Promise<CamionResponse> {
   try {
     const response = await apiPatch<CamionResponse>(
-      `/camion/${truckId}/disable`
+      `/camion/${truckId}/disable`,
+      null,
+      token
     );
     console.log('Disabled truck:', response);
     return response;
@@ -92,10 +99,11 @@ export async function getActiveTrucks(): Promise<CamionResponse[]> {
 export async function getDiaZonasByTruckAndDay(
   truckId: number,
   day: number,
+  token: string
 ): Promise<DiaZonaResponse[]> {
   try {
     const response = await apiGet<DiaZonaResponse[]>(
-      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`,
+      `/dia-zona/camion/${truckId}/dia/${day}?populate=zona&populate=diaZonaOrden&populate=domicilio`,token
     );
 
     return response;
@@ -164,9 +172,9 @@ export async function updateDiaZonaWithOrdenes(
   }
 }
 
-export async function active(): Promise<CamionResponse[]> {
+export async function active(token: string): Promise<CamionResponse[]> {
   try {
-    const response = await apiGet<CamionResponse[]>('/camion/active');
+    const response = await apiGet<CamionResponse[]>('/camion/active',token);
     console.log('Activated truck:', response);
     return response;
   } catch (error) {

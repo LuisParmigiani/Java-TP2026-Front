@@ -45,13 +45,14 @@ export default function NewOrder() {
     selectedProducts.length > 0 &&
     selectedProducts.some((item) => item.quantity > 0);
   const { currentUser } = useAuth();
-  const { token } = useAuth();
+  const { token,loading:loadingAuth } = useAuth();
+  
   const size = 12;
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
-    if (!token) return;
+    if (loadingAuth) return;
     const fetchProducts = async () => {
       try {
         const response = await getActiveProducts(
@@ -81,9 +82,11 @@ export default function NewOrder() {
     appliedMinPrice,
     appliedMaxPrice,
     page,
+    loadingAuth
   ]);
 
   useEffect(() => {
+    if (loadingAuth) return;
     const fetchDirections = async () => {
       try {
         const status = "Activas";
@@ -103,7 +106,7 @@ export default function NewOrder() {
       }
     };
     fetchDirections();
-  }, [token]);
+  }, [token,loadingAuth]);
 
   const SaveOrder = async () => {
     const orderDetails = {
@@ -113,7 +116,7 @@ export default function NewOrder() {
         cantidad: item.quantity,
       })),
     };
-    const response = await createSale(orderDetails);
+    const response = await createSale(orderDetails,token);
     console.log("Respuesta del servidor:", response);
     setOpen(false);
   };

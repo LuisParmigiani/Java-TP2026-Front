@@ -3,6 +3,7 @@ import type { VentaResponse } from '../services/Interfaces';
 import { updateSale } from '../services/SalesService';
 import ProductTable from './ProductTable';
 import { MapPin } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth.ts';
 
 
 
@@ -20,6 +21,7 @@ interface OrderCardProps {
 }
 export default function OrderCard({ prop, setAlert }: OrderCardProps) {
     const [open, setOpen] = useState(false);
+    const { token } = useAuth();
 
     useEffect(() => {
         if (open) {
@@ -37,7 +39,7 @@ export default function OrderCard({ prop, setAlert }: OrderCardProps) {
 
         try {
 
-            await updateSale(prop.id, { estado: 'Cancelada' });
+            await updateSale(prop.id, { estado: 'Cancelada' },token);
             setAlert(prop.id);
             setOpen(false)
         } catch {

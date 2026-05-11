@@ -113,7 +113,7 @@ export async function getActiveProducts(
     console.log("Fetching products with URL:", url);
     const response = await apiGet<PaginationResponse<ProductoResponse>>(
       url,
-      token,
+      token
     );
     return response;
   } catch (error) {
@@ -136,13 +136,13 @@ export async function getZonaProducts(zona: number): Promise<ProductoResponse[]>
 
 
 
-export async function getAllProducts(): Promise<ProductoResponse[]> {
+export async function getAllProducts(token: string): Promise<ProductoResponse[]> {
   try {
-    const response = await apiGet<ProductoResponse[]>("/producto");
-    console.log("Fetched all products:", response);
+    const response = await apiGet<ProductoResponse[]>('/producto', token);
+    console.log('Fetched all products:', response);
     return response;
   } catch (error) {
-    console.error("Error fetching all products:", error);
+    console.error('Error fetching all products:', error);
     throw error;
   }
 }

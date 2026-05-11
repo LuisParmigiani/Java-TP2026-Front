@@ -6,6 +6,7 @@ import NewOrder from "./pages/customer/NewOrder.tsx";
 import Orders from "./pages/customer/Orders.tsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
+import { ProtectedRoute } from "./contexts/ProtectedRoute.tsx";
 import LoginPage from "./pages/Login.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import DailyRoutePage from "./pages/driver/DailyRoute";
@@ -53,7 +54,7 @@ function App() {
           />
           {/*Rutas para el cliente*/}
 
-          {/*<Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>*/}
+          <Route element={<ProtectedRoute allowedRoles={["Usuario"]} />}>
           <Route path="/customer/dashboard" element={<Dashboard />} />
           <Route path="/customer/orders" element={<Orders />} />
           <Route path="/customer/newOrder" element={<NewOrder />} />
@@ -66,19 +67,20 @@ function App() {
           <Route path="/customer/profile" element={<Profile />} />
           <Route path="/customer/pay" element={<Pay />} />
 
-          {/*</Route>*/}
+          </Route>
 
           <Route path="/components" element={<Components />} />
           <Route path="/products" element={<Products />} />
           {/*Rutas para el driver*/}
+          <Route element={<ProtectedRoute allowedRoles={["Empleado"]} />}>
           <Route path="/driver/route" element={<DailyRoutePage />} />
           <Route path="/driver/dashboard" element={<DriverDashboard />} />
           <Route path="/driver/client" element={<Client />} />
-
+          </Route>
 
           {/*Rutas para el Admin*/}
 
-          {/*<Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>*/}
+          <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ProductsManagement />} />
           <Route path="/admin/customers" element={<CustomersManagement />} />
@@ -96,7 +98,7 @@ function App() {
           />
           <Route path="/admin/loads" element={<LoadManagement />} />
 
-          {/*</Route>*/}
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>

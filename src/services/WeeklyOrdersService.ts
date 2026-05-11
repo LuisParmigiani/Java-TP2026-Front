@@ -5,6 +5,7 @@ export async function createWeeklyOrder(
     weeklyOrder: PedidoSemanalRequest[],
     addressId: number,
     populate: string[],
+    token:string
 ): Promise<PedidoSemanalResponse[]> {
 
     let queryParams = `?addressId=${addressId}`;
@@ -13,6 +14,7 @@ export async function createWeeklyOrder(
 
     return await apiPost<PedidoSemanalResponse[]>(
         `/pedidoSemanal/createMany${queryParams}`,
-        weeklyOrder   // ← solo el array, sin wrappear
+        weeklyOrder ,  // ← solo el array, sin wrappear,
+        token
     );
 }

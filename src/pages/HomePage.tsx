@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const [productos, setProductos] = useState<ProductoResponse[]>([]);
-  const { token, currentUser } = useAuth();
+  const { token, currentUser,loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,16 +38,17 @@ export default function HomePage() {
   }, [token]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (loading && !currentUser) return;
 
+      if (!currentUser) return; // If there's no user, do nothing
     if (currentUser.role === "Administrador") {
       navigate("/admin/dashboard");
     } else if (currentUser.role === "Usuario") {
       navigate("/customer/dashboard");
-    } else if (currentUser.role === "Conductor") {
-      navigate("/driver/daily-route");
+    } else if (currentUser.role === "Empleado") {
+      navigate("/driver/dashboard");
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate,loading]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">

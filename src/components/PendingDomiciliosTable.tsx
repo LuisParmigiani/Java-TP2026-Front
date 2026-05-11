@@ -9,25 +9,28 @@ import {
 } from "./Table";
 import { Button } from "./Button";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { getAll, updateDirection } from "../services/DirectionService";
+import {  getPending, updateDirection } from "../services/DirectionService";
 import type { DomicilioResponse } from "../services/Interfaces";
+import { useAuth } from "../hooks/useAuth.ts";
 
 export function PendingDomiciliosTable() {
+  const {token, loading: loadingAuth} = useAuth();
   const [domicilios, setDomicilios] = useState<DomicilioResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const fetchPending = useCallback(async () => {
+    if (loadingAuth) return; // Evitar hacer fetch mientras se resuelve la autenticación
     setLoading(true);
     try {
-      const all = await getAll(["persona", "zona"]);
-      setDomicilios(all.filter((d) => d.habilitado === "Pendiente"));
+      const all = await getPending(token,["persona", "zona"]);
+      setDomicilios(all);
     } catch (error) {
       console.error("Error fetching pending domicilios:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token, loadingAuth]);
 
   useEffect(() => {
     fetchPending();
@@ -39,7 +42,7 @@ export function PendingDomiciliosTable() {
   ) => {
     setUpdatingId(domicilio.id);
     try {
-      await updateDirection({ ...domicilio, habilitado });
+      await updateDirection({ ...domicilio, habilitado },token);
       setDomicilios((prev) => prev.filter((d) => d.id !== domicilio.id));
     } catch (error) {
       console.error("Error actualizando domicilio:", error);

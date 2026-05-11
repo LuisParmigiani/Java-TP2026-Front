@@ -44,6 +44,7 @@ import {
 
 const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const ZoneManagement = () => {
+  const {token, loading} = useAuth();
   const [zones, setZones] = useState<ZonaResponse[]>([]);
   const [trucks, setTrucks] = useState<CamionResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -57,9 +58,10 @@ const ZoneManagement = () => {
   } | null>(null);
 
 useEffect(() => {
+  if (loading) return; // Esperar a que se resuelva el estado de autenticación
   const load = async () => {
     try {
-      const data = await fetchZones(['camion', 'diasZona']);
+      const data = await fetchZones(token,['camion', 'diasZona']);
       setZones(data);
     } catch (error) {
       const err = error as ErrorResponse;
@@ -70,7 +72,7 @@ useEffect(() => {
     }
 
     try {
-      const t = await fetchTrucks();
+      const t = await fetchTrucks(token);
       setTrucks(t);
     } catch (error) {
       const err = error as ErrorResponse;
@@ -82,7 +84,7 @@ useEffect(() => {
   };
 
   load();
-}, []);
+}, [token, loading]);
   const [formData, setFormData] = useState({
     nombre: '',
     detalle: '',
@@ -175,15 +177,15 @@ const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
 
     if (editingZone) {
       console.log('Actualizando zona:', zoneData);
-      await updateZone(editingZone.id, zoneData);
+      await updateZone(editingZone.id, zoneData, token);
       toast.success('Zona actualizada correctamente.');
     } else {
       console.log('Guardando zona');
-      await addZone(zoneData);
+      await addZone(zoneData,token);
       toast.success('Zona agregada correctamente.');
     }
 
-    const updatedZones = await fetchZones(['camion', 'diasZona']);
+    const updatedZones = await fetchZones(token,['camion', 'diasZona']);
     setZones(updatedZones);
     setIsDialogOpen(false);
   } catch (error) {
@@ -203,7 +205,7 @@ const handleDelete = (id: number) => {
       '¿Estás seguro de eliminar esta zona?. Esta acción no se puede deshacer',
     )
   ) {
-    deleteZone(id)
+    deleteZone(id, token)
       .then(() => {
         setZones((prev) => prev.filter((zone) => zone.id !== id));
         toast.success('Zona eliminada correctamente');

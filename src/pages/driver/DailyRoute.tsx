@@ -33,11 +33,14 @@ const DailyRoutePage = () => {
 
 
 
-  const { token } = useAuth();
+  const { token ,loading:loadingAuth} = useAuth();
 
   // Fetch all available zones once on component mount
   useEffect(() => {
-    const fetchZones = async () => {
+    if(loadingAuth) return; // Wait for auth to finish loading
+
+    const fetchZones =
+     async () => {
       try {
         const dayName = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
         // Get all zones by fetching with 'Todas'
@@ -49,17 +52,16 @@ const DailyRoutePage = () => {
       }
     };
     fetchZones();
-  }, [isAuthenticated, currentUser, token]);
+  }, [isAuthenticated, currentUser, token,loadingAuth]);
 
   const fetchSales = async (domicilioId: number) => {
     setSaleLoading(true);
     setSale(null);
     try {
-      const response = await getVentasHoyByDomicilioId(domicilioId, [
+      const response = await getVentasHoyByDomicilioId(domicilioId, token,[
         'lineaPedido',
         'productoZona',
         'producto',
-
       ]);
       console.log("Fetched sales for delivery:", response);
       setSale(response);

@@ -135,9 +135,9 @@ export async function getPersona(id: number, populate?: string[]): Promise<Perso
   }
 }
 
-export async function getActiveClients(): Promise<PersonaResponse[]> {
+export async function getActiveClients(token: string): Promise<PersonaResponse[]> {
   try {
-    const response = await apiGet<PersonaResponse[]>(`/persona/client/active`);
+    const response = await apiGet<PersonaResponse[]>(`/persona/client/active`,token);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
