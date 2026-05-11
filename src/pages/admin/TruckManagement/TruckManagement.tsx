@@ -30,22 +30,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/Table.tsx";
-import { Badge } from "../../../components/Badge.tsx";
-import { Plus, Edit, Trash2, Route, Link } from "lucide-react";
-import { toast } from "sonner";
-import {
-  addTruck,
-  disableTruck,
-  fetchTrucks,
-  updateTruck,
-} from "../../../services/TruckService.ts";
-import type { CamionResponse } from "../../../services/Interfaces.ts";
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "../../../components/Alert.tsx";
+} from '../../../components/Table.tsx';
+import { Badge } from '../../../components/Badge.tsx';
+import { Plus, Edit, Trash2, Route, Link ,Loader2} from 'lucide-react';
+import { toast } from 'sonner';
+import { addTruck, disableTruck, fetchTrucks, updateTruck } from '../../../services/TruckService.ts';
+import type { CamionResponse } from '../../../services/Interfaces.ts';
+import { Alert, AlertTitle, AlertDescription } from '../../../components/Alert.tsx';
+import { truckSchema, type TruckFormData } from './truckSchema';
 
 const TrucksManagement = () => {
   const { token } = useAuth();
@@ -55,6 +47,7 @@ const TrucksManagement = () => {
   const [editingTruck, setEditingTruck] = useState<CamionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<{
     errorTitle: string;
     errorMessage: string;
@@ -63,7 +56,7 @@ const TrucksManagement = () => {
   useEffect(() => {
     fetchTrucks(token)
       .then((data) => setTrucks(data))
-      .catch((error) => console.error("Failed to fetch products:", error));
+      .catch((error) => console.error("Failed to fetch trucks:", error));
   }, [token]);
   const [formData, setFormData] = useState({
     modelo: "",
@@ -76,6 +69,9 @@ const TrucksManagement = () => {
     navigate(`/admin/trucks/routes/${truckId}`);
   };
   const handleOpenDialog = (truck: CamionResponse | null = null) => {
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     if (truck) {
       setEditingTruck(truck);
       setFormData({
@@ -99,38 +95,60 @@ const TrucksManagement = () => {
   };
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (
-      !formData.modelo ||
-      !formData.marca ||
-      !formData.patente ||
-      !formData.kilometraje
-    ) {
-      toast.error("Por favor completa todos los campos requeridos.");
-      return;
-    }
-    if (Number(formData.kilometraje) < 0) {
-      toast.error("El kilometraje debe ser un valor válido.");
+    // 1. Preparamos el payload para validar con Zod
+    const payload: TruckFormData = {
+      marca: formData.marca,
+      modelo: formData.modelo,
+      patente: formData.patente,
+      kilometraje: formData.kilometraje as any, // Zod usa preprocess para pasarlo a número
+      estado: formData.estado,
+    };
+
+    // 2. Ejecutamos la validación
+    const result = truckSchema.safeParse(payload);
+
+    if (!result.success) {
+      const issues = result.error.issues;
+      const errors: Record<string, string> = {};
+      for (const issue of issues) {
+        const key = issue.path[0] ? String(issue.path[0]) : '_form';
+        errors[key] = (errors[key] ? errors[key] + '. ' : '') + issue.message;
+      }
+      setFieldErrors(errors);
+
+      // Mostrar alerta general
+      setError({
+        errorTitle: 'Formulario incompleto',
+        errorMessage:
+          'Por favor, revisa y corrige los campos marcados en rojo.',
+      });
+      setShowAlert(true);
       return;
     }
 
+    // 3. Si pasa la validación, limpiamos errores e iniciamos el loader
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     setIsLoading(true);
+
     try {
-      // Crear/actualizar camion
       const truckData = {
         modelo: formData.modelo,
         patente: formData.patente,
         kilometraje: Number(formData.kilometraje),
-        estado: formData.estado === "1",
+        estado: formData.estado === '1',
         marca: formData.marca,
       };
+
       if (editingTruck) {
-        console.log("updateando camion");
+        console.log('updateando camion');
         await updateTruck(editingTruck.id, truckData, token);
-        toast.success("Camion actualizado correctamente.");
+        toast.success('Camión actualizado correctamente.');
       } else {
-        console.log("guardando camion");
+        console.log('guardando camion');
         await addTruck(truckData, token);
-        toast.success("Camion agregado correctamente.");
+        toast.success('Camión agregado correctamente.');
       }
 
       const updatedTrucks = await fetchTrucks(token);
@@ -141,11 +159,11 @@ const TrucksManagement = () => {
       const formattedError = formatErrorResponse(errorResponse);
       setError(formattedError);
       setShowAlert(true);
-      toast.error(errorResponse.mensaje);
+      toast.error(errorResponse.mensaje || 'Ocurrió un error al guardar');
     } finally {
       setIsLoading(false);
     }
-  };
+  };;
 
   const handleDelete = (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar este camion?")) {
@@ -235,8 +253,8 @@ const TrucksManagement = () => {
                       <TableCell>{truck.patente}</TableCell>
                       <TableCell>{truck.kilometraje}</TableCell>
                       <TableCell>
-                        <Badge variant={truck.estado ? "default" : "secondary"}>
-                          {truck.estado ? "Activo" : "Inactivo"}
+                        <Badge variant={truck.estado ? 'default' : 'secondary'}>
+                          {truck.estado ? 'Activo' : 'Inactivo'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -288,59 +306,83 @@ const TrucksManagement = () => {
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
             <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
-              {editingTruck ? "Editar Camión" : "Agregar Camión"}
+              {editingTruck ? 'Editar Camión' : 'Agregar Camión'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="modelo">Marca</Label>
+              <Label htmlFor="marca">Marca</Label>
               <Input
                 color="primary"
-                name="modelo"
+                name="marca"
                 type="text"
                 value={formData.marca}
                 onChange={(value) =>
                   setFormData({ ...formData, marca: value as string })
                 }
               />
+              {fieldErrors.marca && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.marca}
+                </span>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="detalle">Modelo</Label>
+              <Label htmlFor="modelo">Modelo</Label>
               <Input
                 color="primary"
-                name="detalle"
+                name="modelo"
                 type="text"
                 value={formData.modelo}
                 onChange={(value) =>
                   setFormData({ ...formData, modelo: value as string })
                 }
               />
+              {fieldErrors.modelo && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.modelo}
+                </span>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="detalle">Patente</Label>
+              <Label htmlFor="patente">Patente</Label>
               <Input
                 color="primary"
-                name="detalle"
+                name="patente"
                 type="text"
                 value={formData.patente}
                 onChange={(value) =>
                   setFormData({ ...formData, patente: value as string })
                 }
               />
+              {fieldErrors.patente && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.patente}
+                </span>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="precio">Kilometraje ($)</Label>
+              <Label htmlFor="kilometraje">Kilometraje (km)</Label>
               <Input
-                name="precio"
+                name="kilometraje"
                 type="number"
                 value={formData.kilometraje}
                 onChange={(value) =>
                   setFormData({ ...formData, kilometraje: value as string })
                 }
               />
+              {fieldErrors.kilometraje && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.kilometraje}
+                </span>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="activo">Estado</Label>
+              <Label htmlFor="estado">Estado</Label>
               <Select
                 value={formData.estado}
                 onValueChange={(val) =>
@@ -355,29 +397,52 @@ const TrucksManagement = () => {
                   <SelectItem value="0">Inactivo</SelectItem>
                 </SelectContent>
               </Select>
+              {fieldErrors.estado && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.estado}
+                </span>
+              )}
             </div>
+
             <div>
               {showAlert && (
                 <Alert
                   variant="danger"
                   autoClose={true}
-                  onClose={() => setShowAlert(false)}
+                  onClose={() => {
+                    setShowAlert(false);
+                    setError(null);
+                  }}
                 >
                   <AlertTitle>{error?.errorTitle}</AlertTitle>
                   <AlertDescription>{error?.errorMessage}</AlertDescription>
                 </Alert>
               )}
             </div>
+
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"
                 variant="danger"
                 onClick={() => setIsDialogOpen(false)}
+                disabled={isLoading}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : "Guardar"}
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="min-w-[120px]"
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    Guardando...
+                  </span>
+                ) : (
+                  'Guardar'
+                )}
               </Button>
             </div>
           </form>

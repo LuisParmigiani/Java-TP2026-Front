@@ -47,9 +47,7 @@ export const AddLoadDialog = ({
   const [tipo, setTipo] = useState('Carga');
   const [camionId, setCamionId] = useState('');
   const [empleadoId, setEmpleadoId] = useState('');
-
   const handleAddProducto = () => {
-    // Agregamos una nueva fila vacía con un ID temporal basado en la fecha
     setLineas([
       ...lineas,
       { id: Date.now(), productoId: '', llenos: 0, vacios: 0 },
@@ -105,7 +103,9 @@ export const AddLoadDialog = ({
     setEmpleadoId('');
     setLineas([]);
   };
-
+const selectedProductIds = lineas
+  .map((linea) => linea.productoId)
+  .filter((id) => id !== '');
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-2xl">
@@ -131,7 +131,10 @@ export const AddLoadDialog = ({
 
             <div className="space-y-2">
               <Label htmlFor="camionId">Camión Asignado</Label>
-              <Select value={camionId} onValueChange={(val) => setCamionId(val)}>
+              <Select
+                value={camionId}
+                onValueChange={(val) => setCamionId(val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un camión" />
                 </SelectTrigger>
@@ -148,7 +151,10 @@ export const AddLoadDialog = ({
 
             <div className="space-y-2">
               <Label htmlFor="empleadoId">Empleado Responsable</Label>
-              <Select value={empleadoId} onValueChange={(val) => setEmpleadoId(val)}>
+              <Select
+                value={empleadoId}
+                onValueChange={(val) => setEmpleadoId(val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un empleado" />
                 </SelectTrigger>
@@ -186,89 +192,87 @@ export const AddLoadDialog = ({
                     </TableCell>
                   </TableRow>
                 )}
-                {lineas.map((linea) => {
-                  const selectedProduct = products.find(p => p.id.toString() === linea.productoId);
-                  const isPartida = tipo === 'Carga';
-                  const maxLlenos = isPartida && selectedProduct ? selectedProduct.stock : undefined;
-                  return (
-                    <TableRow key={linea.id}>
-                      <TableCell>
-                        <Select
-                          value={linea.productoId}
-                          onValueChange={(val) => {
-                            const newProduct = products.find(p => p.id.toString() === val);
-                            const clampedLlenos = isPartida && newProduct && linea.llenos > newProduct.stock
-                              ? newProduct.stock
-                              : linea.llenos;
-                            setLineas(prev => prev.map(l =>
-                              l.id === linea.id ? { ...l, productoId: val, llenos: clampedLlenos } : l
-                            ));
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un producto" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {products.length > 0 ? (
-                              products.map((p) => (
+                {lineas.map((linea) => (
+                  <TableRow key={linea.id}>
+                    <TableCell>
+                      <Select
+                        value={linea.productoId}
+                        onValueChange={(val) =>
+                          updateLinea(linea.id, 'productoId', val)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un producto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.length > 0 ? (
+                            products.map((p) => {
+                              // Verificamos si este producto ya fue elegido en OTRA fila
+                              const isSelectedElsewhere =
+                                selectedProductIds.includes(p.id.toString()) &&
+                                linea.productoId !== p.id.toString();
+
+                              // Si ya se eligió en otra fila, no lo renderizamos como opción
+                              if (isSelectedElsewhere) return null;
+
+                              return (
                                 <SelectItem key={p.id} value={p.id.toString()}>
                                   {p.nombre}
                                 </SelectItem>
-                              ))
-                            ) : (
-                              <>
-                                <SelectItem value="1">Producto 1</SelectItem>
-                                <SelectItem value="2">Producto 2</SelectItem>
-                                <SelectItem value="3">Producto 3</SelectItem>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          type="number"
-                          min="0"
-                          max={maxLlenos}
-                          value={linea.llenos || ''}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value) || 0;
-                            const clamped = maxLlenos !== undefined ? Math.min(val, maxLlenos) : val;
-                            updateLinea(linea.id, 'llenos', clamped);
-                          }}
-                          className="w-full border rounded-md px-2 py-1 text-center"
-                          placeholder="0"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          type="number"
-                          min="0"
-                          value={linea.vacios || ''}
-                          onChange={(e) =>
-                            updateLinea(
-                              linea.id,
-                              'vacios',
-                              parseInt(e.target.value) || 0,
-                            )
-                          }
-                          className="w-full border rounded-md px-2 py-1 text-center"
-                          placeholder="0"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          type="button" // Previene submit accidental
-                          variant="danger"
-                          size="icon"
-                          onClick={() => handleRemoveProducto(linea.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                              );
+                            })
+                          ) : (
+                            <SelectItem value="empty" disabled>
+                              No hay productos disponibles
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="number"
+                        min="0"
+                        value={linea.llenos || ''}
+                        onChange={(e) =>
+                          updateLinea(
+                            linea.id,
+                            'llenos',
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full border rounded-md px-2 py-1 text-center"
+                        placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="number"
+                        min="0"
+                        value={linea.vacios || ''}
+                        onChange={(e) =>
+                          updateLinea(
+                            linea.id,
+                            'vacios',
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full border rounded-md px-2 py-1 text-center"
+                        placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button" // Previene submit accidental
+                        variant="danger"
+                        size="icon"
+                        onClick={() => handleRemoveProducto(linea.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

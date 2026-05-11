@@ -40,6 +40,23 @@ export async function fetchPersonas(
     throw errorResponse;
   }
 }
+export async function searchPersonasByNameOnly(
+  query: string,
+  token:string,
+): Promise<PersonaResponse[]> {
+  try {
+    const params = new URLSearchParams();
+    params.append('query', query);
+
+    const response = await apiGet<PersonaResponse[]>(`/persona/search/nameOnly?query=${query}`,token);
+    return response;
+  } catch (error) {
+    const errorResponse = error as ErrorResponse;
+    console.error('Error searching personas by name:', errorResponse);
+    throw errorResponse;
+  }
+}
+
 export async function searchPersonas(
   token: string,
   query?: string,

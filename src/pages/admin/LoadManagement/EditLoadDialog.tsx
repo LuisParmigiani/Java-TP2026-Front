@@ -35,6 +35,7 @@ import type {
   ProductoResponse,
   CargaRequest,
   CargaProductoRequest,
+  
 } from '../../../services/Interfaces.ts';
 
 interface EditLoadDialogProps {
@@ -46,6 +47,8 @@ interface EditLoadDialogProps {
   setShowAlert: (val: boolean) => void;
   trucks: CamionResponse[];
   employees: PersonaResponse[];
+  selectedTruck: CamionResponse;
+  selectedEmployee: PersonaResponse;
   products: ProductoResponse[];
   isDialogOpen: boolean;
   setIsDialogOpen: (val: boolean) => void;
@@ -68,6 +71,8 @@ export const EditLoadDialog = ({
   setShowAlert,
   trucks,
   employees,
+  selectedEmployee,
+  selectedTruck,
   products,
   isDialogOpen,
   setIsDialogOpen,
@@ -141,6 +146,9 @@ export const EditLoadDialog = ({
     onSave(initialData.id, updateRequest);
   };
 
+  const selectedProductIds = lineas
+    .map((linea) => linea.productoId)
+    .filter((id) => id !== '');
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-2xl">
@@ -169,9 +177,16 @@ export const EditLoadDialog = ({
               <Label>Camión</Label>
               <Select value={camionId} onValueChange={setCamionId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue key={selectedTruck.id} placeholder="Selecciona un camión...">
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem
+                    key={selectedTruck.id}
+                    value={selectedTruck.id.toString()}
+                  >
+                    {selectedTruck.patente}
+                  </SelectItem>
                   {trucks.map((t) => (
                     <SelectItem key={t.id} value={t.id.toString()}>
                       {t.patente}
@@ -185,9 +200,15 @@ export const EditLoadDialog = ({
               <Label>Responsable</Label>
               <Select value={empleadoId} onValueChange={setEmpleadoId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue key={selectedEmployee.id} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem
+                    key={selectedEmployee.id}
+                    value={selectedEmployee.id.toString()}
+                  >
+                    {selectedEmployee.nombre} {selectedEmployee.apellido}
+                  </SelectItem>
                   {employees.map((e) => (
                     <SelectItem key={e.id} value={e.id.toString()}>
                       {e.nombre} {e.apellido}
@@ -209,80 +230,79 @@ export const EditLoadDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lineas.map((linea) => {
-                  const selectedProduct = products.find(p => p.id.toString() === linea.productoId);
-                  const isPartida = tipo === 'Carga';
-                  const maxLlenos = isPartida && selectedProduct
-                    ? linea.originalLlenos + selectedProduct.stock
-                    : undefined;
-                  return (
-                    <TableRow key={linea.id}>
-                      <TableCell>
-                        <Select
-                          value={linea.productoId}
-                          onValueChange={(val) => {
-                            const newProduct = products.find(p => p.id.toString() === val);
-                            const newMax = isPartida && newProduct ? linea.originalLlenos + newProduct.stock : undefined;
-                            const clampedLlenos = newMax !== undefined && linea.llenos > newMax ? newMax : linea.llenos;
-                            setLineas(prev => prev.map(l =>
-                              l.id === linea.id ? { ...l, productoId: val, llenos: clampedLlenos } : l
-                            ));
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Producto..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {products.map((p) => (
+                {lineas.map((linea) => (
+                  <TableRow key={linea.id}>
+                    <TableCell>
+                      <Select
+                        value={linea.productoId}
+                        onValueChange={(val) =>
+                          updateLinea(linea.id, 'productoId', val)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Producto..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map((p) => {
+                            // Verificamos si este producto ya fue elegido en OTRA fila
+                            const isSelectedElsewhere =
+                              selectedProductIds.includes(p.id.toString()) &&
+                              linea.productoId !== p.id.toString();
+
+                            // Si ya se eligió en otra fila, no lo renderizamos como opción
+                            if (isSelectedElsewhere) return null;
+
+                            return (
                               <SelectItem key={p.id} value={p.id.toString()}>
                                 {p.nombre}
                               </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          type="number"
-                          min="0"
-                          max={maxLlenos}
-                          value={linea.llenos}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value) || 0;
-                            const clamped = maxLlenos !== undefined ? Math.min(val, maxLlenos) : val;
-                            updateLinea(linea.id, 'llenos', clamped);
-                          }}
-                          className="w-full border rounded-md px-2 py-1 text-center"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          type="number"
-                          min="0"
-                          value={linea.vacios}
-                          onChange={(e) =>
-                            updateLinea(
-                              linea.id,
-                              'vacios',
-                              parseInt(e.target.value) || 0,
-                            )
-                          }
-                          className="w-full border rounded-md px-2 py-1 text-center"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="danger"
-                          size="icon"
-                          onClick={() => handleRemoveProducto(linea.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="number"
+                        min="0"
+                        value={linea.llenos}
+                        onChange={(e) =>
+                          updateLinea(
+                            linea.id,
+                            'llenos',
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full border rounded-md px-2 py-1 text-center"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="number"
+                        min="0"
+                        value={linea.vacios}
+                        onChange={(e) =>
+                          updateLinea(
+                            linea.id,
+                            'vacios',
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full border rounded-md px-2 py-1 text-center"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="icon"
+                        onClick={() => handleRemoveProducto(linea.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
                 {lineas.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-4">
