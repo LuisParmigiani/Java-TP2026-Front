@@ -17,7 +17,17 @@ export default function HomePage() {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await getActiveProducts(token, undefined, undefined, undefined, undefined, undefined, undefined, 0, 6);
+        const response = await getActiveProducts(
+          token,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          0,
+          6,
+        );
         setProductos(response.content);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -70,7 +80,7 @@ export default function HomePage() {
                 name="Ver Catalogo  "
                 size="lg"
                 variant="primary"
-                url="/products-showcase"
+                url="/products"
               />
               <LinkButton
                 name="Contactanos  "
@@ -221,7 +231,7 @@ export default function HomePage() {
                   name="Ver Todos los Productos"
                   size="md"
                   variant="outline"
-                  url="/products-showcase"
+                  url="/products"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
