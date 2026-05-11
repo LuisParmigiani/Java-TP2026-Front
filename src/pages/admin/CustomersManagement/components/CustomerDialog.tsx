@@ -1,61 +1,58 @@
-
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../../components/Select.tsx';
+} from "../../../../components/Select.tsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../../../components/Dialog.tsx';
-import type { PersonaResponse } from '../../../../services/Interfaces.ts'
-import type { Dispatch, SetStateAction } from 'react';
-import { Label } from '../../../../components/Label';
-import { Button } from '../../../../components/Button.tsx';
-import  Input  from '../../../../components/Input';
+} from "../../../../components/Dialog.tsx";
+import type { PersonaResponse } from "../../../../services/Interfaces.ts";
+import type { Dispatch, SetStateAction } from "react";
+import { Label } from "../../../../components/Label";
+import { Button } from "../../../../components/Button.tsx";
+import Input from "../../../../components/Input";
 interface CustomerFormData {
-    tipoDoc: string,
-    nroDocumento: string,
-    nombre: string ,
-    apellido: string,
-    email: string,
-    telefono: string,
-    saldo: string,
-    estado: string,
+  tipoDoc: string;
+  nroDocumento: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  saldo: string;
+  estado: string;
 }
 interface CustomerDialogProps {
-  isDialogOpen: boolean,
-  setIsDialogOpen:(boolean)=>void,
-  editingCustomer: PersonaResponse | null,
-  
-  handleSave:(e)=> Promise<void>,
-  formData: CustomerFormData,
-  setFormData: Dispatch<SetStateAction<CustomerFormData>>,
-  errors: Record<string, string>,
+  isDialogOpen: boolean;
+  setIsDialogOpen: (boolean) => void;
+  editingCustomer: PersonaResponse | null;
+
+  handleSave: (e) => Promise<void>;
+  formData: CustomerFormData;
+  setFormData: Dispatch<SetStateAction<CustomerFormData>>;
+  errors: Record<string, string>;
+  isSubmitting?: boolean;
 }
-export function CustomerDialog(
-  {
-    isDialogOpen,
-    setIsDialogOpen,
-    editingCustomer,
-    handleSave,
-    formData,
-    setFormData,
-    errors
-  }:CustomerDialogProps
-){
-
-
+export function CustomerDialog({
+  isDialogOpen,
+  setIsDialogOpen,
+  editingCustomer,
+  handleSave,
+  formData,
+  setFormData,
+  errors,
+  isSubmitting = false,
+}: CustomerDialogProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {editingCustomer ? 'Editar domicilio' : 'Agregar domicilio'}
+            {editingCustomer ? "Editar Cliente" : "Agregar Cliente"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4">
@@ -74,8 +71,7 @@ export function CustomerDialog(
                 <SelectContent>
                   <SelectItem value="DNI">DNI</SelectItem>
                   <SelectItem value="Pasaporte">Pasaporte</SelectItem>
-                  <SelectItem value="LC">Libreta Cívica</SelectItem>
-                  <SelectItem value="LE">Libreta de enrolamiento</SelectItem>
+                  <SelectItem value="Cédula">Cédula</SelectItem>
                 </SelectContent>
               </Select>
               {errors.tipoDoc && (
@@ -196,14 +192,42 @@ export function CustomerDialog(
               type="button"
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
-            <Button type="submit">Guardar</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Guardando...
+                </>
+              ) : (
+                "Guardar"
+              )}
+            </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
   );
-
 }

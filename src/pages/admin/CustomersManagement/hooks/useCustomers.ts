@@ -26,36 +26,29 @@ export const useCustomers = (
   const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
 
   useEffect(() => {
+    if (loading || !token) return; // Esperar a que cargue la autenticación y haya token
+
     const timer = setTimeout(() => {
       const loadData = async () => {
         try {
-          // Si hay búsqueda o filtros activos, usa searchPersonas
-          if (
-            search.trim() !== "" ||
-            Object.values(filters || {}).some((v) => v)
-          ) {
-            const results = await searchPersonas(
-              token,
-              search || undefined,
-              filters?.zone ? String(filters.zone) : undefined,
-              filters?.truck ? String(filters.truck) : undefined,
-              filters?.day ? String(filters.day) : undefined,
-              filters?.saldo ? String(filters.saldo) : undefined,
-              page - 1, // ← Convertir a 0-indexed para el backend
-              pageSize,
-              ["zona", "camion", "dia"],
-            );
-            setCustomers(results.content);
-            setTotalItems(results.totalElements); // ← Usar totalElements
-          } else {
-            // Sin filtros, traer todos con paginación
-            const data = await fetchPersonas(page - 1, pageSize); // ← Convertir a 0-indexed
-            setCustomers(data.content);
-            setTotalItems(data.totalElements); // ← Usar totalElements
-          }
+          // Usamos siempre searchPersonas independientemente de si hay filtros o no
+          const results = await searchPersonas(
+            token,
+            search || undefined,
+            filters?.zone ? String(filters.zone) : undefined,
+            filters?.truck ? String(filters.truck) : undefined,
+            filters?.day ? String(filters.day) : undefined,
+            filters?.saldo ? String(filters.saldo) : undefined,
+            "Usuario", // <-- Este es el parámetro de `nivelAcceso`
+            page - 1, // ← Convertir a 0-indexed para el backend
+            pageSize,
+            ["zona", "camion", "dia"],
+          );
+          setCustomers(results.content);
+          setTotalItems(results.totalElements); // ← Usar totalElements
         } catch (error) {
           const errorResponse = error as ErrorResponse;
           const formattedError = formatErrorResponse(errorResponse);
@@ -75,6 +68,8 @@ export const useCustomers = (
     filters?.saldo,
     page,
     pageSize,
+    loading,
+    token, // Dependencias actualizadas
   ]);
 
   const handleDelete = async (id: number): Promise<boolean> => {
@@ -109,6 +104,7 @@ export const useCustomers = (
       } else {
         await addPersona(newCustomer, token);
         toast.success("Cliente agregado correctamente.");
+        customers.push(newCustomer); // Agregar el nuevo cliente a la lista (opcional, ya que se recargará)
       }
       // Recargar datos (no cambiamos página, se recargan en el useEffect)
       return true;

@@ -7,6 +7,7 @@ import type {
 } from "./Interfaces.ts";
 
 export async function fetchPersonas(
+  token?: string,
   currentPage: number = 0,
   pageSize: number = 10,
   populate?: string[],
@@ -25,10 +26,13 @@ export async function fetchPersonas(
       });
     }
 
-    const url = `/persona?${params.toString()}`;
+    const url = `/persona/clientes?${params.toString()}`;
     console.log("Fetching personas with URL:", url);
 
-    const response = await apiGet<PaginationResponse<PersonaResponse>>(url);
+    const response = await apiGet<PaginationResponse<PersonaResponse>>(
+      url,
+      token,
+    );
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
@@ -43,6 +47,7 @@ export async function searchPersonas(
   camion?: string,
   dia?: string,
   ordenSaldo: string = "ascendente",
+  nivelAcceso?: string,
   currentPage: number = 0,
   pageSize: number = 10,
   populate?: string[],
@@ -65,6 +70,9 @@ export async function searchPersonas(
     }
     if (ordenSaldo) {
       params.append("ordenSaldo", ordenSaldo);
+    }
+    if (nivelAcceso) {
+      params.append("nivelAcceso", nivelAcceso);
     }
 
     // Paginación
