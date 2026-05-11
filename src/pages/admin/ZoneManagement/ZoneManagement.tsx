@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../../components/Table.tsx';
-import { Plus, Edit, Trash2, Link } from 'lucide-react';
+import { Plus, Edit, Trash2, Link ,Loader2} from 'lucide-react';
 import { toast } from 'sonner';
 import type { ZonaResponse } from '../../../services/Interfaces.ts';
 import {
@@ -117,6 +117,9 @@ const handleDayToggle = (diaId: number) => {
   });
 };
   const handleOpenDialog = (zone: ZonaResponse | null = null) => {
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     if (zone) {
       setEditingZone(zone);
       setFormData({
@@ -153,18 +156,23 @@ const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     const issues = result.error.issues;
     const errors: Record<string, string> = {};
     for (const issue of issues) {
-      // first path segment as key
       const key = issue.path[0] ? String(issue.path[0]) : '_form';
-      // concisely append messages per field
       errors[key] = (errors[key] ? errors[key] + '. ' : '') + issue.message;
     }
     setFieldErrors(errors);
-    setShowAlert(true); // opcional: abrir alerta de UI
+
+    // Poblamos el estado general para la Alerta
+    setError({
+      errorTitle: 'Formulario incompleto',
+      errorMessage: 'Por favor, revisa y corrige los campos marcados en rojo.',
+    });
+    setShowAlert(true);
     return;
   }
 
-  // Clear previous field errors
   setFieldErrors({});
+  setError(null);
+  setShowAlert(false);
   setIsLoading(true);
 
   try {
@@ -193,7 +201,7 @@ const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     const formattedError = formatErrorResponse(errorResponse);
     setError(formattedError);
     setShowAlert(true);
-    toast.error(errorResponse.mensaje);
+    toast.error(errorResponse.mensaje || 'Ocurrió un error al guardar la zona');
   } finally {
     setIsLoading(false);
   }
@@ -262,7 +270,6 @@ const handleDelete = (id: number) => {
             <Button onClick={() => handleOpenDialog()}>
               <Plus className="w-4 h-4 mr-2" /> Agregar Zona
             </Button>
-
           </div>
 
           <Card>
@@ -446,8 +453,20 @@ const handleDelete = (id: number) => {
                 Cancelar
               </Button>
 
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Guardando...' : 'Guardar'}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="min-w-[120px]"
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    {/* Usamos el ícono de Lucide con la clase de animación de Tailwind */}
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    Guardando...
+                  </span>
+                ) : (
+                  'Guardar'
+                )}
               </Button>
             </div>
           </form>

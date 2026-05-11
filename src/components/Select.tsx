@@ -115,15 +115,18 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
 interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string;
+  disabled?: boolean;
 }
 
 const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
-  ({ className, children, ...props }, ref) => (
+  ({ className, children, disabled, ...props }, ref) => (
     <SelectPrimitive.Item
       ref={ref}
+      disabled={disabled}
       className={cn(
         'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none',
-        'focus:bg-primary/50 transition-colors duration-300 focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
+        'focus:bg-primary/50 transition-colors duration-300 focus:text-accent-foreground',
+        'data-disabled:pointer-events-none data-disabled:opacity-50 data-disabled:cursor-not-allowed',
         className
       )}
       {...props}

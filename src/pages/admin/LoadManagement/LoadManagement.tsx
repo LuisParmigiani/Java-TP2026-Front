@@ -4,7 +4,7 @@ import Footer from '../../../components/Footer.tsx';
 import { Card, CardContent } from '../../../components/Card.tsx';
 import { Helmet } from '../../../components/Helmet.tsx';
 import { AddLoadDialog } from './AddLoadDialog.tsx';
-import { fetchProducts } from '../../../services/ProductService.ts';
+import {  fetchProductsActivos } from '../../../services/ProductService.ts';
 import { ViewLoadDialog } from './ViewLoadDialog.tsx';
 import {
   Table,
@@ -73,7 +73,7 @@ export function LoadManagement() {
       }
 
       try {
-        const data = await fetchProducts(token);
+        const data = await fetchProductsActivos(token);
         setProductos(data);
       } catch (err) {
         const error = err as ErrorResponse;
@@ -232,6 +232,25 @@ export function LoadManagement() {
     }
   });
   console.log('Cargas procesadas con estado:', cargasConEstado);
+
+  // Filtrar camiones que están en cargas "En curso"
+  const truckIdsEnCurso = cargasConEstado
+    .filter((carga) => carga.estado === 'En curso')
+    .map((carga) => carga.camion.id);
+
+  const availableTrucks = trucks.filter(
+    (truck) => !truckIdsEnCurso.includes(truck.id),
+  );
+
+  //Filtrar empleados que están en cargas en curso
+  const employeeIdsEnCurso = cargasConEstado
+    .filter((carga) => carga.estado === 'En curso')
+    .map((carga) => carga.usuario.id);
+
+  const availableEmployees = employees.filter(
+    (employee) => !employeeIdsEnCurso.includes(employee.id),
+  );
+
   const handleOpenEdit = (carga: CargaResponse) => {
     // Si el viaje ya terminó, queremos editar el evento de "Descarga" (la llegada)
     if (carga.estado === 'Terminada') {
@@ -318,7 +337,7 @@ export function LoadManagement() {
     setShowAlert={setShowAlert}
     products={productos}
     employees={employees}
-    trucks={trucks}
+    trucks={availableTrucks}
     isDialogOpen={isDialogOpen}
     setIsDialogOpen={setIsDialogOpen}
   />;
@@ -423,8 +442,8 @@ export function LoadManagement() {
           error={error}
           setShowAlert={setShowAlert}
           products={productos}
-          employees={employees}
-          trucks={trucks}
+          employees={availableEmployees}
+          trucks={availableTrucks}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
         />
@@ -462,8 +481,14 @@ export function LoadManagement() {
           showAlert={showAlert}
           error={error}
           setShowAlert={setShowAlert}
-          trucks={trucks}
-          employees={employees}
+          trucks={availableTrucks}
+          employees={availableEmployees}
+          selectedEmployee={employees.find(
+            (e) =>
+              e.id === cargaToEdit.usuario.id ||
+              e.id === cargaToEdit.usuario.personaId,
+          )!}
+          selectedTruck={cargaToEdit.camion}
           products={productos}
           isDialogOpen={isEditOpen}
           setIsDialogOpen={setIsEditOpen}

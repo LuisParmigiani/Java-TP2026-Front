@@ -35,6 +35,7 @@ import type {
   ProductoResponse,
   CargaRequest,
   CargaProductoRequest,
+  
 } from '../../../services/Interfaces.ts';
 
 interface EditLoadDialogProps {
@@ -46,6 +47,8 @@ interface EditLoadDialogProps {
   setShowAlert: (val: boolean) => void;
   trucks: CamionResponse[];
   employees: PersonaResponse[];
+  selectedTruck: CamionResponse;
+  selectedEmployee: PersonaResponse;
   products: ProductoResponse[];
   isDialogOpen: boolean;
   setIsDialogOpen: (val: boolean) => void;
@@ -67,6 +70,8 @@ export const EditLoadDialog = ({
   setShowAlert,
   trucks,
   employees,
+  selectedEmployee,
+  selectedTruck,
   products,
   isDialogOpen,
   setIsDialogOpen,
@@ -105,7 +110,7 @@ export const EditLoadDialog = ({
     setLineas(lineas.filter((linea) => linea.id !== idToRemove));
   };
 
-  const updateLinea = (id: number, field: keyof LineaProducto, value: any) => {
+  const updateLinea = (id: number, field: keyof LineaProducto, value) => {
     setLineas(
       lineas.map((linea) =>
         linea.id === id ? { ...linea, [field]: value } : linea,
@@ -139,6 +144,9 @@ export const EditLoadDialog = ({
     onSave(initialData.id, updateRequest);
   };
 
+  const selectedProductIds = lineas
+    .map((linea) => linea.productoId)
+    .filter((id) => id !== '');
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-2xl">
@@ -167,9 +175,16 @@ export const EditLoadDialog = ({
               <Label>Camión</Label>
               <Select value={camionId} onValueChange={setCamionId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue key={selectedTruck.id} placeholder="Selecciona un camión...">
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem
+                    key={selectedTruck.id}
+                    value={selectedTruck.id.toString()}
+                  >
+                    {selectedTruck.patente}
+                  </SelectItem>
                   {trucks.map((t) => (
                     <SelectItem key={t.id} value={t.id.toString()}>
                       {t.patente}
@@ -183,9 +198,15 @@ export const EditLoadDialog = ({
               <Label>Responsable</Label>
               <Select value={empleadoId} onValueChange={setEmpleadoId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue key={selectedEmployee.id} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem
+                    key={selectedEmployee.id}
+                    value={selectedEmployee.id.toString()}
+                  >
+                    {selectedEmployee.nombre} {selectedEmployee.apellido}
+                  </SelectItem>
                   {employees.map((e) => (
                     <SelectItem key={e.id} value={e.id.toString()}>
                       {e.nombre} {e.apellido}
@@ -220,11 +241,21 @@ export const EditLoadDialog = ({
                           <SelectValue placeholder="Producto..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {products.map((p) => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.nombre}
-                            </SelectItem>
-                          ))}
+                          {products.map((p) => {
+                            // Verificamos si este producto ya fue elegido en OTRA fila
+                            const isSelectedElsewhere =
+                              selectedProductIds.includes(p.id.toString()) &&
+                              linea.productoId !== p.id.toString();
+
+                            // Si ya se eligió en otra fila, no lo renderizamos como opción
+                            if (isSelectedElsewhere) return null;
+
+                            return (
+                              <SelectItem key={p.id} value={p.id.toString()}>
+                                {p.nombre}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     </TableCell>

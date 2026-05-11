@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Table, TableBody,TableCell, TableHead, TableHeader, TableRow } from "../../../components/Table.tsx";
 // Asumo que tendrás una interfaz para los productos. Añadí 'products' a los props.
 interface diaLogProps {
-  onSave: (data: any) => void; // Idealmente tipar esto luego con la estructura final
+  onSave: (data) => void; // Idealmente tipar esto luego con la estructura final
   isLoading: boolean;
   showAlert: boolean;
   error: { errorMessage: string; errorTitle: string } | null;
@@ -47,9 +47,7 @@ export const AddLoadDialog = ({
   const [tipo, setTipo] = useState('Carga');
   const [camionId, setCamionId] = useState('');
   const [empleadoId, setEmpleadoId] = useState('');
-
   const handleAddProducto = () => {
-    // Agregamos una nueva fila vacía con un ID temporal basado en la fecha
     setLineas([
       ...lineas,
       { id: Date.now(), productoId: '', llenos: 0, vacios: 0 },
@@ -60,7 +58,7 @@ export const AddLoadDialog = ({
     setLineas(lineas.filter((linea) => linea.id !== idToRemove));
   };
 
-  const updateLinea = (id: number, field: keyof LineaProducto, value: any) => {
+  const updateLinea = (id: number, field: keyof LineaProducto, value) => {
     setLineas(
       lineas.map((linea) =>
         linea.id === id ? { ...linea, [field]: value } : linea,
@@ -105,7 +103,9 @@ export const AddLoadDialog = ({
     setEmpleadoId('');
     setLineas([]);
   };
-
+const selectedProductIds = lineas
+  .map((linea) => linea.productoId)
+  .filter((id) => id !== '');
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-2xl">
@@ -131,7 +131,10 @@ export const AddLoadDialog = ({
 
             <div className="space-y-2">
               <Label htmlFor="camionId">Camión Asignado</Label>
-              <Select value={camionId} onValueChange={(val) => setCamionId(val)}>
+              <Select
+                value={camionId}
+                onValueChange={(val) => setCamionId(val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un camión" />
                 </SelectTrigger>
@@ -148,7 +151,10 @@ export const AddLoadDialog = ({
 
             <div className="space-y-2">
               <Label htmlFor="empleadoId">Empleado Responsable</Label>
-              <Select value={empleadoId} onValueChange={(val) => setEmpleadoId(val)}>
+              <Select
+                value={empleadoId}
+                onValueChange={(val) => setEmpleadoId(val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un empleado" />
                 </SelectTrigger>
@@ -199,19 +205,26 @@ export const AddLoadDialog = ({
                           <SelectValue placeholder="Selecciona un producto" />
                         </SelectTrigger>
                         <SelectContent>
-                          {/* Mapeo de productos reales, con fallback a hardcodeados para pruebas */}
                           {products.length > 0 ? (
-                            products.map((p) => (
-                              <SelectItem key={p.id} value={p.id.toString()}>
-                                {p.nombre}
-                              </SelectItem>
-                            ))
+                            products.map((p) => {
+                              // Verificamos si este producto ya fue elegido en OTRA fila
+                              const isSelectedElsewhere =
+                                selectedProductIds.includes(p.id.toString()) &&
+                                linea.productoId !== p.id.toString();
+
+                              // Si ya se eligió en otra fila, no lo renderizamos como opción
+                              if (isSelectedElsewhere) return null;
+
+                              return (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                  {p.nombre}
+                                </SelectItem>
+                              );
+                            })
                           ) : (
-                            <>
-                              <SelectItem value="1">Producto 1</SelectItem>
-                              <SelectItem value="2">Producto 2</SelectItem>
-                              <SelectItem value="3">Producto 3</SelectItem>
-                            </>
+                            <SelectItem value="empty" disabled>
+                              No hay productos disponibles
+                            </SelectItem>
                           )}
                         </SelectContent>
                       </Select>

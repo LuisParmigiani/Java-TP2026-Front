@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { DomicilioResponse } from "../services/Interfaces";
 import { updateDirection } from "../services/DirectionService";
 import { useAuth } from "../hooks/useAuth";
+import { toast } from "sonner";
 interface Props {
   direction: DomicilioResponse;
   onSave: (direction: DomicilioResponse) => void;
@@ -10,6 +11,7 @@ interface Props {
 const dayLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 function DirectionCard(props: Props) {
+  const [isLoading, setIsLoading] = useState(false);
   const { direction, onSave } = props;
   const [open, setOpen] = useState(false);
   const { token } = useAuth();
@@ -17,7 +19,7 @@ function DirectionCard(props: Props) {
   const [formData, setFormData] = useState<DomicilioResponse>(direction);
   // Contar días activos (valor 1)
   const activeDays = direction.diasDomicilio.filter(
-    (dia) => dia.estado === "ACTIVO",
+    (dia) => dia.estado === 'ACTIVO',
   ).length;
 
   const handleDayToggle = (diaId: number) => {
@@ -26,9 +28,9 @@ function DirectionCard(props: Props) {
       diasDomicilio: current.diasDomicilio.map((dia) =>
         dia.id === diaId
           ? {
-            ...dia,
-            estado: dia.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO",
-          }
+              ...dia,
+              estado: dia.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO',
+            }
           : dia,
       ),
     }));
@@ -39,34 +41,45 @@ function DirectionCard(props: Props) {
   }, [direction]);
 
   const handleSubmit = async () => {
-    const result = await updateDirection(formData, token);
-    console.log(result);
-    onSave({
-      ...result,
-      activo: formData.activo,
-      diasDomicilio: result.diasDomicilio ?? formData.diasDomicilio,
-    });
-    setOpen(false);
+    setIsLoading(true); // Iniciamos el spinner
+    try {
+      const result = await updateDirection(formData, token);
+      console.log(result);
+      onSave({
+        ...result,
+        activo: formData.activo,
+        diasDomicilio: result.diasDomicilio ?? formData.diasDomicilio,
+      });
+      setOpen(false);
+    } catch (error) {
+      console.error('Error al actualizar la dirección', error);
+      toast.error(
+        'Error al actualizar la dirección. Por favor, inténtalo de nuevo.',
+      );
+    } finally {
+      setIsLoading(false); // Detenemos el spinner sin importar si falla o tiene éxito
+    }
   };
 
-  const isPending = direction.habilitado === "Pendiente";
-  const isDeshabilitado = direction.habilitado === "Deshabilitado";
+  const isPending = direction.habilitado === 'Pendiente';
+  const isDeshabilitado = direction.habilitado === 'Deshabilitado';
+  const isInactiva = direction.activo === 'Inactiva'; 
   const canEdit = !isPending && !isDeshabilitado;
 
   const headerBg = isPending
-    ? "bg-yellow-100"
+    ? 'bg-yellow-100'
     : isDeshabilitado
-      ? "bg-orange-100"
-      : direction.activo === "Activa"
-        ? "bg-green-100"
-        : "bg-red-100";
+      ? 'bg-orange-100'
+      : direction.activo === 'Activa'
+        ? 'bg-green-100'
+        : 'bg-red-100';
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <button
         type="button"
         onClick={() => canEdit && setOpen((current) => !current)}
-        className={`group flex w-full items-start justify-between gap-4 ${headerBg} px-5 py-4 text-left transition-colors ${canEdit ? "hover:from-gray-50 hover:to-gray-100" : "cursor-default"}`}
+        className={`group flex w-full items-start justify-between gap-4 ${headerBg} px-5 py-4 text-left transition-colors ${canEdit ? 'hover:from-gray-50 hover:to-gray-100' : 'cursor-default'}`}
       >
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -75,7 +88,7 @@ function DirectionCard(props: Props) {
                 {direction.calle} {direction.numero}
               </h3>
               <p className="text-sm text-gray-500">
-                {direction.zona?.nombre && `Zona: ${direction.zona.nombre}`}{" "}
+                {direction.zona?.nombre && `Zona: ${direction.zona.nombre}`}{' '}
                 {direction.casa && `· Casa ${direction.casa}`}
               </p>
               {isPending && (
@@ -88,12 +101,17 @@ function DirectionCard(props: Props) {
                   Deshabilitado. Contactese con nosotros para mas información.
                 </span>
               )}
+              {isInactiva && canEdit && (
+                <span className="inline-block rounded-full bg-red-200 px-2 py-0.5 text-xs font-semibold text-red-900 border border-red-300">
+                  Domicilio inactivo. Presione Editar para activarlo.
+                </span>
+              )}
             </div>
           </div>
         </div>
         {canEdit ? (
           <span className="mt-1 rounded-full border bg-gray-50 border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-tertiary-300 group-hover:border-tertiary-400 group-hover:text-tertiary-900">
-            {open ? "Cerrar edición" : "Editar"}
+            {open ? 'Cerrar edición' : 'Editar'}
           </span>
         ) : (
           <span className="mt-1 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-400 cursor-default">
@@ -116,12 +134,13 @@ function DirectionCard(props: Props) {
             {direction.diasDomicilio.map((dia, index) => (
               <div
                 key={index}
-                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${dia.estado === "ACTIVO"
-                  ? "bg-emerald-100 text-emerald-800"
-                  : dia.estado === "INACTIVO"
-                    ? "bg-gray-100 text-gray-500"
-                    : "bg-gray-300 text-gray-500"
-                  }`}
+                className={`rounded-full px-3 py-2 text-center text-sm font-medium ${
+                  dia.estado === 'ACTIVO'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : dia.estado === 'INACTIVO'
+                      ? 'bg-gray-100 text-gray-500'
+                      : 'bg-gray-300 text-gray-500'
+                }`}
               >
                 {dayLabels[index]}
               </div>
@@ -141,15 +160,18 @@ function DirectionCard(props: Props) {
                 onClick={() => {
                   setFormData((current) => ({
                     ...current,
-                    activo: current.activo === "Activa" ? "Inactiva" : "Activa",
+                    activo: current.activo === 'Activa' ? 'Inactiva' : 'Activa',
                   }));
                 }}
-                className={`rounded-full px-3 py-2 text-sm w-xl font-medium transition ${formData.activo === "Activa"
-                  ? "bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700"
-                  : "bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white"
-                  }`}
+                className={`rounded-full px-3 py-2 text-sm w-xl font-medium transition ${
+                  formData.activo === 'Activa'
+                    ? 'bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700'
+                    : 'bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white'
+                }`}
               >
-                {formData.activo === "Activa" ? "Desactivar dirección" : "Activar dirección"}
+                {formData.activo === 'Activa'
+                  ? 'Desactivar dirección'
+                  : 'Activar dirección'}
               </button>
             </div>
             {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -194,21 +216,22 @@ function DirectionCard(props: Props) {
                     <button
                       key={index}
                       type="button"
-                      disabled={dia.estado === "NODISPONIBLE"}
+                      disabled={dia.estado === 'NODISPONIBLE'}
                       title={
-                        dia.estado === "NODISPONIBLE"
-                          ? "Día no disponible para este domicilio"
-                          : dia.estado === "ACTIVO"
-                            ? "Desactivar día"
-                            : "Activar día"
+                        dia.estado === 'NODISPONIBLE'
+                          ? 'Día no disponible para este domicilio'
+                          : dia.estado === 'ACTIVO'
+                            ? 'Desactivar día'
+                            : 'Activar día'
                       }
                       onClick={() => handleDayToggle(dia.id)}
-                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${dia.estado === "ACTIVO"
-                        ? "bg-emerald-500 text-white shadow-sm"
-                        : dia.estado === "INACTIVO"
-                          ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        }`}
+                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                        dia.estado === 'ACTIVO'
+                          ? 'bg-emerald-500 text-white shadow-sm'
+                          : dia.estado === 'INACTIVO'
+                            ? 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
                     >
                       {dayLabels[index]}
                     </button>
@@ -231,9 +254,40 @@ function DirectionCard(props: Props) {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary/90"
+                disabled={isLoading}
+                className={`flex justify-center items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition min-w-[140px] ${
+                  isLoading
+                    ? 'opacity-70 cursor-not-allowed'
+                    : 'hover:bg-primary/90'
+                }`}
               >
-                Guardar cambios
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Cargando...
+                  </>
+                ) : (
+                  'Guardar cambios'
+                )}
               </button>
             </div>
           </div>

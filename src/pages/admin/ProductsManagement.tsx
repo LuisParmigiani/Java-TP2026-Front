@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./../../components/Select";
+import { productSchema,type ProductFormData } from "./productSchema.ts";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +30,7 @@ import {
   TableRow,
 } from "./../../components/Table";
 import { Badge } from "./../../components/Badge";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2 ,Loader2} from "lucide-react";
 import { toast } from "sonner";
 import {
   addProduct,
@@ -40,6 +41,7 @@ import {
 import type { ProductoResponse } from "../../services/Interfaces";
 import ProductPictureInput from "../../components/ProductPictureInput.tsx";
 import { useAuth } from "../../hooks/useAuth.ts";
+import { Alert, AlertDescription, AlertTitle } from "../../components/Alert.tsx";
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState<ProductoResponse[]>([]);
@@ -53,13 +55,19 @@ const ProductsManagement = () => {
   const [productToDeleteId, setProductToDeleteId] = useState<number | null>(
     null,
   );
-  const { token } = useAuth();
-
+  const { token ,loading: loadingAuth} = useAuth();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showAlert, setShowAlert] = useState(false);
+  const [error, setError] = useState<{
+    errorTitle: string;
+    errorMessage: string;
+  } | null>(null);
   useEffect(() => {
+    if (!token && loadingAuth) return;
     fetchProducts(token)
       .then((data) => setProducts(data))
       .catch((error) => console.error("Failed to fetch products:", error));
-  }, [token]);
+  }, [token,loadingAuth]);
   const [formData, setFormData] = useState({
     nombre: "",
     detalle: "",
@@ -68,8 +76,8 @@ const ProductsManagement = () => {
     activo: "1", // Por defecto activo
     imagenUrl: "",
   });
-  const { currentUser, isAuthenticated, loading } = useAuth();
-  if (loading) {
+  const { currentUser, isAuthenticated } = useAuth();
+  if (loadingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -120,6 +128,9 @@ const ProductsManagement = () => {
     console.log("Imagen seleccionada✅");
   };
   const handleOpenDialog = (product: ProductoResponse | null = null) => {
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     if (product) {
       setEditingProduct(product);
       setFormData({
@@ -147,24 +158,49 @@ const ProductsManagement = () => {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.nombre || !formData.precio || !formData.stock) {
-      toast.error("Por favor completa todos los campos requeridos.");
-      return;
-    }
-    if (Number(formData.precio) <= 0 || Number(formData.stock) < 0) {
-      toast.error("El precio y stock deben ser valores válidos.");
+    // 1. Preparamos el payload
+    const payload: ProductFormData = {
+      nombre: formData.nombre,
+      detalle: formData.detalle,
+      precio: Number(formData.precio),
+      stock: Number(formData.stock),
+      activo: formData.activo,
+      imagenUrl: formData.imagenUrl,
+    };
+
+    // 2. Ejecutamos validación Zod
+    const result = productSchema.safeParse(payload);
+
+    if (!result.success) {
+      const issues = result.error.issues;
+      const errors: Record<string, string> = {};
+      for (const issue of issues) {
+        const key = issue.path[0] ? String(issue.path[0]) : '_form';
+        errors[key] = (errors[key] ? errors[key] + '. ' : '') + issue.message;
+      }
+      setFieldErrors(errors);
+      setError({
+        errorTitle: 'Formulario incompleto',
+        errorMessage:
+          'Por favor, revisa y corrige los campos marcados en rojo.',
+      });
+      setShowAlert(true);
       return;
     }
 
+    // 3. Si todo está bien, limpiamos y guardamos
+    setFieldErrors({});
+    setError(null);
+    setShowAlert(false);
     setIsLoading(true);
+
     try {
       const productData = {
         nombre: formData.nombre,
         precio: Number(formData.precio),
         stock: Number(formData.stock),
-        activo: formData.activo === "1",
+        activo: formData.activo === '1',
         detalle: formData.detalle,
-        // imagenUrl no se envía, el backend lo setea tras subir la imagen
       };
       if (editingProduct) {
         await updateProduct(
@@ -173,36 +209,35 @@ const ProductsManagement = () => {
           pendingImageFile,
           token,
         );
-        toast.success("Producto actualizado correctamente.");
+        toast.success('Producto actualizado correctamente.');
       } else {
         await addProduct(productData, pendingImageFile, token);
-        toast.success("Producto agregado correctamente.");
+        toast.success('Producto agregado correctamente.');
       }
-      // Actualiza la lista de productos
       const updatedProducts = await fetchProducts(token);
       setProducts(updatedProducts);
       setIsDialogOpen(false);
       setEditingProduct(null);
       setFormData({
-        nombre: "",
-        detalle: "",
-        precio: "",
-        stock: "",
-        activo: "1",
-        imagenUrl: "",
+        nombre: '',
+        detalle: '',
+        precio: '',
+        stock: '',
+        activo: '1',
+        imagenUrl: '',
       });
       setPendingImageFile(null);
-    } catch (error: any) {
-      console.error("Error saving product:", error);
+    } catch (error) {
+      console.error('Error saving product:', error);
       toast.error(
         error?.response?.data?.message ||
           error?.mensaje ||
-          "Ocurrió un error al guardar el producto.",
+          'Ocurrió un error al guardar el producto.',
       );
     } finally {
       setIsLoading(false);
     }
-  };
+  };;
 
   const handleDelete = (id: number) => {
     // Abrir diálogo de confirmación en vez de usar window.confirm
@@ -219,7 +254,7 @@ const ProductsManagement = () => {
       const updated = await fetchProducts(token);
       setProducts(updated);
       toast.success("Producto eliminado correctamente.");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error deleting product:", error);
       toast.error(
         error?.mensaje || error?.message || "No se pudo eliminar el producto.",
@@ -275,19 +310,19 @@ const ProductsManagement = () => {
                       </TableCell>
                       <TableCell>
                         {!product.imagenUrl ||
-                        product.imagenUrl === "./../../assets/producto.jpeg" ? (
+                        product.imagenUrl === './../../assets/producto.jpeg' ? (
                           <img
-                            src={"./../../assets/producto.jpeg"}
+                            src={'./../../assets/producto.jpeg'}
                             alt={product.nombre}
                             className="h-12 w-12 object-cover rounded-md"
                           />
                         ) : (
                           <img
                             src={
-                              product.imagenUrl.startsWith("http") ||
-                              product.imagenUrl.startsWith("https")
+                              product.imagenUrl.startsWith('http') ||
+                              product.imagenUrl.startsWith('https')
                                 ? product.imagenUrl
-                                : "./../../assets/producto.jpeg"
+                                : './../../assets/producto.jpeg'
                             }
                             alt={product.nombre}
                             className="h-12 w-12 object-cover rounded-md"
@@ -300,9 +335,9 @@ const ProductsManagement = () => {
                       <TableCell>{product.stock}</TableCell>
                       <TableCell>
                         <Badge
-                          variant={product.activo ? "default" : "secondary"}
+                          variant={product.activo ? 'default' : 'secondary'}
                         >
-                          {product.activo ? "Activo" : "Inactivo"}
+                          {product.activo ? 'Activo' : 'Inactivo'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -346,17 +381,22 @@ const ProductsManagement = () => {
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
             <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
-              {editingProduct ? "Editar Producto" : "Agregar Producto"}
+              {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="imagenUrl">Imagen</Label>
               <ProductPictureInput
-                src={formData.imagenUrl || "./../../assets/producto.jpeg"}
+                src={formData.imagenUrl || './../../assets/producto.jpeg'}
                 onImageChange={handleImageChange}
                 uploading={isLoading}
               />
+              {fieldErrors.imagenUrl && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.imagenUrl}
+                </span>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -370,7 +410,13 @@ const ProductsManagement = () => {
                   setFormData({ ...formData, nombre: value as string })
                 }
               />
+              {fieldErrors.nombre && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.nombre}
+                </span>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="detalle">Detalle</Label>
               <Input
@@ -382,7 +428,13 @@ const ProductsManagement = () => {
                   setFormData({ ...formData, detalle: value as string })
                 }
               />
+              {fieldErrors.detalle && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.detalle}
+                </span>
+              )}
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="precio">Precio ($)</Label>
@@ -394,6 +446,11 @@ const ProductsManagement = () => {
                     setFormData({ ...formData, precio: value as string })
                   }
                 />
+                {fieldErrors.precio && (
+                  <span className="text-xs text-red-500 block">
+                    {fieldErrors.precio}
+                  </span>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="stock">Stock</Label>
@@ -405,8 +462,14 @@ const ProductsManagement = () => {
                     setFormData({ ...formData, stock: value as string })
                   }
                 />
+                {fieldErrors.stock && (
+                  <span className="text-xs text-red-500 block">
+                    {fieldErrors.stock}
+                  </span>
+                )}
               </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="activo">Estado</Label>
               <Select
@@ -423,17 +486,47 @@ const ProductsManagement = () => {
                   <SelectItem value="0">Inactivo</SelectItem>
                 </SelectContent>
               </Select>
+              {fieldErrors.activo && (
+                <span className="text-xs text-red-500">
+                  {fieldErrors.activo}
+                </span>
+              )}
             </div>
+
+            <div>
+              {showAlert && (
+                <Alert
+                  variant="danger"
+                  autoClose={true}
+                  onClose={() => {
+                    setShowAlert(false);
+                    setError(null);
+                  }}
+                >
+                  <AlertTitle>{error?.errorTitle}</AlertTitle>
+                  <AlertDescription>{error?.errorMessage}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"
                 variant="danger"
                 onClick={() => setIsDialogOpen(false)}
+                disabled={isLoading}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : "Guardar"}
+              <Button type="submit" disabled={isLoading} className="min-w-30">
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+                    Guardando...
+                  </span>
+                ) : (
+                  'Guardar'
+                )}
               </Button>
             </div>
           </form>
@@ -459,8 +552,16 @@ const ProductsManagement = () => {
               variant="destructive"
               onClick={confirmDelete}
               disabled={isLoading}
+              className="min-w-30"
             >
-              {isLoading ? "Eliminando..." : "Eliminar"}
+              {isLoading ? (
+                <span className="flex items-center">
+                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+                  Eliminando...
+                </span>
+              ) : (
+                'Eliminar'
+              )}
             </Button>
           </div>
         </DialogContent>
