@@ -1,6 +1,10 @@
-
-import { apiDelete, apiGet, apiPost, apiPut } from './baseClient.ts';
-import type { PersonaResponse, ErrorResponse, PersonaRequest, PaginationResponse } from './Interfaces.ts';
+import { apiDelete, apiGet, apiPost, apiPut } from "./baseClient.ts";
+import type {
+  PersonaResponse,
+  ErrorResponse,
+  PersonaRequest,
+  PaginationResponse,
+} from "./Interfaces.ts";
 
 export async function fetchPersonas(
   currentPage: number = 0,
@@ -11,33 +15,34 @@ export async function fetchPersonas(
     const params = new URLSearchParams();
 
     // Paginación
-    params.append('page', currentPage.toString());
-    params.append('size', pageSize.toString());
+    params.append("page", currentPage.toString());
+    params.append("size", pageSize.toString());
 
     // Populate (relaciones)
     if (populate && populate.length > 0) {
       populate.forEach((pop) => {
-        params.append('populate', pop);
+        params.append("populate", pop);
       });
     }
 
     const url = `/persona?${params.toString()}`;
-    console.log('Fetching personas with URL:', url);
+    console.log("Fetching personas with URL:", url);
 
     const response = await apiGet<PaginationResponse<PersonaResponse>>(url);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error fetching personas:', errorResponse);
+    console.error("Error fetching personas:", errorResponse);
     throw errorResponse;
   }
 }
 export async function searchPersonas(
+  token: string,
   query?: string,
   zona?: string,
   camion?: string,
   dia?: string,
-  ordenSaldo: string = 'ascendente',
+  ordenSaldo: string = "ascendente",
   currentPage: number = 0,
   pageSize: number = 10,
   populate?: string[],
@@ -47,71 +52,88 @@ export async function searchPersonas(
 
     // Agregar parámetros opcionales
     if (query) {
-      params.append('query', query);
+      params.append("query", query);
     }
     if (zona) {
-      params.append('zona', zona);
+      params.append("zona", zona);
     }
     if (camion) {
-      params.append('camion', camion);
+      params.append("camion", camion);
     }
     if (dia) {
-      params.append('dia', dia);
+      params.append("dia", dia);
     }
     if (ordenSaldo) {
-      params.append('ordenSaldo', ordenSaldo);
+      params.append("ordenSaldo", ordenSaldo);
     }
 
     // Paginación
-    params.append('page', currentPage.toString());
-    params.append('size', pageSize.toString());
+    params.append("page", currentPage.toString());
+    params.append("size", pageSize.toString());
 
     // Populate (relaciones)
     if (populate && populate.length > 0) {
       populate.forEach((pop) => {
-        params.append('populate', pop);
+        params.append("populate", pop);
       });
     }
 
     const url = `/persona/search?${params.toString()}`;
-    console.log('Fetching personas with URL:', url);
+    console.log("Fetching personas with URL:", url);
 
-    const response = await apiGet<PaginationResponse<PersonaResponse>>(url);
+    const response = await apiGet<PaginationResponse<PersonaResponse>>(
+      url,
+      token,
+    );
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error searching personas:', errorResponse);
+    console.error("Error searching personas:", errorResponse);
     throw errorResponse;
   }
 }
 
-
-export async function updatePersona(id: number, updatedData: Partial<Omit<PersonaRequest, 'id'>>, token?: string): Promise<PersonaResponse> {
+export async function updatePersona(
+  id: number,
+  updatedData: Partial<Omit<PersonaRequest, "id">>,
+  token?: string,
+): Promise<PersonaResponse> {
   try {
-    const response = await apiPut<PersonaResponse>(`/persona/${id}`, updatedData, token);
-    console.log('Updated persona:', response);
+    const response = await apiPut<PersonaResponse>(
+      `/persona/${id}`,
+      updatedData,
+      token,
+    );
+    console.log("Updated persona:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error updating persona:', errorResponse);
+    console.error("Error updating persona:", errorResponse);
     throw errorResponse;
   }
 }
 
-export async function addPersona(personaData: Omit<PersonaRequest, 'id'>, token?: string): Promise<PersonaResponse> {
+export async function addPersona(
+  personaData: Omit<PersonaRequest, "id">,
+  token?: string,
+): Promise<PersonaResponse> {
   try {
-    const response = await apiPost<PersonaResponse>('/persona', personaData, token);
-    console.log('Created persona:', response);
+    const response = await apiPost<PersonaResponse>(
+      "/persona",
+      personaData,
+      token,
+    );
+    console.log("Created persona:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error creating persona:', errorResponse);
+    console.error("Error creating persona:", errorResponse);
     throw errorResponse;
   }
 }
-export async function deletePersona(id: number): Promise<void> {
+export async function deletePersona(id: number, token?: string): Promise<void> {
   try {
-    await apiDelete(`/persona/${id}/disable`);
+    await apiDelete(`/persona/${id}/disable`, token);
     console.log(`Disabled persona with ID ${id}`);
   } catch (error) {
     const errorResponse = error as ErrorResponse;
@@ -120,7 +142,10 @@ export async function deletePersona(id: number): Promise<void> {
   }
 }
 
-export async function getPersona(id: number, populate?: string[]): Promise<PersonaResponse> {
+export async function getPersona(
+  id: number,
+  populate?: string[],
+): Promise<PersonaResponse> {
   try {
     let query = "";
     if (populate) {
@@ -135,9 +160,14 @@ export async function getPersona(id: number, populate?: string[]): Promise<Perso
   }
 }
 
-export async function getActiveClients(token: string): Promise<PersonaResponse[]> {
+export async function getActiveClients(
+  token: string,
+): Promise<PersonaResponse[]> {
   try {
-    const response = await apiGet<PersonaResponse[]>(`/persona/client/active`,token);
+    const response = await apiGet<PersonaResponse[]>(
+      `/persona/client/active`,
+      token,
+    );
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;

@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   fetchPersonas,
   searchPersonas,
   addPersona,
   updatePersona,
   deletePersona,
-} from '../../../../services/PersonaService';
+} from "../../../../services/PersonaService";
 import type {
   PersonaResponse,
   ErrorResponse,
-} from '../../../../services/Interfaces';
-import { formatErrorResponse } from '../../../../lib/utils';
-import type { ClientesFilters } from './useClientesFilters.ts';
-import { useNavigate } from 'react-router-dom';
+} from "../../../../services/Interfaces";
+import { formatErrorResponse } from "../../../../lib/utils";
+import type { ClientesFilters } from "./useClientesFilters.ts";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../hooks/useAuth.ts";
 
 export const useCustomers = (
   onError?: (error: { errorTitle: string; errorMessage: string }) => void,
@@ -22,9 +23,10 @@ export const useCustomers = (
   pageSize: number = 10,
 ) => {
   const [customers, setCustomers] = useState<PersonaResponse[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -32,10 +34,11 @@ export const useCustomers = (
         try {
           // Si hay búsqueda o filtros activos, usa searchPersonas
           if (
-            search.trim() !== '' ||
+            search.trim() !== "" ||
             Object.values(filters || {}).some((v) => v)
           ) {
             const results = await searchPersonas(
+              token,
               search || undefined,
               filters?.zone ? String(filters.zone) : undefined,
               filters?.truck ? String(filters.truck) : undefined,
@@ -43,7 +46,7 @@ export const useCustomers = (
               filters?.saldo ? String(filters.saldo) : undefined,
               page - 1, // ← Convertir a 0-indexed para el backend
               pageSize,
-              ['zona', 'camion', 'dia'],
+              ["zona", "camion", "dia"],
             );
             setCustomers(results.content);
             setTotalItems(results.totalElements); // ← Usar totalElements
@@ -64,17 +67,25 @@ export const useCustomers = (
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [search, filters?.zone, filters?.truck, filters?.day, filters?.saldo, page, pageSize]);
+  }, [
+    search,
+    filters?.zone,
+    filters?.truck,
+    filters?.day,
+    filters?.saldo,
+    page,
+    pageSize,
+  ]);
 
   const handleDelete = async (id: number): Promise<boolean> => {
-    if (!window.confirm('¿Estás seguro de eliminar este cliente?')) {
+    if (!window.confirm("¿Estás seguro de eliminar este cliente?")) {
       return false;
     }
 
     try {
-      await deletePersona(id);
+      await deletePersona(id, token);
       setCustomers((prev) => prev.filter((customer) => customer.id !== id));
-      toast.success('Cliente dado de baja');
+      toast.success("Cliente dado de baja");
       return true;
     } catch (error) {
       const errorResponse = error as ErrorResponse;
@@ -93,11 +104,11 @@ export const useCustomers = (
   ): Promise<boolean> => {
     try {
       if (isEditing) {
-        await updatePersona(newCustomer.id, newCustomer);
-        toast.success('Cliente actualizado correctamente.');
+        await updatePersona(newCustomer.id, newCustomer, token);
+        toast.success("Cliente actualizado correctamente.");
       } else {
-        await addPersona(newCustomer);
-        toast.success('Cliente agregado correctamente.');
+        await addPersona(newCustomer, token);
+        toast.success("Cliente agregado correctamente.");
       }
       // Recargar datos (no cambiamos página, se recargan en el useEffect)
       return true;

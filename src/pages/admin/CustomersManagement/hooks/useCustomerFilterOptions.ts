@@ -30,7 +30,7 @@ export const useCustomersFilterOptions = () => {
         setLoading(true);
 
         // Traer zonas
-        const zonasData = await fetchZones();
+        const zonasData = await fetchZones(token, []);
         setZones(
           zonasData.map((zona: ZonaResponse) => ({
             id: zona.id,

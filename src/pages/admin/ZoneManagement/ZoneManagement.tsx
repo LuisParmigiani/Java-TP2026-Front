@@ -1,21 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Helmet } from '../../../components/Helmet.tsx';
-import NavBar from '../../../components/NavBar.tsx';
-import Footer from '../../../components/Footer.tsx';
-import { Card, CardContent } from '../../../components/Card.tsx';
-import { Button } from '../../../components/Button.tsx';
-import Input from '../../../components/Input.tsx';
-import { Label } from '../../../components/Label.tsx';
-import type { ErrorResponse,CamionResponse,DiaZonaRequest } from '../../../services/Interfaces.ts';
-import { formatErrorResponse } from '../../../lib/utils.ts';
-import { useAuth } from '../../../hooks/useAuth.ts';
-import { zoneSchema, type ZoneFormData } from './zoneSchema';
+import { useState, useEffect } from "react";
+import { Helmet } from "../../../components/Helmet.tsx";
+import NavBar from "../../../components/NavBar.tsx";
+import Footer from "../../../components/Footer.tsx";
+import { Card, CardContent } from "../../../components/Card.tsx";
+import { Button } from "../../../components/Button.tsx";
+import Input from "../../../components/Input.tsx";
+import { Label } from "../../../components/Label.tsx";
+import type {
+  ErrorResponse,
+  CamionResponse,
+  DiaZonaRequest,
+} from "../../../services/Interfaces.ts";
+import { formatErrorResponse } from "../../../lib/utils.ts";
+import { useAuth } from "../../../hooks/useAuth.ts";
+import { zoneSchema, type ZoneFormData } from "./zoneSchema";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../../components/Dialog.tsx';
+} from "../../../components/Dialog.tsx";
 import {
   Table,
   TableBody,
@@ -23,28 +27,33 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../components/Table.tsx';
-import { Plus, Edit, Trash2, Link } from 'lucide-react';
-import { toast } from 'sonner';
-import type { ZonaResponse } from '../../../services/Interfaces.ts';
+} from "../../../components/Table.tsx";
+import { Plus, Edit, Trash2, Link } from "lucide-react";
+import { toast } from "sonner";
+import type { ZonaResponse } from "../../../services/Interfaces.ts";
 import {
   Alert,
   AlertTitle,
   AlertDescription,
-} from '../../../components/Alert.tsx';
-import { fetchZones,addZone,updateZone,deleteZone} from '../../../services/ZoneService.ts';
-import { fetchTrucks } from '../../../services/TruckService.ts';
+} from "../../../components/Alert.tsx";
+import {
+  fetchZones,
+  addZone,
+  updateZone,
+  deleteZone,
+} from "../../../services/ZoneService.ts";
+import { fetchTrucks } from "../../../services/TruckService.ts";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/Select.tsx';
+} from "../../../components/Select.tsx";
 
-const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const dayLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const ZoneManagement = () => {
-  const {token, loading} = useAuth();
+  const { token, loading } = useAuth();
   const [zones, setZones] = useState<ZonaResponse[]>([]);
   const [trucks, setTrucks] = useState<CamionResponse[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -57,65 +66,68 @@ const ZoneManagement = () => {
     errorMessage: string;
   } | null>(null);
 
-useEffect(() => {
-  if (loading) return; // Esperar a que se resuelva el estado de autenticación
-  const load = async () => {
-    try {
-      const data = await fetchZones(token,['camion', 'diasZona']);
-      setZones(data);
-    } catch (error) {
-      const err = error as ErrorResponse;
-      const formatted = formatErrorResponse(err);
-      setError(formatted);
-      setShowAlert(true);
-      toast.error(err.mensaje);
-    }
+  useEffect(() => {
+    if (loading) return; // Esperar a que se resuelva el estado de autenticación
+    const load = async () => {
+      try {
+        const data = await fetchZones(token, ["camion", "diasZona"]);
+        setZones(data);
+      } catch (error) {
+        const err = error as ErrorResponse;
+        const formatted = formatErrorResponse(err);
+        setError(formatted);
+        setShowAlert(true);
+        toast.error(err.mensaje);
+      }
 
-    try {
-      const t = await fetchTrucks(token);
-      setTrucks(t);
-    } catch (error) {
-      const err = error as ErrorResponse;
-      const formatted = formatErrorResponse(err);
-      setError(formatted);
-      setShowAlert(true);
-      toast.error(err.mensaje);
-    }
-  };
+      try {
+        const t = await fetchTrucks(token);
+        setTrucks(t);
+      } catch (error) {
+        const err = error as ErrorResponse;
+        const formatted = formatErrorResponse(err);
+        setError(formatted);
+        setShowAlert(true);
+        toast.error(err.mensaje);
+      }
+    };
 
-  load();
-}, [token, loading]);
+    load();
+  }, [token, loading]);
   const [formData, setFormData] = useState({
-    nombre: '',
-    detalle: '',
+    nombre: "",
+    detalle: "",
     camionId: 0,
-    diasZona: [] as DiaZonaRequest[]
+    diasZona: [] as DiaZonaRequest[],
   });
-  console.log("zonas",zones);
-const handleDayToggle = (diaId: number) => {
-  setFormData((current) => {
-    const isDaySelected = current.diasZona?.some((dia) => dia.diaId === diaId);
+  console.log("zonas", zones);
+  const handleDayToggle = (diaId: number) => {
+    setFormData((current) => {
+      const isDaySelected = current.diasZona?.some(
+        (dia) => dia.diaId === diaId,
+      );
 
-    if (isDaySelected) {
-      // Eliminar el día si ya está seleccionado
-      return {
-        ...current,
-        diasZona: current.diasZona?.filter((dia) => dia.diaId !== diaId) || [],
-      };
-    } else {
-      // Agregar el día si no está seleccionado
-      const newDay = {
-        diaId,
-        zonaId: editingZone?.id || 0,
-      } as DiaZonaRequest;
+      if (isDaySelected) {
+        // Eliminar el día si ya está seleccionado
+        return {
+          ...current,
+          diasZona:
+            current.diasZona?.filter((dia) => dia.diaId !== diaId) || [],
+        };
+      } else {
+        // Agregar el día si no está seleccionado
+        const newDay = {
+          diaId,
+          zonaId: editingZone?.id || 0,
+        } as DiaZonaRequest;
 
-      return {
-        ...current,
-        diasZona: [...(current.diasZona || []), newDay],
-      };
-    }
-  });
-};
+        return {
+          ...current,
+          diasZona: [...(current.diasZona || []), newDay],
+        };
+      }
+    });
+  };
   const handleOpenDialog = (zone: ZonaResponse | null = null) => {
     if (zone) {
       setEditingZone(zone);
@@ -123,105 +135,127 @@ const handleDayToggle = (diaId: number) => {
         nombre: zone.nombre,
         detalle: zone.detalle,
         camionId: zone.camion?.id || 0,
-        diasZona: zone.diasZona || []
+        diasZona: zone.diasZona || [],
       });
     } else {
       setEditingZone(null);
       setFormData({
-        nombre: '',
-        detalle: '',
+        nombre: "",
+        detalle: "",
         camionId: 0,
-        diasZona: [] as DiaZonaRequest[]
+        diasZona: [] as DiaZonaRequest[],
       });
     }
     setIsDialogOpen(true);
   };
 
-const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  // Construir payload simple para validar (dias como array de diaId)
-  const payload: ZoneFormData = {
-    nombre: formData.nombre,
-    detalle: formData.detalle,
-    camionId: formData.camionId ,
-    dias: formData.diasZona?.map((d) => d.diaId) || [],
-  };
-
-  const result = zoneSchema.safeParse(payload);
-  if (!result.success) {
-    const issues = result.error.issues;
-    const errors: Record<string, string> = {};
-    for (const issue of issues) {
-      // first path segment as key
-      const key = issue.path[0] ? String(issue.path[0]) : '_form';
-      // concisely append messages per field
-      errors[key] = (errors[key] ? errors[key] + '. ' : '') + issue.message;
-    }
-    setFieldErrors(errors);
-    setShowAlert(true); // opcional: abrir alerta de UI
-    return;
-  }
-
-  // Clear previous field errors
-  setFieldErrors({});
-  setIsLoading(true);
-
-  try {
-    const zoneData = {
+    // Construir payload simple para validar (dias como array de diaId)
+    const payload: ZoneFormData = {
       nombre: formData.nombre,
       detalle: formData.detalle,
-      camionId: formData.camionId ,
-      diasZona: formData.diasZona,
+      camionId: formData.camionId,
+      dias: formData.diasZona?.map((d) => d.diaId) || [],
     };
 
-    if (editingZone) {
-      console.log('Actualizando zona:', zoneData);
-      await updateZone(editingZone.id, zoneData, token);
-      toast.success('Zona actualizada correctamente.');
-    } else {
-      console.log('Guardando zona');
-      await addZone(zoneData,token);
-      toast.success('Zona agregada correctamente.');
+    const result = zoneSchema.safeParse(payload);
+    if (!result.success) {
+      const issues = result.error.issues;
+      const errors: Record<string, string> = {};
+      for (const issue of issues) {
+        // first path segment as key
+        const key = issue.path[0] ? String(issue.path[0]) : "_form";
+        // concisely append messages per field
+        errors[key] = (errors[key] ? errors[key] + ". " : "") + issue.message;
+      }
+      setFieldErrors(errors);
+      setError({
+        errorTitle: "Error de validación",
+        errorMessage:
+          Object.values(errors).join(" | ") ||
+          "Por favor, revise los campos del formulario.",
+      });
+      setShowAlert(true); // opcional: abrir alerta de UI
+      return;
     }
 
-    const updatedZones = await fetchZones(token,['camion', 'diasZona']);
-    setZones(updatedZones);
-    setIsDialogOpen(false);
-  } catch (error) {
-    const errorResponse = error as ErrorResponse;
-    const formattedError = formatErrorResponse(errorResponse);
-    setError(formattedError);
-    setShowAlert(true);
-    toast.error(errorResponse.mensaje);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    // Clear previous field errors
+    setFieldErrors({});
+    setIsLoading(true);
 
-const handleDelete = (id: number) => {
-  if (
-    window.confirm(
-      '¿Estás seguro de eliminar esta zona?. Esta acción no se puede deshacer',
-    )
-  ) {
-    deleteZone(id, token)
-      .then(() => {
-        setZones((prev) => prev.filter((zone) => zone.id !== id));
-        toast.success('Zona eliminada correctamente');
-      })
-      .catch((error) => {
-        const err = error as ErrorResponse;
-        const formatted = formatErrorResponse(err);
-        setError(formatted);
-        setShowAlert(true);
-        toast.error(err.mensaje);
-      });
-  }
-};
+    try {
+      const zoneData = {
+        nombre: formData.nombre,
+        detalle: formData.detalle,
+        camionId: formData.camionId,
+        diasZona: formData.diasZona,
+      };
+
+      if (editingZone) {
+        console.log("Actualizando zona:", zoneData);
+        await updateZone(editingZone.id, zoneData, token);
+        toast.success("Zona actualizada correctamente.");
+      } else {
+        console.log("Guardando zona");
+        await addZone(zoneData, token);
+        toast.success("Zona agregada correctamente.");
+      }
+
+      const updatedZones = await fetchZones(token, ["camion", "diasZona"]);
+      setZones(updatedZones);
+      setIsDialogOpen(false);
+    } catch (error) {
+      const errorResponse = error as ErrorResponse;
+      const formattedError = formatErrorResponse(errorResponse);
+
+      if (
+        formattedError.errorTitle
+          ?.toLowerCase()
+          .includes("interno del servidor") ||
+        errorResponse.codigo === 500
+      ) {
+        formattedError.errorTitle = "Error al guardar";
+        formattedError.errorMessage =
+          "Valide que no tenga una zona registrada con los mismos datos.";
+      }
+
+      setError(formattedError);
+      setShowAlert(true);
+      toast.error(formattedError.errorTitle);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (
+      window.confirm(
+        "¿Estás seguro de eliminar esta zona?. Esta acción no se puede deshacer",
+      )
+    ) {
+      deleteZone(id, token)
+        .then(() => {
+          setZones((prev) => prev.filter((zone) => zone.id !== id));
+          toast.success("Zona eliminada correctamente");
+        })
+        .catch((error) => {
+          const err = error as ErrorResponse;
+          const formatted = formatErrorResponse(err);
+          setError(formatted);
+          setShowAlert(true);
+          toast.error(err.mensaje);
+        });
+    }
+  };
 
   const { currentUser, isAuthenticated } = useAuth();
-  if (!isAuthenticated || !currentUser || currentUser.role !== 'Administrador') {
+  if (
+    !isAuthenticated ||
+    !currentUser ||
+    currentUser.role !== "Administrador"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Helmet>
@@ -262,7 +296,6 @@ const handleDelete = (id: number) => {
             <Button onClick={() => handleOpenDialog()}>
               <Plus className="w-4 h-4 mr-2" /> Agregar Zona
             </Button>
-
           </div>
 
           <Card>
@@ -286,7 +319,7 @@ const handleDelete = (id: number) => {
                       <TableCell>
                         {zone.camion
                           ? `${zone.camion.patente} - ${zone.camion.marca} ${zone.camion.modelo}`
-                          : 'Sin camión asignado'}
+                          : "Sin camión asignado"}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -329,7 +362,7 @@ const handleDelete = (id: number) => {
         <DialogContent className="border-3 border-primary">
           <DialogHeader>
             <DialogTitle className="border-secondary border-b-3 w-fit rounded-xs">
-              {editingZone ? 'Editar Zona' : 'Agregar Zona'}
+              {editingZone ? "Editar Zona" : "Agregar Zona"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
@@ -412,8 +445,8 @@ const handleDelete = (id: number) => {
                       onClick={() => handleDayToggle(diaId)}
                       className={`rounded-full px-3 py-2 text-center text-sm font-medium transition cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700'
-                          : 'bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white'
+                          ? "bg-emerald-500 text-white shadow-sm hover:bg-red-300 hover:text-gray-700"
+                          : "bg-gray-300 text-gray-500 hover:bg-emerald-500 hover:text-white"
                       }`}
                     >
                       {label}
@@ -447,7 +480,7 @@ const handleDelete = (id: number) => {
               </Button>
 
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Guardando...' : 'Guardar'}
+                {isLoading ? "Guardando..." : "Guardar"}
               </Button>
             </div>
           </form>
