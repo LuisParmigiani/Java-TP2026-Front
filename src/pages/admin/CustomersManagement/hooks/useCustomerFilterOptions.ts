@@ -1,14 +1,15 @@
 // src/pages/admin/CustomersManagement/hooks/useCustomersFilterOptions.ts
 
-import { useState, useEffect, useMemo } from 'react';
-import { fetchZones } from '../../../../services/ZoneService';
-import { fetchTrucks } from '../../../../services/TruckService';
-import { getDias } from '../../../../services/DiaService';
+import { useState, useEffect, useMemo } from "react";
+import { fetchZones } from "../../../../services/ZoneService";
+import { fetchTrucks } from "../../../../services/TruckService";
+import { getDias } from "../../../../services/DiaService";
 import type {
   ZonaResponse,
   CamionResponse,
   DiaResponse,
-} from '../../../../services/Interfaces';
+} from "../../../../services/Interfaces";
+import { useAuth } from "../../../../hooks/useAuth";
 
 export interface FilterOption {
   id: string | number;
@@ -21,6 +22,7 @@ export const useCustomersFilterOptions = () => {
   const [days, setDays] = useState<FilterOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     const loadFilterOptions = async () => {
@@ -33,16 +35,16 @@ export const useCustomersFilterOptions = () => {
           zonasData.map((zona: ZonaResponse) => ({
             id: zona.id,
             nombre: zona.nombre,
-          }))
+          })),
         );
 
         // Traer camiones
-        const camionesData = await fetchTrucks();
+        const camionesData = await fetchTrucks(token);
         setTrucks(
           camionesData.map((camion: CamionResponse) => ({
             id: camion.id,
             nombre: camion.patente,
-          }))
+          })),
         );
 
         // Traer días
@@ -51,13 +53,13 @@ export const useCustomersFilterOptions = () => {
           diasData.map((dia: DiaResponse) => ({
             id: dia.id,
             nombre: dia.nombre,
-          }))
+          })),
         );
 
         setError(null);
       } catch (err) {
-        console.error('Error loading filter options:', err);
-        setError('Error al cargar opciones de filtro');
+        console.error("Error loading filter options:", err);
+        setError("Error al cargar opciones de filtro");
         // Fallbacks mínimos
         setZones([]);
         setTrucks([]);
