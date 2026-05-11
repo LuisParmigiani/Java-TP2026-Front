@@ -58,13 +58,9 @@ export default function NewDirection({ open, onClose }: Props) {
     // Esperar 500ms antes de hacer la llamada
     const timeout = setTimeout(async () => {
       try {
-        if (query.trim().length > 0) {
-          const search = query;
-          const results = await searchPersonasByNameOnly(search, token);
-          setPersons(results);
-        } else {
-          setPersons([]); // Limpiar si está vacío
-        }
+        const search = query;
+        const results = await searchPersonasByNameOnly(search, token);
+        setPersons(results);
       } catch (error) {
         console.error("Error searching clients:", error);
         setPersons([]); // Limpiar si hay error
@@ -102,9 +98,18 @@ export default function NewDirection({ open, onClose }: Props) {
     };
   }, [searchTimeout]);
 
-  // Cargar Zonas al abrir el modal (Personas se cargan al buscar)
+  // Cargar Zonas al abrir el modal (Personas se cargan al buscar) y limpiar al cerrar
   useEffect(() => {
-    if (!open || loading) return;
+    if (!open) {
+      setFormInformation(initialForm);
+      setClientSearch("");
+      setErrors({});
+      setPersons([]);
+      setShowDropdown(false);
+      return;
+    }
+    if (loading) return;
+
     const loadData = async () => {
       try {
         const zonaResponse = await fetchZones(token);
@@ -182,8 +187,8 @@ export default function NewDirection({ open, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-        onClick={onClose}
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
       >
         <div
           className="relative"
@@ -357,7 +362,7 @@ export default function NewDirection({ open, onClose }: Props) {
 
             <div className="flex justify-end gap-4 mt-8">
               <Button
-                color="red"
+                variant="gray"
                 size="md"
                 onClick={onClose}
                 className="px-6"
@@ -367,7 +372,7 @@ export default function NewDirection({ open, onClose }: Props) {
                 Cancelar
               </Button>
               <Button
-                color="primary"
+                variant="primary"
                 size="md"
                 className="px-6 min-w-30"
                 type="submit"
@@ -385,122 +390,7 @@ export default function NewDirection({ open, onClose }: Props) {
             </div>
           </form>
         </div>
-        {errors.personaId && (
-          <span className="text-xs text-red-500">{errors.personaId}</span>
-        )}
       </div>
-      <form>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-gray-700">Calle</span>
-          <Input
-            type="text"
-            name="calle"
-            placeholder="Ej: Av. Siempre Viva"
-            value={formInformation.calle}
-            onChange={(value) =>
-              setFormInformation((current) => ({
-                ...current,
-                calle: typeof value === "string" ? value : "",
-              }))
-            }
-          />
-          {errors.calle && (
-            <span className="text-xs text-red-500">{errors.calle}</span>
-          )}
-        </label>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-700">Número</span>
-            <Input
-              type="text"
-              name="numero"
-              placeholder="Ej: 742"
-              value={formInformation.numero}
-              onChange={(value) =>
-                setFormInformation((current) => ({
-                  ...current,
-                  numero: typeof value === "string" ? value : "",
-                }))
-              }
-            />
-            {errors.numero && (
-              <span className="text-xs text-red-500">{errors.numero}</span>
-            )}
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-700">
-              Casa (opcional)
-            </span>
-            <Input
-              type="text"
-              name="casa"
-              placeholder="Ej: B"
-              value={formInformation.casa}
-              onChange={(value) =>
-                setFormInformation((current) => ({
-                  ...current,
-                  casa: typeof value === "string" ? value : "",
-                }))
-              }
-            />
-            {errors.casa && (
-              <span className="text-xs text-red-500">{errors.casa}</span>
-            )}
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-700">Zona</span>
-            <Select
-              value={
-                formInformation.zonaId ? formInformation.zonaId.toString() : ""
-              }
-              onValueChange={(value) =>
-                setFormInformation((current) => ({
-                  ...current,
-                  zonaId: parseInt(value),
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar zona" />
-              </SelectTrigger>
-              <SelectContent>
-                {zonas.map((zona) => (
-                  <SelectItem key={zona.id} value={zona.id.toString()}>
-                    {zona.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.zonaId && (
-              <span className="text-xs text-red-500">{errors.zonaId}</span>
-            )}
-          </label>
-        </div>
-
-        <div className="flex justify-end gap-4 mt-8">
-          <Button
-            variant="gray"
-            size="md"
-            onClick={onClose}
-            className="px-6"
-            type="button"
-          >
-            Cerrar
-          </Button>
-          <Button
-            color="primary"
-            size="md"
-            className="px-6"
-            type="submit"
-            onClick={saveDirection}
-          >
-            Crear
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }

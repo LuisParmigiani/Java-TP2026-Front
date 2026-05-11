@@ -1,12 +1,40 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../components/Dialog.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../../components/Dialog.tsx";
 import { Label } from "../../../components/Label.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/Select.tsx";
-import { Alert, AlertDescription, AlertTitle } from "../../../components/Alert.tsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/Select.tsx";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "../../../components/Alert.tsx";
 import { Button } from "../../../components/Button.tsx";
-import type { CamionResponse, CargaProductoRequest, CargaRequest, PersonaResponse, ProductoResponse } from "../../../services/Interfaces.ts";
+import type {
+  CamionResponse,
+  CargaProductoRequest,
+  CargaRequest,
+  PersonaResponse,
+  ProductoResponse,
+} from "../../../services/Interfaces.ts";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/Table.tsx";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/Table.tsx";
 // Asumo que tendrás una interfaz para los productos. Añadí 'products' a los props.
 interface diaLogProps {
   onSave: (data) => void; // Idealmente tipar esto luego con la estructura final
@@ -44,13 +72,13 @@ export const AddLoadDialog = ({
   // Estado para manejar las filas de la tabla
   const [lineas, setLineas] = useState<LineaProducto[]>([]);
   // ← AGREGAR ESTOS ESTADOS
-  const [tipo, setTipo] = useState('Carga');
-  const [camionId, setCamionId] = useState('');
-  const [empleadoId, setEmpleadoId] = useState('');
+  const [tipo, setTipo] = useState("Carga");
+  const [camionId, setCamionId] = useState("");
+  const [empleadoId, setEmpleadoId] = useState("");
   const handleAddProducto = () => {
     setLineas([
       ...lineas,
-      { id: Date.now(), productoId: '', llenos: 0, vacios: 0 },
+      { id: Date.now(), productoId: "", llenos: 0, vacios: 0 },
     ]);
   };
 
@@ -72,7 +100,7 @@ export const AddLoadDialog = ({
 
     // Validar que haya productos
     if (lineas.length === 0) {
-      alert('Debe agregar al menos un producto');
+      alert("Debe agregar al menos un producto");
       return;
     }
 
@@ -92,20 +120,20 @@ export const AddLoadDialog = ({
       cargaProductos,
     };
 
-    console.log('Carga a guardar:', cargaRequest);
+    console.log("Carga a guardar:", cargaRequest);
 
     // Enviar al padre
     onSave(cargaRequest);
 
     // Limpiar formulario
-    setTipo('');
-    setCamionId('');
-    setEmpleadoId('');
+    setTipo("");
+    setCamionId("");
+    setEmpleadoId("");
     setLineas([]);
   };
-const selectedProductIds = lineas
-  .map((linea) => linea.productoId)
-  .filter((id) => id !== '');
+  const selectedProductIds = lineas
+    .map((linea) => linea.productoId)
+    .filter((id) => id !== "");
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="border-3 border-primary max-w-2xl">
@@ -192,87 +220,121 @@ const selectedProductIds = lineas
                     </TableCell>
                   </TableRow>
                 )}
-                {lineas.map((linea) => (
-                  <TableRow key={linea.id}>
-                    <TableCell>
-                      <Select
-                        value={linea.productoId}
-                        onValueChange={(val) =>
-                          updateLinea(linea.id, 'productoId', val)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un producto" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.length > 0 ? (
-                            products.map((p) => {
-                              // Verificamos si este producto ya fue elegido en OTRA fila
-                              const isSelectedElsewhere =
-                                selectedProductIds.includes(p.id.toString()) &&
-                                linea.productoId !== p.id.toString();
+                {lineas.map((linea) => {
+                  const selectedProduct = products.find(
+                    (p) => p.id.toString() === linea.productoId,
+                  );
+                  const isPartida = tipo === "Carga";
+                  const maxLlenos =
+                    isPartida && selectedProduct
+                      ? selectedProduct.stock
+                      : undefined;
+                  return (
+                    <TableRow key={linea.id}>
+                      <TableCell>
+                        <Select
+                          value={linea.productoId}
+                          onValueChange={(val) => {
+                            const newProduct = products.find(
+                              (p) => p.id.toString() === val,
+                            );
+                            const clampedLlenos =
+                              isPartida &&
+                              newProduct &&
+                              linea.llenos > newProduct.stock
+                                ? newProduct.stock
+                                : linea.llenos;
+                            setLineas((prev) =>
+                              prev.map((l) =>
+                                l.id === linea.id
+                                  ? {
+                                      ...l,
+                                      productoId: val,
+                                      llenos: clampedLlenos,
+                                    }
+                                  : l,
+                              ),
+                            );
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un producto" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.length > 0 ? (
+                              products.map((p) => {
+                                // Verificamos si este producto ya fue elegido en OTRA fila
+                                const isSelectedElsewhere =
+                                  selectedProductIds.includes(
+                                    p.id.toString(),
+                                  ) && linea.productoId !== p.id.toString();
 
-                              // Si ya se eligió en otra fila, no lo renderizamos como opción
-                              if (isSelectedElsewhere) return null;
+                                // Si ya se eligió en otra fila, no lo renderizamos como opción
+                                if (isSelectedElsewhere) return null;
 
-                              return (
-                                <SelectItem key={p.id} value={p.id.toString()}>
-                                  {p.nombre}
-                                </SelectItem>
-                              );
-                            })
-                          ) : (
-                            <SelectItem value="empty" disabled>
-                              No hay productos disponibles
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <input
-                        type="number"
-                        min="0"
-                        value={linea.llenos || ''}
-                        onChange={(e) =>
-                          updateLinea(
-                            linea.id,
-                            'llenos',
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                        className="w-full border rounded-md px-2 py-1 text-center"
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <input
-                        type="number"
-                        min="0"
-                        value={linea.vacios || ''}
-                        onChange={(e) =>
-                          updateLinea(
-                            linea.id,
-                            'vacios',
-                            parseInt(e.target.value) || 0,
-                          )
-                        }
-                        className="w-full border rounded-md px-2 py-1 text-center"
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button" // Previene submit accidental
-                        variant="danger"
-                        size="icon"
-                        onClick={() => handleRemoveProducto(linea.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                                return (
+                                  <SelectItem
+                                    key={p.id}
+                                    value={p.id.toString()}
+                                  >
+                                    {p.nombre}
+                                  </SelectItem>
+                                );
+                              })
+                            ) : (
+                              <SelectItem value="empty" disabled>
+                                No hay productos disponibles
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          min="0"
+                          value={linea.llenos || ""}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            const clamped =
+                              maxLlenos !== undefined
+                                ? Math.min(val, maxLlenos)
+                                : val;
+                            updateLinea(linea.id, "llenos", clamped);
+                          }}
+                          className="w-full border rounded-md px-2 py-1 text-center"
+                          placeholder="0"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          min="0"
+                          value={linea.vacios || ""}
+                          onChange={(e) =>
+                            updateLinea(
+                              linea.id,
+                              "vacios",
+                              parseInt(e.target.value) || 0,
+                            )
+                          }
+                          className="w-full border rounded-md px-2 py-1 text-center"
+                          placeholder="0"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button" // Previene submit accidental
+                          variant="danger"
+                          size="icon"
+                          onClick={() => handleRemoveProducto(linea.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -308,11 +370,11 @@ const selectedProductIds = lineas
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Guardando...' : 'Guardar'}
+              {isLoading ? "Guardando..." : "Guardar"}
             </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
   );
-};;
+};
