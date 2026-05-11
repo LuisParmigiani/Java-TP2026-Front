@@ -219,7 +219,6 @@ const TrucksManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Marca</TableHead>
                     <TableHead>Modelo</TableHead>
                     <TableHead>Patente</TableHead>
@@ -231,7 +230,6 @@ const TrucksManagement = () => {
                 <TableBody>
                   {trucks.map((truck) => (
                     <TableRow key={truck.id}>
-                      <TableCell className="font-medium">{truck.id}</TableCell>
                       <TableCell>{truck.marca}</TableCell>
                       <TableCell>{truck.modelo}</TableCell>
                       <TableCell>{truck.patente}</TableCell>

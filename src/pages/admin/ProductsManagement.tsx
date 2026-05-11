@@ -257,7 +257,6 @@ const ProductsManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Foto</TableHead>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Detalle</TableHead>
@@ -270,9 +269,6 @@ const ProductsManagement = () => {
                 <TableBody>
                   {products.map((product) => (
                     <TableRow key={product.id}>
-                      <TableCell className="font-medium">
-                        {product.id}
-                      </TableCell>
                       <TableCell>
                         {!product.imagenUrl ||
                         product.imagenUrl === "./../../assets/producto.jpeg" ? (
