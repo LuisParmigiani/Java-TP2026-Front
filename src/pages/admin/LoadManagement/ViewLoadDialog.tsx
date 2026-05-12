@@ -81,16 +81,16 @@ export const ViewLoadDialog = ({
   // Helper para determinar el color de los Envases Llenos (Reconciliación)
   const getLlenoStyle = (llevado: number, vendidos: number, traido: number) => {
     const saldoTeorico = llevado - vendidos;
-    if (saldoTeorico === traido) return 'bg-[#22c55e] text-black'; // OK
-    if (saldoTeorico < traido) return 'bg-[#3b82f6] text-black'; // SOBRAN
-    return 'bg-[#ef4444] text-black'; // FALTAN (ROBO)
+    if (saldoTeorico === traido) return 'bg-green-500 text-black'; // OK
+    if (saldoTeorico < traido) return 'bg-blue-500 text-black'; // SOBRAN (Trajeron mas de los que se vendieron)
+    return 'bg-red-500 text-black'; // FALTAN (ROBO O ERROR, no se trajeron todos los que se vendieron)
   };
 
   // Helper para determinar el color de los Envases Vacíos
   const getVacioStyle = (juntados: number, traido: number) => {
-    if (juntados === traido) return 'bg-[#22c55e] text-black'; // OK
-    if (juntados > traido) return 'bg-[#3b82f6] text-black'; // SOBRAN
-    return 'bg-[#ef4444] text-black'; // SE PERDIERON
+    if (juntados === traido) return 'bg-green-500 text-black'; // OK
+    if (juntados > traido) return 'bg-red-500 text-black'; // Faltan (no se trajeron todos los vacios)
+    return 'bg-blue-500 text-black'; // Sobran (se trajeron vacios que no se pusieron en la app)
   };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -130,14 +130,21 @@ export const ViewLoadDialog = ({
                 <TableRow>
                   <TableHead>Producto</TableHead>
                   <TableHead className="text-center">
-                    Envases Llevados
+                    Llenos Llevados
                   </TableHead>
                   <TableHead className="text-center">
-                    Envases Vendidos
+                    Llenos Vendidos
                   </TableHead>
+                  <TableHead className="text-center">
+                    Llenos Traidos
+                  </TableHead>
+                  <TableHead className="text-center">
+                  Diferencia Llenos
+                  </TableHead>
+                  <TableHead className="text-center">Envases Juntados</TableHead>
                   <TableHead className="text-center">Envases Traídos</TableHead>
-                  <TableHead className="text-center">Vacíos Juntados</TableHead>
-                  <TableHead className="text-center">Vacíos Traídos</TableHead>
+                  <TableHead className="text-center">Resultado vacios</TableHead>
+                  
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -159,32 +166,52 @@ export const ViewLoadDialog = ({
                       <TableCell className="text-center">
                         {fila.llevado}
                       </TableCell>
-                      <TableCell className="text-center font-semibold text-blue-600">
+                      <TableCell className="text-center ">
                         {fila.vendidos}
                       </TableCell>
 
                       {/* Columna Envases Traídos con lógica condicional */}
                       <TableCell
-                        className={`text-center font-bold ${getLlenoStyle(fila.llevado, fila.vendidos, fila.traidoLleno)}`}
+                        className={`text-center font-bold `}
                       >
                         {fila.traidoLleno}
                       </TableCell>
+                      <TableCell
+                        className={`text-center font-bold ${getLlenoStyle(fila.llevado, fila.vendidos, fila.traidoLleno)}`}
+                      >
+                        
+                        {(fila.llevado - fila.vendidos - fila.traidoLleno) < 0 ? 
+                        `${Math.abs(fila.llevado - fila.vendidos - fila.traidoLleno)}`
+                         : (fila.llevado - fila.vendidos - fila.traidoLleno) === 0 ? '0' 
+                         : `${Math.abs(fila.llevado - fila.vendidos - fila.traidoLleno)}`}
+                      </TableCell>
 
-                      <TableCell className="text-center font-semibold text-green-600">
+                      <TableCell className="text-center font-semibold">
                         {fila.vaciosJuntados}
+                      </TableCell>
+                      <TableCell
+                        className={`text-center font-bold `}
+                      >
+                        {fila.vacioTraido}
                       </TableCell>
 
                       {/* Columna Vacíos Traídos con lógica condicional */}
                       <TableCell
                         className={`text-center font-bold ${getVacioStyle(fila.vaciosJuntados, fila.vacioTraido)}`}
                       >
-                        {fila.vacioTraido}
+                        {fila.vaciosJuntados - fila.vacioTraido}
                       </TableCell>
+
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
+          </div>
+          <div className = 'flex flex-col justify-items-start'>
+            <span className ='bg-green-500 text-black px-2 py-1 rounded-md text-xs font-semibold max-w-18 mb-1'>- OK</span>
+            <span className ='bg-blue-500 text-black px-2 py-1 rounded-md text-xs font-semibold max-w-18 mb-1 text-nowrap'>- SOBRAN</span>
+            <span className ='bg-red-500 text-black px-2 py-1 rounded-md text-xs font-semibold max-w-18 mb-1'>- FALTAN</span>
           </div>
 
           <div className="flex justify-end pt-2">
@@ -196,4 +223,4 @@ export const ViewLoadDialog = ({
       </DialogContent>
     </Dialog>
   );
-};;
+};
