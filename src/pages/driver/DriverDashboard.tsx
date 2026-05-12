@@ -1,115 +1,171 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
-import Footer from '../../components/Footer';
-import NavBar from '../../components/NavBar';
-import InformationCard from '../../components/InformationCard';
-import LinkButton from '../../components/LinkButton';
-import { Alert, AlertDescription, AlertTitle } from '../../components/Alert';
-import { Button } from '../../components/Button';
-import { getDriverInfo } from '../../services/ClientService';
-import { useAuth } from '../../hooks/useAuth';
-import type { PersonaResponse } from '../../services/Interfaces';
-import AddCustomerDialog from './AddCustomerDialog';
-import NewDirection from '../../components/CreateDirection';
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import Footer from "../../components/Footer";
+import NavBar from "../../components/NavBar";
+import InformationCard from "../../components/InformationCard";
+import LinkButton from "../../components/LinkButton";
+import { Alert, AlertDescription, AlertTitle } from "../../components/Alert";
+import { Button } from "../../components/Button";
+import { getDriverInfo } from "../../services/ClientService";
+import { useAuth } from "../../hooks/useAuth";
+import type { PersonaResponse } from "../../services/Interfaces";
+import AddCustomerDialog from "./AddCustomerDialog";
+import NewDirection from "../../components/CreateDirection";
+import { addPersona, updatePersona } from "../../services/PersonaService";
 
 export default function DriverDashboard() {
-    const { token,loading } = useAuth();
-    const [userData, setUserData] = useState(null);
-    const [error, setError] = useState<string | null>(null);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isDirectionOpen, setIsDirectionOpen] = useState(false);
-    const [editingCustomer, setEditingCustomer] = useState<PersonaResponse | null>(null);
+  const { token, loading } = useAuth();
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDirectionOpen, setIsDirectionOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] =
+    useState<PersonaResponse | null>(null);
 
-    useEffect(() => {
-        if (!token && loading) return;
-        const fetchData = async () => {
-            try {
-                setError(null);
-                const result = await getDriverInfo(token, ['camion', 'carga', 'persona']);
-                setUserData(result);
-            } catch (err) {
-                console.error('Error fetching user data:', err);
-                setError(err instanceof Error ? err.message : 'Error al obtener información del conductor');
-            }
-        };
-        fetchData();
-    }, [token,loading]);
-
-    const handleOpenDialog = (customer: PersonaResponse | null = null) => {
-        setEditingCustomer(customer);
-        setIsDialogOpen(true);
+  useEffect(() => {
+    if (!token && loading) return;
+    const fetchData = async () => {
+      try {
+        setError(null);
+        const result = await getDriverInfo(token, [
+          "camion",
+          "carga",
+          "persona",
+        ]);
+        setUserData(result);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Error al obtener información del conductor",
+        );
+      }
     };
+    fetchData();
+  }, [token, loading]);
 
-    const handleSave = (_customer: PersonaResponse, isEditing: boolean) => {
-        toast.success(isEditing ? 'Cliente actualizado correctamente.' : 'Cliente agregado correctamente.');
-        setIsDialogOpen(false);
-    };
+  const handleOpenDialog = (customer: PersonaResponse | null = null) => {
+    setEditingCustomer(customer);
+    setIsDialogOpen(true);
+  };
+  const handleSave = async (newCustomer: PersonaResponse): Promise<boolean> => {
+    try {
+      await addPersona(newCustomer, token);
+      toast.success("Cliente agregado correctamente.");
 
-    return (
-        <div>
-            <NavBar />
+      // Recargar datos (no cambiamos página, se recargan en el useEffect)
+      return true;
+    } catch (error) {
+      toast.error("Error al agregar el cliente.");
+      setIsDialogOpen(false);
+      return false;
+    }
+  };
 
-            {error && (
-                <div className='mx-10 mt-5'>
-                    <Alert variant="danger" onClose={() => setError(null)}>
-                        <AlertTitle>Error al cargar información</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                </div>
-            )}
+  return (
+    <div>
+      <NavBar />
 
-            {userData ? (
-                <>
-                    <div className='mx-10 mt-9'>
-                        <h3 className='text-4xl font-bold ml-14'>
-                            Conductor: {userData?.persona?.nombre} {userData?.persona?.apellido}
-                        </h3>
-                    </div>
-
-                    <div className='sm:m-10 p-4 rounded-2xl'>
-                        <InformationCard
-                            svg={
-                                <svg width="48" height="48" fill="#000000" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M2.84375 13C1.285156 13 0 14.285156 0 15.84375L0 42C0 43.660156 1.339844 45 3 45L7.09375 45C7.570313 47.835938 10.035156 50 13 50C15.964844 50 18.429688 47.835938 18.90625 45L28.15625 45C28.894531 45 29.554688 44.6875 30.0625 44.21875C30.582031 44.675781 31.246094 44.992188 32 45L33.09375 45C33.570313 47.835938 36.035156 50 39 50C42.300781 50 45 47.300781 45 44C45 40.699219 42.300781 38 39 38C36.035156 38 33.570313 40.164063 33.09375 43L32 43C31.8125 43 31.527344 42.871094 31.3125 42.65625C31.097656 42.441406 31 42.183594 31 42L31 23C31 22.625 31.625 22 32 22L40 22C40.785156 22 41.890625 22.839844 42.65625 23.75L42.84375 24L38 24C36.40625 24 35 25.289063 35 27L35 31C35 31.832031 35.375 32.5625 35.90625 33.09375C36.4375 33.625 37.167969 34 38 34L48 34L48 42C48 42.375 47.375 43 47 43L45 43L45 45L47 45C48.660156 45 50 43.660156 50 42L50 32.375C50 30.085938 48.40625 28.0625 48.375 28.0625L44.25 22.5625L44.21875 22.5C43.296875 21.386719 41.914063 20 40 20L32 20C31.644531 20 31.316406 20.074219 31 20.1875L31 15.90625C31 14.371094 29.789063 13 28.1875 13ZM2.84375 15L28.1875 15C28.617188 15 29 15.414063 29 15.90625L29 42.15625C29 42.625 28.628906 43 28.15625 43L18.90625 43C18.429688 40.164063 15.964844 38 13 38C10.035156 38 7.570313 40.164063 7.09375 43L3 43C2.625 43 2 42.371094 2 42L2 15.84375C2 15.375 2.367188 15 2.84375 15ZM38 26L44.34375 26L46.78125 29.25C46.78125 29.25 47.6875 30.800781 47.875 32L38 32C37.832031 32 37.5625 31.875 37.34375 31.65625C37.125 31.4375 37 31.167969 37 31L37 27C37 26.496094 37.59375 26 38 26ZM13 40C15.222656 40 17 41.777344 17 44C17 46.222656 15.222656 48 13 48C10.777344 48 9 46.222656 9 44C9 41.777344 10.777344 40 13 40ZM39 40C41.222656 40 43 41.777344 43 44C43 46.222656 41.222656 48 39 48C36.777344 48 35 46.222656 35 44C35 41.777344 36.777344 40 39 40Z"></path></g></svg>
-                            }
-                            miniTitle="Camion Asignado:"
-                            title={userData?.cargas?.[0]?.camion?.patente ? `Patente ${userData.cargas[0].camion.patente}` : 'No se le asigno un camion'}
-                            description={userData?.cargas?.[0]?.camion?.modelo ? `Modelo ${userData.cargas[0].camion.modelo}` : 'No se le asigno un camion'}
-                            cardColor="white"
-                            titleColor="primary"
-                            descriptionColor="gray"
-                            size="sm"
-                        />
-                    </div>
-
-                    <div className='w-full p-5'>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center'>
-                            <LinkButton name="Ver Recrrido" url="/driver/route" variant="outline" size="md" />
-                            <LinkButton name="Clientes" url="/driver/client" variant="outline" size="md" />
-                            <Button onClick={() => handleOpenDialog()}>
-                                <Plus className="w-4 h-4 mr-2" /> Agregar Cliente
-                            </Button>
-                            <Button onClick={() => setIsDirectionOpen(true)}>
-                                <Plus className="w-4 h-4 mr-2" /> Agregar Domicilio
-                            </Button>
-                        </div>
-                    </div>
-                </>
-            ) : (
-                <div className='mx-10 mt-9 p-4 bg-gray-100 rounded'>
-                    <p className='text-gray-600'>Cargando información del conductor...</p>
-                </div>
-            )}
-
-            <Footer />
-
-            <AddCustomerDialog
-                open={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                editingCustomer={editingCustomer}
-                onSave={handleSave}
-            />
-            <NewDirection open={isDirectionOpen} onClose={() => setIsDirectionOpen(false)} />
+      {error && (
+        <div className="mx-10 mt-5">
+          <Alert variant="danger" onClose={() => setError(null)}>
+            <AlertTitle>Error al cargar información</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
-    );
+      )}
+
+      {userData ? (
+        <>
+          <div className="mx-10 mt-9">
+            <h3 className="text-4xl font-bold ml-14">
+              Conductor: {userData?.persona?.nombre}{" "}
+              {userData?.persona?.apellido}
+            </h3>
+          </div>
+
+          <div className="sm:m-10 p-4 rounded-2xl">
+            <InformationCard
+              svg={
+                <svg
+                  width="48"
+                  height="48"
+                  fill="#000000"
+                  viewBox="0 0 50 50"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path d="M2.84375 13C1.285156 13 0 14.285156 0 15.84375L0 42C0 43.660156 1.339844 45 3 45L7.09375 45C7.570313 47.835938 10.035156 50 13 50C15.964844 50 18.429688 47.835938 18.90625 45L28.15625 45C28.894531 45 29.554688 44.6875 30.0625 44.21875C30.582031 44.675781 31.246094 44.992188 32 45L33.09375 45C33.570313 47.835938 36.035156 50 39 50C42.300781 50 45 47.300781 45 44C45 40.699219 42.300781 38 39 38C36.035156 38 33.570313 40.164063 33.09375 43L32 43C31.8125 43 31.527344 42.871094 31.3125 42.65625C31.097656 42.441406 31 42.183594 31 42L31 23C31 22.625 31.625 22 32 22L40 22C40.785156 22 41.890625 22.839844 42.65625 23.75L42.84375 24L38 24C36.40625 24 35 25.289063 35 27L35 31C35 31.832031 35.375 32.5625 35.90625 33.09375C36.4375 33.625 37.167969 34 38 34L48 34L48 42C48 42.375 47.375 43 47 43L45 43L45 45L47 45C48.660156 45 50 43.660156 50 42L50 32.375C50 30.085938 48.40625 28.0625 48.375 28.0625L44.25 22.5625L44.21875 22.5C43.296875 21.386719 41.914063 20 40 20L32 20C31.644531 20 31.316406 20.074219 31 20.1875L31 15.90625C31 14.371094 29.789063 13 28.1875 13ZM2.84375 15L28.1875 15C28.617188 15 29 15.414063 29 15.90625L29 42.15625C29 42.625 28.628906 43 28.15625 43L18.90625 43C18.429688 40.164063 15.964844 38 13 38C10.035156 38 7.570313 40.164063 7.09375 43L3 43C2.625 43 2 42.371094 2 42L2 15.84375C2 15.375 2.367188 15 2.84375 15ZM38 26L44.34375 26L46.78125 29.25C46.78125 29.25 47.6875 30.800781 47.875 32L38 32C37.832031 32 37.5625 31.875 37.34375 31.65625C37.125 31.4375 37 31.167969 37 31L37 27C37 26.496094 37.59375 26 38 26ZM13 40C15.222656 40 17 41.777344 17 44C17 46.222656 15.222656 48 13 48C10.777344 48 9 46.222656 9 44C9 41.777344 10.777344 40 13 40ZM39 40C41.222656 40 43 41.777344 43 44C43 46.222656 41.222656 48 39 48C36.777344 48 35 46.222656 35 44C35 41.777344 36.777344 40 39 40Z"></path>
+                  </g>
+                </svg>
+              }
+              miniTitle="Camion Asignado:"
+              title={
+                userData?.cargas?.[0]?.camion?.patente
+                  ? `Patente ${userData.cargas[0].camion.patente}`
+                  : "No se le asigno un camion"
+              }
+              description={
+                userData?.cargas?.[0]?.camion?.modelo
+                  ? `Modelo ${userData.cargas[0].camion.modelo}`
+                  : "No se le asigno un camion"
+              }
+              cardColor="white"
+              titleColor="primary"
+              descriptionColor="gray"
+              size="sm"
+            />
+          </div>
+
+          <div className="w-full p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+              <LinkButton
+                name="Ver Recrrido"
+                url="/driver/route"
+                variant="outline"
+                size="md"
+              />
+              <LinkButton
+                name="Clientes"
+                url="/driver/client"
+                variant="outline"
+                size="md"
+              />
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="w-4 h-4 mr-2" /> Agregar Cliente
+              </Button>
+              <Button onClick={() => setIsDirectionOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" /> Agregar Domicilio
+              </Button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="mx-10 mt-9 p-4 bg-gray-100 rounded">
+          <p className="text-gray-600">Cargando información del conductor...</p>
+        </div>
+      )}
+
+      <Footer />
+
+      <AddCustomerDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        editingCustomer={editingCustomer}
+        onSave={handleSave}
+      />
+      <NewDirection
+        open={isDirectionOpen}
+        onClose={() => setIsDirectionOpen(false)}
+      />
+    </div>
+  );
 }
