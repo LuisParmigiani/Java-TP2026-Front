@@ -1,24 +1,22 @@
-import { apiGet,apiPut,apiPost,apiDelete } from "./baseClient";
-import type { ZonaResponse,ErrorResponse, DiaZonaRequest } from "./Interfaces";
+import { apiGet, apiPut, apiPost, apiDelete } from "./baseClient";
+import type { ZonaResponse, ErrorResponse, DiaZonaRequest } from "./Interfaces";
 import { formatErrorResponse } from "../lib/utils.ts";
 
-export async function fetchZones( token: string,pupulate?: string[]): Promise<ZonaResponse[]> {
-    try{
-        
-        const response = await apiGet('/zona?populate=' + (pupulate?.join(',') || ''),token);
-        return response as ZonaResponse[];
-        console.log('Fetched zones:', response);
+export async function fetchZones(token: string, pupulate?: string[]): Promise<ZonaResponse[]> {
+    try {
 
-    }catch(error){
+        const response = await apiGet('/zona?populate=' + (pupulate?.join(',') || ''), token);
+        return response as ZonaResponse[];
+
+    } catch (error) {
         const errorResponse = error as ErrorResponse;
-        const formattedError = formatErrorResponse(error as ErrorResponse);
-        console.log('Error fetching zones:', formattedError);
+        formatErrorResponse(error as ErrorResponse);
         throw errorResponse;
     }
 }
 
-export async function updateZone(id: number, dataInput: { nombre: string; detalle: string ; camionId:number , diasZona: DiaZonaRequest[] },token: string): Promise<ZonaResponse> {
-    try{
+export async function updateZone(id: number, dataInput: { nombre: string; detalle: string; camionId: number, diasZona: DiaZonaRequest[] }, token: string): Promise<ZonaResponse> {
+    try {
         const diaZonaList = []
         for (const diaZona of dataInput.diasZona) {
             diaZonaList.push({
@@ -32,20 +30,18 @@ export async function updateZone(id: number, dataInput: { nombre: string; detall
             camionId: dataInput.camionId,
             diasZona: diaZonaList,
         }
-        console.log('Data to update zone:', entidad);
-        const response = await apiPut(`/zona/${id}`, entidad,token);
+        const response = await apiPut(`/zona/${id}`, entidad, token);
         return response as ZonaResponse;
     }
-    catch(error){
-    const errorResponse = error as ErrorResponse;
-    const formattedError = formatErrorResponse(error as ErrorResponse);
-    console.log('Error updating zone:', formattedError);
-    throw errorResponse;
-}
+    catch (error) {
+        const errorResponse = error as ErrorResponse;
+        formatErrorResponse(error as ErrorResponse);
+        throw errorResponse;
+    }
 }
 
-export async function addZone(dataInput: { nombre: string; detalle: string ; camionId:number,diasZona: DiaZonaRequest[] }, token: string): Promise<ZonaResponse> {
-    try{
+export async function addZone(dataInput: { nombre: string; detalle: string; camionId: number, diasZona: DiaZonaRequest[] }, token: string): Promise<ZonaResponse> {
+    try {
         const diaZonaList = []
         for (const diaZona of dataInput.diasZona) {
             diaZonaList.push({
@@ -59,25 +55,22 @@ export async function addZone(dataInput: { nombre: string; detalle: string ; cam
             camionId: dataInput.camionId,
             diasZona: diaZonaList,
         }
-        console.log('Data to add zone:', entidad);
-        const response = await apiPost(`/zona`, entidad,token);
+        const response = await apiPost(`/zona`, entidad, token);
         return response as ZonaResponse;
     }
-    catch(error){
+    catch (error) {
         const errorResponse = error as ErrorResponse;
-        const formattedError = formatErrorResponse(error as ErrorResponse);
-        console.log('Error adding zone:', formattedError);
-    throw errorResponse;
-}
+        formatErrorResponse(error as ErrorResponse);
+        throw errorResponse;
+    }
 }
 
 export async function deleteZone(id: number, token: string): Promise<void> {
     try {
-        await apiDelete(`/zona/${id}`,token);
+        await apiDelete(`/zona/${id}`, token);
     } catch (error) {
         const errorResponse = error as ErrorResponse;
-        const formattedError = formatErrorResponse(error as ErrorResponse);
-        console.log('Error deleting zone:', formattedError);
+        formatErrorResponse(error as ErrorResponse);
         throw errorResponse;
     }
 }

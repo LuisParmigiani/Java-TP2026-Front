@@ -51,7 +51,9 @@ export default function OrderDetailModal({
       setPagado(sale.pagado ?? false);
     }
     const searchDirectionProducts = async () => {
-      const results = await getById(delivery?.domicilio?.id ?? 0, token, ['productosDomicilio']);
+      const domicilioId = delivery?.domicilio?.id;
+      if (!domicilioId) return;
+      const results = await getById(domicilioId, token, ['productosDomicilio']);
       setDirectionProducts(results.productosDomicilio ?? null);
     };
     searchDirectionProducts();
@@ -83,10 +85,8 @@ export default function OrderDetailModal({
             productoZonaId: linea.productoZona?.id,
           })),
       };
-      const response = await createDriverSale(ventaRequest, montoPagado, vaciosQty, token);
+      await createDriverSale(ventaRequest, montoPagado, vaciosQty, token);
 
-      console.log("Sale created for driver:", response);
-      console.log("Monto pagado:", montoPagado);
       onSaleUpdated?.();
       onClose();
     } catch (e) {

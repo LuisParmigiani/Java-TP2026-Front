@@ -1,6 +1,13 @@
 const DEFAULT_API_BASE_URL = "http://localhost:8080/api"; //después se borra y se usa el .env
 import type { ErrorResponse } from "./Interfaces.ts";
 
+interface CustomError extends Error {
+  mensaje?: string;
+  errores?: unknown;
+  codigo?: number;
+  status?: number;
+}
+
 export const API_BASE_URL =
   (import.meta.env?.VITE_API_BASE_URL as string | undefined) ??
   DEFAULT_API_BASE_URL;
@@ -32,7 +39,7 @@ export async function apiFetch<T>(
     headers: buildHeaders(token, options?.headers),
   });
 
-  let result: any;
+  let result;
   try {
     result = await response.json();
   } catch {
@@ -47,7 +54,7 @@ export async function apiFetch<T>(
         errores: result.errores,
         codigo: result.codigo,
       };
-      const error: any = new Error(result.mensaje);
+      const error: CustomError = new Error(result.mensaje);
       error.mensaje = errorResponse.mensaje;
       error.errores = errorResponse.errores;
       error.codigo = errorResponse.codigo;
@@ -55,7 +62,7 @@ export async function apiFetch<T>(
     }
 
     // Fallback si no tiene estructura ErrorResponse
-    const error: any = new Error(
+    const error: CustomError = new Error(
       result.error || `Error: ${response.status} ${response.statusText}`,
     );
     error.status = response.status;
@@ -74,7 +81,7 @@ export async function apiGet<T>(path: string, token?: string): Promise<T> {
 // POST
 export async function apiPost<T>(
   path: string,
-  data: any,
+  data,
   token?: string,
 ): Promise<T> {
   return apiFetch<T>(path, token, {
@@ -98,7 +105,7 @@ export async function apiPostFormData<T>(
     },
   });
 
-  let result: any;
+  let result;
   try {
     result = await response.json();
   } catch {
@@ -107,7 +114,7 @@ export async function apiPostFormData<T>(
 
   if (!response.ok) {
     // Manejo de error igual que apiFetch
-    const error: any = new Error(
+    const error: CustomError = new Error(
       result.error || `Error: ${response.status} ${response.statusText}`,
     );
     error.status = response.status;
@@ -120,7 +127,7 @@ export async function apiPostFormData<T>(
 // PUT
 export async function apiPut<T>(
   path: string,
-  data?: any,
+  data?,
   token?: string,
 ): Promise<T> {
   return apiFetch<T>(path, token, {
@@ -144,14 +151,14 @@ export async function apiPutFormData<T>(
       // No Content-Type aquí
     },
   });
-  let result: any;
+  let result;
   try {
     result = await response.json();
   } catch {
     result = {};
   }
   if (!response.ok) {
-    const error: any = new Error(
+    const error: CustomError = new Error(
       result.error || `Error: ${response.status} ${response.statusText}`,
     );
     error.status = response.status;
@@ -163,7 +170,7 @@ export async function apiPutFormData<T>(
 //PATCH
 export async function apiPatch<T>(
   path: string,
-  data?: any,
+  data?,
   token?: string,
 ): Promise<T> {
   return apiFetch<T>(path, token, {

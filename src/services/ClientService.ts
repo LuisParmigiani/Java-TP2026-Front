@@ -18,31 +18,26 @@ export async function UpdateUserAPersona(
   file?: File,
   populate?: string[],
 ): Promise<UserResponse> {
-  try {
-    const multipartFormData = new FormData();
-    multipartFormData.append(
-      "entidad",
-      new Blob([JSON.stringify(formData)], { type: "application/json" }),
-    );
+  const multipartFormData = new FormData();
+  multipartFormData.append(
+    "entidad",
+    new Blob([JSON.stringify(formData)], { type: "application/json" }),
+  );
 
-    if (file) {
-      multipartFormData.append("file", file);
-    }
-
-    let query = "";
-    if (populate && populate.length > 0) {
-      query = "?populate=" + populate.join(",");
-    }
-
-    return await apiPutFormData<UserResponse>(
-      `/usuario/updatePersona${query}`,
-      multipartFormData,
-      token,
-    );
-  } catch (error) {
-    console.error("Error updating user persona:", error);
-    throw error;
+  if (file) {
+    multipartFormData.append("file", file);
   }
+
+  let query = "";
+  if (populate && populate.length > 0) {
+    query = "?populate=" + populate.join(",");
+  }
+
+  return await apiPutFormData<UserResponse>(
+    `/usuario/updatePersona${query}`,
+    multipartFormData,
+    token,
+  );
 }
 
 export async function getDriverInfo(

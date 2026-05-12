@@ -13,7 +13,6 @@ export async function fetchTrucks(token: string): Promise<CamionResponse[]> {
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error fetching trucks:", errorResponse);
     throw errorResponse;
   }
 }
@@ -24,11 +23,9 @@ export async function fetchTruckById(
   try {
     const response = await apiGet<CamionResponse>(`/camion/${truckId}`, token);
 
-    console.log(`Fetched truck with ID ${truckId}:`, response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(`Error fetching truck with ID ${truckId}:`, errorResponse);
     throw errorResponse;
   }
 }
@@ -38,13 +35,10 @@ export async function addTruck(
   token: string,
 ): Promise<CamionResponse> {
   try {
-    console.log("guardadno camion:", camion);
     const response = await apiPost<CamionResponse>("/camion", camion, token);
-    console.log("Added camion:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error adding camion:", errorResponse);
     throw errorResponse;
   }
 }
@@ -61,11 +55,9 @@ export async function updateTruck(
       updatedData,
       token,
     );
-    console.log("Updated camion:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error updating camion:", errorResponse);
     throw errorResponse;
   }
 }
@@ -80,11 +72,9 @@ export async function disableTruck(
       null,
       token,
     );
-    console.log("Disabled truck:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error disabling truck:", errorResponse);
     throw errorResponse;
   }
 }
@@ -92,11 +82,9 @@ export async function disableTruck(
 export async function getActiveTrucks(): Promise<CamionResponse[]> {
   try {
     const response = await apiGet<CamionResponse[]>("/camion/active");
-    console.log("Fetched active trucks:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error fetching active trucks:", errorResponse);
     throw errorResponse;
   }
 }
@@ -119,10 +107,7 @@ export async function getDiaZonasByTruckAndDay(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(
-      `Error fetching dia-zona for truck ${truckId}, day ${day}:`,
-      errorResponse,
-    );
+
     throw errorResponse;
   }
 }
@@ -146,16 +131,12 @@ export async function getDiaZonasByTruckAndMe(
       query += `&direccion=${direccion}`;
     }
     const url = `dia-zona/camion/me/dia/${day}?${populate ? `populate=${populate.join(",")}` : ""}${query}`;
-    console.log(url);
 
     const response = await apiGet<DiaZonaResponse[]>(url, token);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(
-      `Error fetching dia-zona for truck, day ${day}:`,
-      errorResponse,
-    );
+
     throw errorResponse;
   }
 }
@@ -173,11 +154,9 @@ export async function updateDiaZonaWithOrdenes(
       `/dia-zona/${diaZonaId}/ordenes`,
       request,
     );
-    console.log(`Updated dia-zona ${diaZonaId} with new ordenes:`, response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(`Error updating dia-zona ${diaZonaId}:`, errorResponse);
     throw errorResponse;
   }
 }
@@ -185,10 +164,9 @@ export async function updateDiaZonaWithOrdenes(
 export async function active(token: string): Promise<CamionResponse[]> {
   try {
     const response = await apiGet<CamionResponse[]>("/camion/active", token);
-    console.log("Activated truck:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error activating truck:", errorResponse);
+    throw errorResponse;
   }
 }

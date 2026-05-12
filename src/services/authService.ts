@@ -17,7 +17,6 @@ export async function login(
     email,
     contrasena: password,
   });
-  console.log("Login response:", response);
   return response;
 }
 

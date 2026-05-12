@@ -18,14 +18,9 @@ export async function getAll(
 export async function postExpense(
     expense: GastoRequest,
 ): Promise<GastoResponse> {
-    try {
-        const response = await apiPost<GastoResponse>(
-            "/gasto",
-            expense
-        );
-        return response;
-    } catch (error) {
-        console.error("Error posting new expense:", error);
-        throw error;
-    }
+    const response = await apiPost<GastoResponse>(
+        "/gasto",
+        expense
+    );
+    return response;
 }

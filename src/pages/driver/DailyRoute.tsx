@@ -33,37 +33,36 @@ const DailyRoutePage = () => {
 
 
 
-  const { token ,loading:loadingAuth} = useAuth();
+  const { token, loading: loadingAuth } = useAuth();
 
   // Fetch all available zones once on component mount
   useEffect(() => {
-    if(loadingAuth) return; // Wait for auth to finish loading
+    if (loadingAuth) return; // Wait for auth to finish loading
 
     const fetchZones =
-     async () => {
-      try {
-        const dayName = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
-        // Get all zones by fetching with 'Todas'
-        const response = await getDiaZonasByTruckAndMe(token, dayName, null, 'true', null, ['zona']);
-        const uniqueZones = ['Todas', ...new Set(response.map(dz => dz.zona.nombre))];
-        setZonaOptions(uniqueZones);
-      } catch (err) {
-        console.error("Error fetching zones:", err);
-      }
-    };
+      async () => {
+        try {
+          const dayName = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+          // Get all zones by fetching with 'Todas'
+          const response = await getDiaZonasByTruckAndMe(token, dayName, null, 'true', null, ['zona']);
+          const uniqueZones = ['Todas', ...new Set(response.map(dz => dz.zona.nombre))];
+          setZonaOptions(uniqueZones);
+        } catch (err) {
+          console.error("Error fetching zones:", err);
+        }
+      };
     fetchZones();
-  }, [isAuthenticated, currentUser, token,loadingAuth]);
+  }, [isAuthenticated, currentUser, token, loadingAuth]);
 
   const fetchSales = async (domicilioId: number) => {
     setSaleLoading(true);
     setSale(null);
     try {
-      const response = await getVentasHoyByDomicilioId(domicilioId, token,[
+      const response = await getVentasHoyByDomicilioId(domicilioId, token, [
         'lineaPedido',
         'productoZona',
         'producto',
       ]);
-      console.log("Fetched sales for delivery:", response);
       setSale(response);
     } catch (error) {
       console.error("Error fetching sales:", error);

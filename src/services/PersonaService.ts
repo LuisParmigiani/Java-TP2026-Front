@@ -27,7 +27,6 @@ export async function fetchPersonas(
     }
 
     const url = `/persona/clientes?${params.toString()}`;
-    console.log("Fetching personas with URL:", url);
 
     const response = await apiGet<PaginationResponse<PersonaResponse>>(
       url,
@@ -36,7 +35,6 @@ export async function fetchPersonas(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error fetching personas:", errorResponse);
     throw errorResponse;
   }
 }
@@ -52,7 +50,6 @@ export async function searchPersonasByNameOnly(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error('Error searching personas by name:', errorResponse);
     throw errorResponse;
   }
 }
@@ -104,7 +101,6 @@ export async function searchPersonas(
     }
 
     const url = `/persona/search?${params.toString()}`;
-    console.log("Fetching personas with URL:", url);
 
     const response = await apiGet<PaginationResponse<PersonaResponse>>(
       url,
@@ -113,7 +109,6 @@ export async function searchPersonas(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error searching personas:", errorResponse);
     throw errorResponse;
   }
 }
@@ -129,11 +124,9 @@ export async function updatePersona(
       updatedData,
       token,
     );
-    console.log("Updated persona:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error updating persona:", errorResponse);
     throw errorResponse;
   }
 }
@@ -148,21 +141,23 @@ export async function addPersona(
       personaData,
       token,
     );
-    console.log("Created persona:", response);
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error("Error creating persona:", errorResponse);
     throw errorResponse;
   }
 }
+
+
+
+
+
+
 export async function deletePersona(id: number, token?: string): Promise<void> {
   try {
     await apiDelete(`/persona/${id}/disable`, token);
-    console.log(`Disabled persona with ID ${id}`);
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(`Error disabling persona with ID ${id}:`, errorResponse);
     throw errorResponse;
   }
 }
@@ -181,7 +176,6 @@ export async function getPersona(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(`Error fetching persona with ID ${id}:`, errorResponse);
     throw errorResponse;
   }
 }
@@ -197,7 +191,6 @@ export async function getActiveClients(
     return response;
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    console.error(`Error fetching active clients:`, errorResponse);
     throw errorResponse;
   }
 }

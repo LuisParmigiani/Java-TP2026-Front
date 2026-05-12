@@ -1,6 +1,5 @@
 import { apiGet, apiDelete, apiPut } from './baseClient.ts';
 import type { ErrorResponse, UserRequest, UserResponse } from './Interfaces.ts';
-import { formatErrorResponse } from '../lib/utils.ts';
 
 export async function fetchEmployees(
   token: string,
@@ -24,8 +23,6 @@ export async function fetchEmployees(
     return await apiGet<UserResponse[]>(`/usuario/empleados${query}`, token);
   } catch (error) {
     const err = error as ErrorResponse;
-    const formatted = formatErrorResponse(err);
-    console.log('Error fetching employees:', formatted);
     throw err;
   }
 }
@@ -37,8 +34,6 @@ export async function deleteEmployee(id: number, token: string): Promise<void> {
     await apiDelete(`/usuario/${id}`, token); // Pasamos el token
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    const formattedError = formatErrorResponse(errorResponse);
-    console.log('Error deleting employee:', formattedError);
     throw errorResponse;
   }
 }
@@ -75,8 +70,6 @@ export async function UpdateEmployee(
     console.log('Employee updated successfully');
   } catch (error) {
     const errorResponse = error as ErrorResponse;
-    const formattedError = formatErrorResponse(errorResponse);
-    console.log('Error updating employee:', formattedError);
     throw errorResponse;
   }
 }

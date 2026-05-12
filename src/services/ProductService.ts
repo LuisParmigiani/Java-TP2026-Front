@@ -13,37 +13,19 @@ import type {
 export async function fetchProducts(
   token: string,
 ): Promise<ProductoResponse[]> {
-  try {
-    const response = await apiGet<ProductoResponse[]>('/producto', token);
-    console.log('Fetched products:', response);
-
-    return response;
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
-  }
+  const response = await apiGet<ProductoResponse[]>('/producto', token);
+  return response;
 }
 export async function fetchProductsActivos(
   token: string,
 ): Promise<ProductoResponse[]> {
-  try {
-    const response = await apiGet<ProductoResponse[]>("/producto/activo/sinPag", token);
-    console.log("Fetched products activos:", response);
+  const response = await apiGet<ProductoResponse[]>("/producto/activo/sinPag", token);
 
-    return response;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    throw error;
-  }
+  return response;
 }
 
 export async function deleteProduct(id: number, token?: string): Promise<void> {
-  try {
-    await apiDelete<void>(`/producto/${id}`, token);
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    throw error;
-  }
+  await apiDelete<void>(`/producto/${id}`, token);
 }
 
 export async function addProduct(
@@ -90,72 +72,55 @@ export async function getActiveProducts(
   currentPage?: number,
   pageSize?: number,
 ): Promise<PaginationResponse<ProductoResponse>> {
-  try {
-    let url = "";
-    if (userType == "Usuario") {
-      url = "/producto/customer/active";
-    } else {
-      url = "/producto/active";
-    }
-    const params = new URLSearchParams();
-
-    if (sortOption && sortOption !== "Ordenar por:") {
-      params.append("sort", sortOption);
-    }
-    if (searchTerm) {
-      params.append("search", searchTerm);
-    }
-    if (direction) {
-      params.append("direction", direction);
-    }
-    if (minPrice !== "" && !isNaN(Number(minPrice))) {
-      params.append("minPrice", Number(minPrice).toString());
-    }
-    if (maxPrice !== "" && !isNaN(Number(maxPrice))) {
-      params.append("maxPrice", Number(maxPrice).toString());
-    }
-    if (currentPage !== undefined) {
-      params.append("page", currentPage.toString());
-    }
-    if (pageSize !== undefined) {
-      params.append("size", pageSize.toString());
-    }
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-    console.log("Fetching products with URL:", url);
-    const response = await apiGet<PaginationResponse<ProductoResponse>>(
-      url,
-      token
-    );
-    return response;
-  } catch (error) {
-    console.error("Error fetching active products:", error);
-    throw error;
+  let url = "";
+  if (userType == "Usuario") {
+    url = "/producto/customer/active";
+  } else {
+    url = "/producto/active";
   }
+  const params = new URLSearchParams();
+
+  if (sortOption && sortOption !== "Ordenar por:") {
+    params.append("sort", sortOption);
+  }
+  if (searchTerm) {
+    params.append("search", searchTerm);
+  }
+  if (direction) {
+    params.append("direction", direction);
+  }
+  if (minPrice !== "" && !isNaN(Number(minPrice))) {
+    params.append("minPrice", Number(minPrice).toString());
+  }
+  if (maxPrice !== "" && !isNaN(Number(maxPrice))) {
+    params.append("maxPrice", Number(maxPrice).toString());
+  }
+  if (currentPage !== undefined) {
+    params.append("page", currentPage.toString());
+  }
+  if (pageSize !== undefined) {
+    params.append("size", pageSize.toString());
+  }
+  if (params.toString()) {
+    url += `?${params.toString()}`;
+  }
+  const response = await apiGet<PaginationResponse<ProductoResponse>>(
+    url,
+    token
+  );
+  return response;
 }
 
 export async function getZonaProducts(zona: number): Promise<ProductoResponse[]> {
-  try {
-    const response = await apiGet<ProductoResponse[]>(`/producto/Zona/${zona}`);
-    console.log("Fetched products:", response);
+  const response = await apiGet<ProductoResponse[]>(`/producto/Zona/${zona}`);
 
-    return response;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    throw error;
-  }
+  return response;
+
 }
 
 
 
 export async function getAllProducts(token: string): Promise<ProductoResponse[]> {
-  try {
-    const response = await apiGet<ProductoResponse[]>('/producto', token);
-    console.log('Fetched all products:', response);
-    return response;
-  } catch (error) {
-    console.error('Error fetching all products:', error);
-    throw error;
-  }
+  const response = await apiGet<ProductoResponse[]>('/producto', token);
+  return response;
 }

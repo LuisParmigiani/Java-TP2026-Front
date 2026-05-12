@@ -12,7 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import type { PersonaResponse } from "../../services/Interfaces";
 import AddCustomerDialog from "./AddCustomerDialog";
 import NewDirection from "../../components/CreateDirection";
-import { addPersona, updatePersona } from "../../services/PersonaService";
+import { addPersona } from "../../services/PersonaService";
 
 export default function DriverDashboard() {
   const { token, loading } = useAuth();
@@ -50,17 +50,13 @@ export default function DriverDashboard() {
     setEditingCustomer(customer);
     setIsDialogOpen(true);
   };
-  const handleSave = async (newCustomer: PersonaResponse): Promise<boolean> => {
+  const handleSave = async (newCustomer: PersonaResponse): Promise<void> => {
     try {
       await addPersona(newCustomer, token);
-      toast.success("Cliente agregado correctamente.");
-
-      // Recargar datos (no cambiamos página, se recargan en el useEffect)
-      return true;
-    } catch (error) {
-      toast.error("Error al agregar el cliente.");
+      toast.success("Cliente agregado exitosamente.");
       setIsDialogOpen(false);
-      return false;
+    } catch {
+      toast.error("Error al agregar el cliente.");
     }
   };
 
@@ -128,7 +124,7 @@ export default function DriverDashboard() {
           <div className="w-full p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
               <LinkButton
-                name="Ver Recrrido"
+                name="Ver Recorrido"
                 url="/driver/route"
                 variant="outline"
                 size="md"

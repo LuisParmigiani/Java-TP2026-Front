@@ -18,7 +18,6 @@ export async function createSale(
   sales: VentaRequest,
   token: string
 ): Promise<VentaResponse> {
-  console.log("Creating sale with data:", sales);
   return await apiPost<VentaResponse>(`/venta`, sales, token);
 }
 
@@ -52,7 +51,6 @@ export async function createDriverSale(
   vaciosQty: productosDomicilioRequest[],
   token: string
 ): Promise<VentaResponse> {
-  console.log("Creating driver sale with data:", sales);
   let query = '';
   if (montoPagado) {
     query = `?monto=${montoPagado}`;
@@ -62,7 +60,5 @@ export async function createDriverSale(
     productoDomicilio: vaciosQty,
 
   };
-  console.log("Request body for creating driver sale:", creatVentaDriverDTORequest);
-  console.log("Query string for creating driver sale:", query);
   return await apiPost<VentaResponse>(`/venta/driver${query}`, creatVentaDriverDTORequest, token);
 }

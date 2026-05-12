@@ -51,12 +51,13 @@ interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     editingCustomer: PersonaResponse | null;
-    onSave: (customer: PersonaResponse, isEditing: boolean) => void;
+    onSave: (customer: PersonaResponse, isEditing: boolean) => Promise<void> | void;
 }
 
 export default function AddCustomerDialog({ open, onOpenChange, editingCustomer, onSave }: Props) {
     const [formData, setFormData] = useState<FormData>(emptyForm);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isLoading, setIsLoading] = useState(false);
     const [prevEditingCustomer, setPrevEditingCustomer] = useState<typeof editingCustomer>(null);
     const [prevOpen, setPrevOpen] = useState(false);
 
@@ -79,8 +80,8 @@ export default function AddCustomerDialog({ open, onOpenChange, editingCustomer,
     const set = (field: keyof FormData) => (value: string) =>
         setFormData(prev => ({ ...prev, [field]: value }) as FormData);
 
-    const handleSubmit = () => {
-
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         const result = customerSchema.safeParse(formData);
         if (!result.success) {
             const fieldErrors: Record<string, string> = {};
@@ -91,20 +92,25 @@ export default function AddCustomerDialog({ open, onOpenChange, editingCustomer,
             return;
         }
         setErrors({});
-        onSave(
-            {
-                id: editingCustomer?.id ?? Math.floor(Math.random() * 10000),
-                tipoDoc: formData.tipoDoc,
-                nroDocumento: formData.nroDocumento,
-                nombre: formData.nombre,
-                apellido: formData.apellido,
-                email: formData.email,
-                telefono: formData.telefono,
-                saldo: Number(formData.saldo),
-                estado: formData.estado,
-            },
-            !!editingCustomer,
-        );
+        setIsLoading(true);
+        try {
+            await onSave(
+                {
+                    id: editingCustomer?.id ?? Math.floor(Math.random() * 10000),
+                    tipoDoc: formData.tipoDoc,
+                    nroDocumento: formData.nroDocumento,
+                    nombre: formData.nombre,
+                    apellido: formData.apellido,
+                    email: formData.email,
+                    telefono: formData.telefono,
+                    saldo: Number(formData.saldo),
+                    estado: formData.estado,
+                },
+                !!editingCustomer,
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -189,7 +195,9 @@ export default function AddCustomerDialog({ open, onOpenChange, editingCustomer,
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancelar
                         </Button>
-                        <Button type="submit">Guardar</Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Guardando...' : 'Guardar'}
+                        </Button>
                     </div>
                 </form>
             </DialogContent>
