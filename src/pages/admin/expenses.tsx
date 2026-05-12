@@ -108,7 +108,7 @@ export default function Expenses() {
       }
     };
     loadData();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const loadGastos = async () => {
@@ -227,11 +227,10 @@ export default function Expenses() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 font-medium transition-colors duration-200 ${
-                    activeTab === tab.key
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 font-medium transition-colors duration-200 ${activeTab === tab.key
                       ? "bg-primary text-white"
                       : "bg-white text-gray-500 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
