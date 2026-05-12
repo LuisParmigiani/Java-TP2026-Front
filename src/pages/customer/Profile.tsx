@@ -232,6 +232,20 @@ export default function Profile() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Agrega esta validación para evitar archivos .webp
+      if (
+        file.type === "image/webp" ||
+        file.name.toLowerCase().endsWith(".webp")
+      ) {
+        toast.error(
+          "Por el momento no soportamos ese formato de foto, prueba con .jpg o .png",
+        );
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+
       setSelectedFile(file);
       setImageLoadError(false); // Reset error cuando se selecciona archivo. para que si cloudinary no devuelve foto usemos SR
       const reader = new FileReader();
