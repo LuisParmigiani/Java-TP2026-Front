@@ -25,6 +25,7 @@ export interface AuthContextType {
   loading: boolean; // NUEVO
   userProfilePic: string | null;
   setUserProfilePic: (pic: string | null) => void;
+  updateCurrentUsername: (username: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

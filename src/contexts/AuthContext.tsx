@@ -143,6 +143,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const updateCurrentUsername = (username: string) => {
+    setCurrentUser((prev) => {
+      if (!prev) return null;
+      return { ...prev, username };
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -155,6 +162,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         loading,
         userProfilePic,
         setUserProfilePic,
+        updateCurrentUsername,
       }}
     >
       {children}
